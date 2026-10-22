@@ -90,3 +90,11 @@ GitHub private vulnerability reporting was disabled during the initial study and
 PR #1 was squash merged at `2ee4dc074ec2b5a5293ee70f845505881228fe44` after checking the approved head `a6334073f0041cb2216620bde510e67f4788a3ab`. [Post-merge CI](https://github.com/BarganConstantin/agent-skills/actions/runs/39731207753) passed all four jobs: 33 unit tests on each of Python 3.10/3.12/3.14, reviewed report/evidence regeneration, and deterministic baseline/fixed browser checks on Linux. CI does not rerun the eight agent-driven sessions.
 
 The DEV.to draft uses the permanent squash-commit demonstration URL and remains `published: false`. The v0.1.0 instruction commit and recorded study hashes remain unchanged. Release publication is gated on successful CI for the final documentation commit, followed by clean-project tagged installation checks. Neither installation nor deterministic CI establishes full native CLI agent execution.
+
+### Published v0.2.0 checks
+
+[Release v0.2.0](https://github.com/BarganConstantin/agent-skills/releases/tag/v0.2.0) targets `066897beee0402653e3b1241ccdfc0e4c865d0d4`. [Release-commit CI](https://github.com/BarganConstantin/agent-skills/actions/runs/39731411213) passed all four jobs on that exact commit.
+
+After publication, separate clean temporary Claude Code and Codex projects successfully discovered and installed `https://github.com/BarganConstantin/agent-skills/tree/v0.2.0` using skills CLI 1.7.4 and Node.js 24.19.0. Each installation preserved all eight bundled files byte-for-byte, and each installed Python reporter regenerated the reviewed example with `--strict --verify-evidence`, matching the committed report exactly. These checks establish tagged packaging and reporter behavior, not native model invocation or a full CLI browser audit.
+
+The public release page and source ZIP returned HTTP 200. The archive's skill entrypoint, MIT license, permanent article link, `published: false` frontmatter and all nine screenshot hashes were verified. No raw sessions or transcripts were included. Private Vulnerability Reporting was confirmed enabled through the GitHub API.
