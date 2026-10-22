@@ -1,100 +1,71 @@
 # Agent Skills for Product Builders
 
-Agent workflows for checking how a first-time user reaches a useful result in your app. Start with First User Audit: four simulated browser journeys, evidence you can inspect, and a fresh pass after bounded fixes.
+Practical skills that help coding agents inspect, test, and improve your application.
 
-## Skills
+## First User Audit
 
-| Skill | What it does | Status |
-| --- | --- | --- |
-| [First User Audit](skills/first-user-audit/SKILL.md) | Guides four simulated browser journeys from landing page to first success, records friction, and checks bounded fixes. | Controlled local demonstration; no customer-product study |
+[First User Audit](skills/first-user-audit/SKILL.md) checks the journey from your landing page to a first useful result through four simulated user perspectives. Your agent collects browser evidence, makes bounded technical fixes, and repeats the audit to verify them. Simulated personas complement human usability research; they do not measure real-user conversion.
 
-See the [local demonstration](examples/first-user-demo/README.md) for a reproducible fixture, screenshots and the measured first-success criterion. Deliberate demo defects are clearly labeled.
+## Four perspectives
 
-### Install
+- **Impatient** — tries the obvious next step with minimal reading.
+- **Skeptic** — checks pricing, terms, and privacy before committing.
+- **Mobile** — checks the journey at a 375 CSS pixel viewport.
+- **Breaker** — tries invalid inputs, retries, back navigation, and repeated submissions.
 
-From your application repository (Node.js 22.20+ and npm):
+## Quick installation
+
+Run in your application project with Node.js 22.20+ and npm, then choose your agent:
 
 ```bash
 npx skills add BarganConstantin/agent-skills --skill first-user-audit
 ```
 
-Then ask your agent:
+Uses the [skills CLI](https://github.com/vercel-labs/skills). Installation adds instructions, references, and a reporter; it does not provide browser tools, subagents, or sandboxing.
 
-> Use first-user-audit on my local app. Inspect the code to define the first successful user outcome. Test four isolated personas in sequence, collect evidence, fix only safe technical issues, and re-test with fresh agents if the runtime supports them. Stop if browser automation is unavailable.
+## Copy-paste agent prompt
 
-[skills CLI documentation](https://github.com/vercel-labs/skills) covers agent selection and global installs. The command installs instructions; it does **not** install Playwright MCP or supply subagents for your agent runner.
+Paste into Claude Code, Codex, or another agent that supports Agent Skills:
 
-### Prerequisites
+```text
+Install First User Audit in this project:
+npx skills add BarganConstantin/agent-skills --skill first-user-audit
 
-- An agent runtime that can read Agent Skills and inspect local project code.
-- A working Playwright MCP connection and a locally running app or isolated preview.
-- A subagent mechanism if you want four *genuinely distinct* agent contexts. Without it, the skill must report reduced isolation, not pretend it used four subagents.
-- Test accounts and payment sandbox, if your product needs them.
-- Python 3.10+ only if using the bundled reporter; it needs no third-party packages.
+Choose this agent's project-local installation. Verify that you can find
+and read the installed SKILL.md and its references, then follow them.
+Inspect the application and define a specific, observable first-success
+event before testing. Ask me if the intended outcome is ambiguous.
 
-Public-repository installation was checked with skills CLI 1.7.4 and Node.js 24.19.0 in a clean temporary project; see [validation notes](docs/validation.md). This does not verify browser execution.
+Run the audit only if a safe local or isolated preview environment and
+working browser automation are available. Otherwise stop and explain
+what is missing. Check available subagents; if independent contexts are
+unavailable, ask before using a reduced-isolation alternative.
 
-See [browser setup](skills/first-user-audit/references/browser-setup.md) and [protocol](skills/first-user-audit/references/protocol.md).
-
-## Design principles
-
-- **Evidence, not invented outcomes.** Logs, URLs, reproduction steps, screenshots, and first-success proof are recorded per persona.
-- **First success over page views.** Each project defines its own observable first-use outcome.
-- **Independent runs.** Personas use sequential, isolated browser sessions; the after-pass is tested by fresh subagents that have not read the issue list.
-- **Safe boundaries.** Only local/preview. Never real payments or production writes. Pricing, privacy, and legal text stay with the owner.
-- **No false promises.** If browser access, throttling, or subagent isolation is missing, say so. Simulated personas do not replace usability studies with humans.
-
-## Workflow
-
-1. Confirm a safe target, connected browser tools, reset strategy, and available agent isolation.
-2. Define the observable first-success event from the application code.
-3. Run impatient, skeptic, mobile, and breaker personas sequentially with fresh sessions.
-4. Review evidence, assign stable issue IDs, and rank by distinct affected personas.
-5. Make permitted, bounded fixes with focused tests.
-6. Repeat with fresh contexts and disclose incomplete or incomparable runs.
-
-### Output
-
-Generated evidence stays in `qa/first-users/` inside the **target application**. Add `qa/first-users/` to that application's ignore rules before collecting evidence; this collection's `.gitignore` does not configure the target project. Review artifacts for sensitive data before sharing.
-
-The included standard-library Python reporter ranks explicitly grouped issues by the number of distinct personas affected. It does not infer that two different issue IDs are duplicates. See [report format](skills/first-user-audit/references/report-format.md).
-
-```bash
-# From the audited application's root, using the installed skill's absolute path
-python /path/to/first-user-audit/scripts/summarize.py --root qa/first-users --baseline-only
-python /path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict
-# Also check evidence paths and file presence
-python /path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict --verify-evidence
+Run the four perspectives sequentially with reset browser and test data.
+Collect real screenshots and reproduction steps, fix only permitted,
+bounded technical issues, then verify with fresh contexts when supported.
+Report actual results, capability gaps, and remaining owner decisions.
 ```
 
-Replace `/path/to/first-user-audit` with the installation path printed by the CLI. For a collection checkout, use `<checkout>/skills/first-user-audit`. Keep the working directory at the audited app root so `--root` resolves there.
+## How it works
 
-## Compatibility and limitations
+1. **Define success.** Inspect the app, confirm a safe target, and check browser tools and reset capability.
+2. **Observe.** Run each perspective separately and record screenshots, reproduction steps, and whether first success was reached.
+3. **Fix safely.** Prioritize observed friction and make focused technical changes with relevant tests. Leave pricing, policies, and sensitive changes for owner review.
+4. **Verify.** Repeat under comparable conditions with fresh agents when supported; disclose missing evidence and incomplete runs.
 
-These are instructions, not a sandbox or technical permission enforcement. The agent and its operator remain responsible for tool permissions and side effects.
+Keep audit artifacts in the target application's ignored `qa/first-users/` directory and review them for sensitive data before sharing. The bundled Python reporter aggregates persona reports; see the [report format and commands](skills/first-user-audit/references/report-format.md).
 
-This follows the open [Agent Skills specification](https://agentskills.io/specification). Actual support for subagents, screenshots, network throttling, environment reset, and safe file editing varies by runtime. The skill checks availability and must disclose gaps. It is an AI-assisted QA workflow, **not** a measured conversion study or a substitute for accessibility, security, legal, or human usability review.
+## Requirements
 
-## Development
+- An agent that can read Agent Skills and inspect local application code.
+- A connected browser MCP with navigation, interactions, screenshots, and browser-state reset. See [browser setup](skills/first-user-audit/references/browser-setup.md).
+- A local app or confirmed isolated preview, with test identities and sandbox integrations where needed. Never production accounts, real payments, or customer data.
+- Independent subagents for isolated agent contexts. Without them, the skill requires your approval for a clearly labeled approximation.
+- Python 3.10+ if using the optional report generator; no Python packages are needed for it.
 
-```bash
-python3 -m venv .venv
-# Windows: .venv\Scripts\activate
-. .venv/bin/activate
-python -m pip install -r requirements-dev.txt
-python scripts/validate_skills.py
-python -m unittest discover -s tests -v
-python -m unittest discover -s skills/first-user-audit/tests -v
-```
+These are instructions, not enforced permissions or a sandbox. Capabilities depend on the runtime: resizing alone does not test touch devices, and network throttling must be verified separately.
 
-The reporter uses only the standard library. Repository validation uses pinned PyYAML to parse actual YAML, reject duplicate keys, and check specification fields. CI runs validation and unit tests on Python 3.10, 3.12, and 3.14, plus deterministic browser smoke checks on both demo variants. Browser smoke checks are separate from the agent study.
+## License and contributions
 
-See [PUBLISHING.md](PUBLISHING.md) for release checks and [validation notes](docs/validation.md) for the exact compatibility levels tested. The published v0.1.0 release did not include a browser audit; v0.2.0 adds controlled-fixture evidence, not customer-product validation.
-
-## Contributing
-
-Read [CONTRIBUTING.md](CONTRIBUTING.md). Propose focused skills, observable success criteria, and tests. Claims of browser or model benchmarks require reproducible evidence.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+[MIT license](LICENSE) · [Contributing and development](CONTRIBUTING.md) · [Report a security issue privately](SECURITY.md)
