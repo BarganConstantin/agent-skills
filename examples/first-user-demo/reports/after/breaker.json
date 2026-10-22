@@ -1,0 +1,74 @@
+{
+  "phase": "after",
+  "persona": "breaker",
+  "environment": "http://127.0.0.1:4179",
+  "app_revision": "task-cabin-fixed-v1",
+  "first_success": {
+    "name": "Create one named test workspace and see its dashboard containing the starter task.",
+    "reached": true,
+    "evidence": "examples/first-user-demo/evidence/after-breaker-success.png"
+  },
+  "clicks_to_success": 6,
+  "would_return": "yes",
+  "would_return_reason": "Simulated judgment: invalid inputs were explained, back navigation allowed restarting, and double clicking created exactly one workspace with the starter task.",
+  "capabilities": {
+    "browser_mcp": "verified",
+    "independent_subagent": "verified",
+    "fresh_browser_context": "verified",
+    "viewport_375px": "not-applicable",
+    "network_throttling": "unavailable"
+  },
+  "issues": [],
+  "limitations": [
+    "Network throttling unavailable in exposed tool list; slow 3G not tested.",
+    "Desktop 1280x800 only; resize does not emulate touch.",
+    "One simulated first-user journey; not human research or a statistical result.",
+    "Browser version observed through navigator.userAgent: HeadlessChrome/155.0.0.0. MCP server version not independently verified.",
+    "Server-side reset not independently verified; test scope was synthetic browser storage.",
+    "No source, diffs, prior reports, other sessions, or issue lists inspected; first-success criterion and revision supplied by coordinator."
+  ],
+  "example_notice": "Reviewed export of a real browser run on an intentionally flawed synthetic localhost fixture; not a customer-product audit.",
+  "coordinator_provenance": "A new subagent context and isolated MCP session were created for this run. Tester-local independent_subagent declarations are preserved; launch provenance is attested separately by the coordinator.",
+  "actions": [
+    {
+      "action": "Click Start a workspace",
+      "url": "http://127.0.0.1:4179/create",
+      "clicks": 1
+    },
+    {
+      "action": "Click Create workspace with empty name",
+      "url": "http://127.0.0.1:4179/create",
+      "clicks": 1,
+      "expected": "Validation and editable form",
+      "actual": "Enter a workspace name with at least 3 characters. Form remained editable."
+    },
+    {
+      "action": "Fill three spaces and retry Create workspace",
+      "url": "http://127.0.0.1:4179/create",
+      "clicks": 1,
+      "expected": "Reject whitespace-only name",
+      "actual": "Same validation; remained on form.",
+      "evidence": "examples/first-user-demo/evidence/after-breaker-validation.png"
+    },
+    {
+      "action": "Fill Breaker Test Cabin, use browser Back before submitting",
+      "url": "http://127.0.0.1:4179/",
+      "clicks": 0,
+      "expected": "Return to landing with no workspace created",
+      "actual": "Landing page visible; creation could be restarted."
+    },
+    {
+      "action": "Click Start a workspace again",
+      "url": "http://127.0.0.1:4179/create",
+      "clicks": 1,
+      "actual": "Blank editable creation form."
+    },
+    {
+      "action": "Fill Breaker Test Cabin and double click Create workspace",
+      "url": "http://127.0.0.1:4179/workspace",
+      "clicks": 2,
+      "expected": "Exactly one named workspace and starter task",
+      "actual": "Dashboard shows Breaker Test Cabin, Plan first release, and 1 workspace(s) in this browser."
+    }
+  ]
+}

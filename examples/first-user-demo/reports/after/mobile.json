@@ -1,0 +1,61 @@
+{
+  "phase": "after",
+  "persona": "mobile",
+  "environment": "http://127.0.0.1:4179",
+  "app_revision": "task-cabin-fixed-v1",
+  "first_success": {
+    "name": "Create one named test workspace and see its dashboard containing the starter task.",
+    "reached": true,
+    "evidence": "examples/first-user-demo/evidence/after-mobile-success.png"
+  },
+  "clicks_to_success": 2,
+  "would_return": "yes",
+  "would_return_reason": "Simulated persona judgment: creation was straightforward at the narrow viewport, and the named workspace and starter task were immediately visible.",
+  "capabilities": {
+    "browser_mcp": "verified",
+    "independent_subagent": "verified",
+    "fresh_browser_context": "verified",
+    "viewport_375px": "verified",
+    "network_throttling": "unavailable",
+    "touch_emulation": "not-applicable"
+  },
+  "issues": [],
+  "limitations": [
+    "Slow 3G: not tested. Inspected the actual MCP tools/list; no supported network throttling tool is exposed.",
+    "375x812 CSS viewport resize only; no touch, mobile user agent, device scale or mobile hardware emulation was used.",
+    "One fresh assigned tester only; did not launch other agents or inspect other sessions, reports, application source, git diffs or issue lists. Independent tester status follows this assignment; coordinator orchestration was not independently inspected.",
+    "Supplied revision identifier was recorded without source or git inspection.",
+    "No server-side reset or database inspection performed; the synthetic fixture declares browser-only storage. Freshness was verified through empty localStorage, sessionStorage and document.cookie plus unauthenticated landing UI.",
+    "Cookie inspection used document.cookie and cannot establish absence of HttpOnly cookies.",
+    "Browser version was observed through user agent as HeadlessChrome/155.0.0.0; MCP package version was not independently exposed or verified.",
+    "This single simulated journey does not measure real user conversion or performance."
+  ],
+  "example_notice": "Reviewed export of a real browser run on an intentionally flawed synthetic localhost fixture; not a customer-product audit.",
+  "coordinator_provenance": "A new subagent context and isolated MCP session were created for this run. Tester-local independent_subagent declarations are preserved; launch provenance is attested separately by the coordinator.",
+  "actions": [
+    {
+      "click": 1,
+      "url_before": "http://127.0.0.1:4179/",
+      "control": "Start a workspace",
+      "target": "e12",
+      "url_after": "http://127.0.0.1:4179/create",
+      "actual": "Creation form visible with textbox and submit button within viewport."
+    },
+    {
+      "action": "Fill Workspace name",
+      "target": "f1e11",
+      "value": "mobile test cabin 20261022",
+      "counted_as_click": false
+    },
+    {
+      "click": 2,
+      "url_before": "http://127.0.0.1:4179/create",
+      "control": "Create workspace",
+      "target": "f1e13",
+      "url_after": "http://127.0.0.1:4179/workspace",
+      "actual": "Workspace ready dashboard displays named workspace, starter task and one workspace count."
+    }
+  ],
+  "actual": "Expected behavior observed. Landing, creation form and dashboard each had document scrollWidth 375 at innerWidth 375; creation form body scrollWidth and dashboard body scrollWidth were also 375. No blocking friction or network stall observed under the available unthrottled environment.",
+  "reproduction": "Start a new isolated browser context at http://127.0.0.1:4179/; resize to 375x812 and verify empty storage. Click Start a workspace. Fill Workspace name with mobile test cabin 20261022. Click Create workspace. Observe /workspace, named heading, Your first task, Plan first release, and one stored workspace."
+}

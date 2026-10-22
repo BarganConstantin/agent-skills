@@ -1,0 +1,17 @@
+* { box-sizing: border-box; }
+body { margin: 0; background: #f6f7fb; color: #17223c; font: 17px/1.6 system-ui, sans-serif; }
+header, footer { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; padding: 20px max(20px, calc((100vw - 940px)/2)); background: white; }
+header > a:first-child { font-weight: 750; font-size: 23px; }
+header span { color: #4b5670; font-size: 13px; }
+a { color: #244bb4; }
+main { max-width: 900px; margin: 60px auto; padding: 28px; background: white; border: 1px solid #d7ddea; border-radius: 12px; }
+h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.2; }
+.eyebrow { color: #4b5670; font-size: 14px; }
+.button, button { display: inline-block; background: #244bb4; color: white; border: 0; padding: 12px 20px; border-radius: 6px; font: inherit; cursor: pointer; }
+.hero-action { text-align: right; margin-top: 32px; }
+input { display: block; padding: 12px; font: inherit; border: 1px solid #65708a; border-radius: 4px; max-width: 100%; width: 420px; margin: 10px 0 18px; }
+#error { color: #a51e1e; min-height: 28px; }
+footer { background: transparent; }
+footer button { background: #e0e5f1; color: #17223c; font-size: 14px; }
+body.baseline main { min-width: 680px; }
+body.fixed main { width: calc(100% - 32px); }

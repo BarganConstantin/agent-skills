@@ -160,9 +160,17 @@ Replace `/path/to/first-user-audit` with the path printed by the installer. Run 
 
 ## What I tested, and what I haven't
 
-The repository's metadata validation passes and its **nine deterministic reporter tests** cover issue aggregation, missing reports, conflicting issue IDs, and success-evidence checks. Six additional tests check metadata validation with real YAML parsing, including invalid fields and duplicate keys. These tests validate package metadata and the reporter, **not** whether a model can reliably imitate a user.
+The candidate repository has **18 reporter tests**, six metadata tests, three HTTP fixture tests, and six MCP adapter tests. They cover synthetic report aggregation, missing evidence, conflicting issue IDs, environment mismatches, and transport failures. Unit tests do not establish that a model reliably behaves like a human user.
 
-I have not included a story about finding 27 bugs, raising conversion by 40%, or saving hours of work. I haven't run a reproducible real-app benchmark for this skill yet, so there are no measured figures to report.
+There is now a [reproducible local demonstration with reviewed screenshots and reports](https://github.com/BarganConstantin/agent-skills/tree/feat/first-user-audit-local-validation/examples/first-user-demo). Its browser sessions used the published v0.1.0 instructions, Microsoft Playwright MCP 0.0.83, and eight fresh agent contexts, running sequentially with fresh browser storage. The fixture has deliberately introduced defects; it is not a customer product. Its fixed variant was prepared for this demonstration, so the study does not establish autonomous repair of an unfamiliar application.
+
+GitHub Actions reruns unit tests and deterministic browser checks against the baseline and fixed variants. It does not rerun the eight agent-driven persona sessions.
+
+In that controlled example, no baseline persona reached first success. All four fresh verification personas did, in 2, 5, 2 and 6 clicks. The baseline breaker stopped at the earlier CTA failure, so its invalid-input coverage was not comparable; a separate scripted check reproduced blank-name acceptance. Slow 3G and touch were not tested. Fresh contexts shared a filesystem, so context separation was not a claim of OS-level isolation.
+
+Public skill discovery and project installation were checked for Claude Code and Codex. Claude Code's native command recognized the skill and returned an explicitly requested missing-target preflight stop. The Codex native invocation was blocked during startup by the test's macOS write-guard sandbox, before the skill ran. The browser study used the agent harness and a small real MCP HTTP adapter; it does not establish full browser execution through both native CLIs.
+
+Those observations show that the workflow can collect inspectable evidence in a controlled fixture. They do not measure customer conversion, retention, time saved, or general bug-discovery accuracy. Before publishing this draft, the review-branch example link should be updated to the merged commit.
 
 The biggest uncertainties are also straightforward: AI personas are influenced by their instructions; the same model family may repeat similar blind spots; first-success definitions can be wrong; browser capabilities differ between runtimes; and an AI-run QA pass does not replace accessibility testing or conversations with actual users.
 
