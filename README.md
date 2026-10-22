@@ -1,12 +1,14 @@
 # Agent Skills for Product Builders
 
-Small, inspectable workflows for AI coding agents. Each skill has one job, explicit safety boundaries, and evidence you can review.
+Agent workflows for checking how a first-time user reaches a useful result in your app. Start with First User Audit: four simulated browser journeys, evidence you can inspect, and a fresh pass after bounded fixes.
 
 ## Skills
 
 | Skill | What it does | Status |
 | --- | --- | --- |
-| [First User Audit](skills/first-user-audit/SKILL.md) | Guides four simulated browser journeys from landing page to first success, records friction, and checks bounded fixes. | v0.1 — unvalidated in a real application |
+| [First User Audit](skills/first-user-audit/SKILL.md) | Guides four simulated browser journeys from landing page to first success, records friction, and checks bounded fixes. | Controlled local demonstration; no customer-product study |
+
+See the [local demonstration](examples/first-user-demo/README.md) for a reproducible fixture, screenshots and the measured first-success criterion. Deliberate demo defects are clearly labeled.
 
 ### Install
 
@@ -61,6 +63,8 @@ The included standard-library Python reporter ranks explicitly grouped issues by
 # From the audited application's root, using the installed skill's absolute path
 python /path/to/first-user-audit/scripts/summarize.py --root qa/first-users --baseline-only
 python /path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict
+# Candidate reporter: also check evidence paths and file presence
+python /path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict --verify-evidence
 ```
 
 Replace `/path/to/first-user-audit` with the installation path printed by the CLI. For a collection checkout, use `<checkout>/skills/first-user-audit`. Keep the working directory at the audited app root so `--root` resolves there.
@@ -83,9 +87,9 @@ python -m unittest discover -s tests -v
 python -m unittest discover -s skills/first-user-audit/tests -v
 ```
 
-The reporter uses only the standard library. Repository validation uses pinned PyYAML to parse actual YAML, reject duplicate keys, and check specification fields. CI runs validation and unit tests on Python 3.10, 3.12, and 3.14.
+The reporter uses only the standard library. Repository validation uses pinned PyYAML to parse actual YAML, reject duplicate keys, and check specification fields. CI runs validation and unit tests on Python 3.10, 3.12, and 3.14, plus deterministic browser smoke checks on both demo variants. Browser smoke checks are separate from the agent study.
 
-See [PUBLISHING.md](PUBLISHING.md) for release checks and the remaining supervised application test. Installation is separate from execution; no real-application audit is claimed for v0.1.0.
+See [PUBLISHING.md](PUBLISHING.md) for release checks and [validation notes](docs/validation.md) for the exact compatibility levels tested. The published v0.1.0 release did not include a browser audit; this PR adds controlled-fixture evidence, not customer-product validation.
 
 ## Contributing
 

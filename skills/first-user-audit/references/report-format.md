@@ -61,19 +61,27 @@ The JSON document uses the following structure. This is an **illustrative schema
 
 - `phase`: `baseline` or `after`.
 - `persona`: `impatient`, `skeptic`, `mobile`, `breaker`.
-- `first_success.reached`: boolean. If `true`, `evidence` must be a non-empty string and `clicks_to_success` must be a non-negative integer. If `false`, `clicks_to_success` must be `null`.
+- `first_success.reached`: boolean. If `true`, `evidence` must be a non-empty string and `clicks_to_success` must be a non-negative integer. By default, textual success proof is accepted for backward compatibility. With `--verify-evidence`, this string must name a screenshot or other evidence file inside the project; textual proof is unsupported in that mode. If `false`, `clicks_to_success` must be `null` and success evidence can be `null`.
 - `would_return`: `yes`, `no`, `uncertain` (simulated, not real user feedback).
 - `severity`: `blocker`, `major`, `minor`.
 - `category`: `technical`, `pricing`, `terms`, `privacy`.
 - `capabilities`: verified, unavailable, unverified, or not-applicable as appropriate; disclose missing real browser/throttling capability.
-- `issues[].id`: stable across phases. Duplicates across personas merge **by explicit ID only**; review and merge semantically equivalent IDs before running the reporter.
+- `issues[].id`: stable across phases. Duplicates across personas merge **by explicit ID only**; review and merge semantically equivalent IDs before running the reporter. A shared ID must have the same category, location, and stage within and across phases. Severity may change. Conflicts block strict mode and suppress before/after comparisons in ordinary mode.
+- `location`: use a stable route/component identifier such as `/create#name`; keep transient snapshot references, test identities, query strings and before/after URLs in reproduction details instead. This lets the same issue be compared across fresh sessions.
 - `evidence`: relative path(s) within the target project; never embed credentials or raw personal data.
 
-The reporter validates core fields, prints phase completeness, sorts issues by unique personas affected and severity, and compares reachability/clicks between complete runs. The reporter **does not** confirm screenshots really exist, guarantee independence, or infer successful execution from written claims. Store evidence and logs for review.
+The reporter validates core fields, prints phase completeness, sorts issues by unique personas affected and severity, and compares reachability/clicks between complete, comparable runs. Different environment URLs across phases prevent comparison; app revisions may differ between phases but must be consistent within each phase. Strict mode requires all eight reports and rejects comparability or shared-ID conflicts.
+
+Each phase displays every persona's reported capabilities and limitations. Completed counts mean valid JSON records, not fully capable or successful execution. Capability strings (including `verified`) and limitation declarations are self-reported: they do not prove actual browser use, independence, fresh contexts, or throttling. Empty declarations do not establish capability or absence of limitations. Store evidence and logs for review.
+
+Evidence filesystem validation is optional and independent of `--strict`. With `--verify-evidence`, every issue needs at least one evidence path, and every supplied issue path and non-null success proof must be a non-empty project-relative path resolving to an existing file. Absolute paths, `..` traversal (even if it would resolve inside the project), directories, missing files, and symlinks escaping the project are rejected. Symlinks that resolve to files inside the project are allowed. Paths are based on `--project-root`, which defaults to the current working directory, rather than the reports directory. The JSON schema is unchanged.
+
+Without that flag, the reporter does not check evidence files, and textual success proof and empty issue evidence arrays retain their previous behavior. With it, only filesystem presence and containment are checked: file contents, screenshot authenticity, relevance to the claim, actual tool use, and successful execution remain unverified. A textual proof must be saved as an evidence file before this mode can check its path; existence alone does not validate its contents.
 
 Run from the audited application root, replacing the absolute path with the installed skill directory:
 
 ```bash
 python /absolute/path/to/first-user-audit/scripts/summarize.py --root qa/first-users --baseline-only
 python /absolute/path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict
+python /absolute/path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict --verify-evidence --project-root /absolute/path/to/audited-application
 ```

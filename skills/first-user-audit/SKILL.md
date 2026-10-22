@@ -69,7 +69,7 @@ Once changes are applied in local/preview:
    If using an approved single-agent approximation, label this verification as non-independent rather than claiming fresh agents.
 2. Reset browser contexts and test accounts/data. Keep viewport, throttling attempt, app seed, and start conditions comparable to the baseline. If not comparable, mark the comparison limited and explain why.
 3. Run the same four personas sequentially; write `qa/first-users/after/<persona>.json`. Map observed occurrences back to stable issue IDs during consolidation by a separate reviewer, not by injecting the old list into the fresh testers.
-4. From the target application root, run `python /absolute/path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict`, replacing the path with this installed skill's location. Attach generated summary, reproduction steps, screenshot references, changes, and test output.
+4. From the target application root, run `python /absolute/path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict`, replacing the path with this installed skill's location. When reports reference evidence files, add `--verify-evidence` to check their presence and containment; use `--project-root` if running elsewhere. These checks do not verify screenshot contents or authenticity. Attach generated summary, reproduction steps, screenshot references, changes, and test output.
 5. Disclose how many runs were complete, the number reaching first success, actual click counts, issue recurrence, new issues, unresolved legal/pricing/policy findings, and capability gaps. Do not imply causality or statistical significance from four simulated journeys.
 
 ## Reporting contract
