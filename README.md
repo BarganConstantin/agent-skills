@@ -63,7 +63,7 @@ The included standard-library Python reporter ranks explicitly grouped issues by
 # From the audited application's root, using the installed skill's absolute path
 python /path/to/first-user-audit/scripts/summarize.py --root qa/first-users --baseline-only
 python /path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict
-# Candidate reporter: also check evidence paths and file presence
+# Also check evidence paths and file presence
 python /path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict --verify-evidence
 ```
 
@@ -89,7 +89,7 @@ python -m unittest discover -s skills/first-user-audit/tests -v
 
 The reporter uses only the standard library. Repository validation uses pinned PyYAML to parse actual YAML, reject duplicate keys, and check specification fields. CI runs validation and unit tests on Python 3.10, 3.12, and 3.14, plus deterministic browser smoke checks on both demo variants. Browser smoke checks are separate from the agent study.
 
-See [PUBLISHING.md](PUBLISHING.md) for release checks and [validation notes](docs/validation.md) for the exact compatibility levels tested. The published v0.1.0 release did not include a browser audit; this PR adds controlled-fixture evidence, not customer-product validation.
+See [PUBLISHING.md](PUBLISHING.md) for release checks and [validation notes](docs/validation.md) for the exact compatibility levels tested. The published v0.1.0 release did not include a browser audit; v0.2.0 adds controlled-fixture evidence, not customer-product validation.
 
 ## Contributing
 

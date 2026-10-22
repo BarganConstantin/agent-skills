@@ -31,7 +31,7 @@ Do not use `--global` for a smoke test. Inspect the installed skill, references,
 4. Create the version tag and release from the validated commit. Describe changes and known limitations accurately.
 5. Recheck installation from GitHub and record the result in [validation notes](docs/validation.md).
 
-Suggested first release title: **v0.1.0 — First User Audit**.
+The first release is **v0.1.0 — First User Audit**.
 
 The first release provides the instruction package, report schema/template, standard-library reporter, metadata validator, and synthetic unit tests. It has no production-proven or real-user conversion claims.
 
@@ -43,5 +43,5 @@ The draft article is [articles/devto-first-user-audit.md](articles/devto-first-u
 - Verify four sequential fresh browser sessions and, when available, separate subagent contexts. If not available, label the approximation and get the user's choice before running it.
 - Exercise mobile sizing, unsupported throttling, report aggregation, a bounded fix, and fresh verification. Check ignored evidence for secrets before sharing.
 - Compare findings with deterministic Playwright tests and human review. Do not claim retention or conversion improvements from simulated personas.
-- The draft may refer to the candidate branch demonstration; update its link to the merged commit before publishing. Recheck article links and test counts before posting to DEV.to, Reddit, Hacker News, or skills.sh. Respect each community's submission rules. Publication and installation do not guarantee directory indexing.
+- Use permanent commit links for demonstrated behavior. Recheck article links and test counts before posting to DEV.to, Reddit, Hacker News, or skills.sh. Respect each community's submission rules. Publication and installation do not guarantee directory indexing.
 - Use original or properly licensed cover artwork. Publishing the GitHub repository does not authorize publishing the article.

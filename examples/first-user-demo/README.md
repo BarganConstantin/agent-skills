@@ -68,7 +68,7 @@ and verify with four new testers who have not seen the findings.
 Disclose unsupported capabilities and stop at missing prerequisites.
 ```
 
-Installation supplies instructions, not browser access or subagent support. To reproduce the published-instructions evaluation, install the tagged source `https://github.com/BarganConstantin/agent-skills/tree/v0.1.0` instead of the moving default branch. To test this PR's reporter, use the checked-out script.
+Installation supplies instructions, not browser access or subagent support. To reproduce the published-instructions evaluation, install the tagged source `https://github.com/BarganConstantin/agent-skills/tree/v0.1.0` instead of the moving default branch. To use the reporter with evidence-file checks, install v0.2.0 or use the checked-out script.
 
 ## Browser connection used for this example
 
@@ -104,7 +104,7 @@ python examples/first-user-demo/server.py --variant fixed
 
 Use the same origin, viewport sizes and first-success criterion, with fresh browser storage and four new subagent contexts. Do not give verification agents this defect inventory or the baseline reports. Compare observations only after verification.
 
-With the PR's reporter, validate eight collected reports and their evidence files:
+With the v0.2.0 reporter, validate eight collected reports and their evidence files:
 
 ```bash
 python skills/first-user-audit/scripts/summarize.py --root qa/first-users --strict --verify-evidence

@@ -30,7 +30,7 @@ Discovery found one skill and installation succeeded. This agent selection copie
 
 The public repository uses `main`; description and six topics are configured. Unauthenticated HTTP requests returned 200 for the repository, README, MIT license, skill entrypoint, and skill directory. All 17 relative Markdown file links resolved locally and all four external documentation targets returned HTTP 200.
 
-[Initial CI run](https://github.com/BarganConstantin/agent-skills/actions/runs/39724978321) passed validation and all 15 tests on each of Python 3.10, 3.12, and 3.14. The current candidate must also pass CI before tagging.
+[Initial CI run](https://github.com/BarganConstantin/agent-skills/actions/runs/39724978321) passed validation and all 15 tests on each of Python 3.10, 3.12, and 3.14.
 
 ## Remaining behavioral validation
 
@@ -38,9 +38,9 @@ No application was audited, no browser session was exercised, and no independent
 
 Before promotion, follow [the supervised audit checklist](../PUBLISHING.md#before-promoting). Record actual versions, safe target, fresh sessions, observed evidence, bounded fixes, and a fresh after-pass. Report unsupported capabilities explicitly.
 
-# v0.2 readiness: controlled local validation
+# v0.2.0: controlled local validation
 
-This candidate adds a synthetic localhost demonstration. It does not retroactively turn the published v0.1.0 release into a customer-product study. The original instructions and references used by the testers were copied directly from the immutable `v0.1.0` tag before the run; candidate reporting improvements were evaluated separately.
+Version v0.2.0 adds a synthetic localhost demonstration. It does not retroactively turn the published v0.1.0 release into a customer-product study. The original instructions and references used by the testers were copied directly from the immutable `v0.1.0` tag before the run; the newer reporting improvements were evaluated separately.
 
 ## Environment and procedure
 
@@ -75,7 +75,7 @@ The unpublished candidate was also installed from the local checkout into separa
 
 ## Reporter reliability
 
-The candidate adds optional `--verify-evidence`/`--project-root` filesystem checks, rejects conflicting stable issue identities in strict mode, prevents comparisons across different environment URLs, and prints reported capability gaps even with eight complete JSON reports. Legacy textual success evidence remains accepted without the new flag. File existence and self-reported capabilities do not establish authenticity, independence or real execution.
+Version v0.2.0 adds optional `--verify-evidence`/`--project-root` filesystem checks, rejects conflicting stable issue identities in strict mode, prevents comparisons across different environment URLs, and prints reported capability gaps even with eight complete JSON reports. Legacy textual success evidence remains accepted without the new flag. File existence and self-reported capabilities do not establish authenticity, independence or real execution.
 
 Local Python checks: 18 reporter tests plus 15 metadata/HTTP-fixture/adapter tests pass. CI also runs deterministic browser smoke checks against baseline and fixed variants; these checks are not independent personas. The baseline smoke check reproduced blank-name acceptance separately because the baseline breaker persona stopped at the earlier CTA failure.
 
@@ -83,4 +83,10 @@ Local Python checks: 18 reporter tests plus 15 metadata/HTTP-fixture/adapter tes
 
 Use the [demonstration guide](../examples/first-user-demo/README.md) to reproduce the setup. Evidence from intentionally planted defects can support a small, clearly labeled demonstration post after review. It cannot support claims about customer-product defect rates, conversion, retention, general agent reliability, slow networks, touch devices, or successful end-to-end execution in both native CLIs. A supervised audit of another safe application and native Codex execution remain useful next validations.
 
-GitHub private vulnerability reporting was confirmed disabled. [SECURITY.md](../SECURITY.md) recommends enabling GitHub's private advisory mechanism and gives a safe interim contact-request process. No security-setting change was made.
+GitHub private vulnerability reporting was disabled during the initial study and review. It was enabled and confirmed through the GitHub API during the v0.2.0 release workflow; [SECURITY.md](../SECURITY.md) now links to the private reporting form.
+
+## Merge and release validation
+
+PR #1 was squash merged at `2ee4dc074ec2b5a5293ee70f845505881228fe44` after checking the approved head `a6334073f0041cb2216620bde510e67f4788a3ab`. [Post-merge CI](https://github.com/BarganConstantin/agent-skills/actions/runs/39731207753) passed all four jobs: 33 unit tests on each of Python 3.10/3.12/3.14, reviewed report/evidence regeneration, and deterministic baseline/fixed browser checks on Linux. CI does not rerun the eight agent-driven sessions.
+
+The DEV.to draft uses the permanent squash-commit demonstration URL and remains `published: false`. The v0.1.0 instruction commit and recorded study hashes remain unchanged. Release publication is gated on successful CI for the final documentation commit, followed by clean-project tagged installation checks. Neither installation nor deterministic CI establishes full native CLI agent execution.
