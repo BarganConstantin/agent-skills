@@ -1,0 +1,2 @@
+# Metadata validation only; the report generator uses the standard library.
+PyYAML==6.0.3
