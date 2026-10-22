@@ -162,7 +162,9 @@ Replace `/path/to/first-user-audit` with the path printed by the installer. Run 
 
 The candidate repository has **18 reporter tests**, six metadata tests, three HTTP fixture tests, and six MCP adapter tests. They cover synthetic report aggregation, missing evidence, conflicting issue IDs, environment mismatches, and transport failures. Unit tests do not establish that a model reliably behaves like a human user.
 
-There is now a [reproducible local demonstration with reviewed screenshots and reports](https://github.com/BarganConstantin/agent-skills/tree/feat/first-user-audit-local-validation/examples/first-user-demo). Its browser sessions used the published v0.1.0 instructions, Microsoft Playwright MCP 0.0.83, and eight fresh agent contexts, running sequentially with fresh browser storage. The fixture has deliberately introduced defects; it is not a customer product.
+There is now a [reproducible local demonstration with reviewed screenshots and reports](https://github.com/BarganConstantin/agent-skills/tree/feat/first-user-audit-local-validation/examples/first-user-demo). Its browser sessions used the published v0.1.0 instructions, Microsoft Playwright MCP 0.0.83, and eight fresh agent contexts, running sequentially with fresh browser storage. The fixture has deliberately introduced defects; it is not a customer product. Its fixed variant was prepared for this demonstration, so the study does not establish autonomous repair of an unfamiliar application.
+
+GitHub Actions reruns unit tests and deterministic browser checks against the baseline and fixed variants. It does not rerun the eight agent-driven persona sessions.
 
 In that controlled example, no baseline persona reached first success. All four fresh verification personas did, in 2, 5, 2 and 6 clicks. The baseline breaker stopped at the earlier CTA failure, so its invalid-input coverage was not comparable; a separate scripted check reproduced blank-name acceptance. Slow 3G and touch were not tested. Fresh contexts shared a filesystem, so context separation was not a claim of OS-level isolation.
 
