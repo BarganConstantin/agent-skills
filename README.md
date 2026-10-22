@@ -20,7 +20,7 @@ Then ask your agent:
 
 > Use first-user-audit on my local app. Inspect the code to define the first successful user outcome. Test four isolated personas in sequence, collect evidence, fix only safe technical issues, and re-test with fresh agents if the runtime supports them. Stop if browser automation is unavailable.
 
-[skills.sh CLI documentation](https://www.skills.sh/docs/cli) explains agent-specific installation and global installs. The command installs instructions; it does **not** install Playwright MCP or supply subagents for your agent runner.
+[skills CLI documentation](https://github.com/vercel-labs/skills) covers agent selection and global installs. The command installs instructions; it does **not** install Playwright MCP or supply subagents for your agent runner.
 
 ### Prerequisites
 
@@ -29,6 +29,8 @@ Then ask your agent:
 - A subagent mechanism if you want four *genuinely distinct* agent contexts. Without it, the skill must report reduced isolation, not pretend it used four subagents.
 - Test accounts and payment sandbox, if your product needs them.
 - Python 3.10+ only if using the bundled reporter; it needs no third-party packages.
+
+Public-repository installation was checked with skills CLI 1.7.4 and Node.js 24.19.0 in a clean temporary project; see [validation notes](docs/validation.md). This does not verify browser execution.
 
 See [browser setup](skills/first-user-audit/references/browser-setup.md) and [protocol](skills/first-user-audit/references/protocol.md).
 

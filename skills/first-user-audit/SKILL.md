@@ -34,7 +34,7 @@ If the first success cannot be inferred reliably, report the ambiguity and ask t
 
 Read [protocol](references/protocol.md), [report format](references/report-format.md), and [browser setup](references/browser-setup.md) before running.
 
-Spawn one **new** subagent for each persona below, strictly in order. Each starts from the same safe landing page and a fresh browser context, with independent test identity and cleared storage. The persona receives only the target, first-success criterion, safety rules, and persona instructions. Never expose previous agents' findings. Wait for completion and close/reset the session before starting the next.
+Spawn one **new** subagent for each persona below, strictly in order. If the owner approved the lower-isolation approximation in preflight, run sequential persona passes and label them as the same agent; the isolation claims below do not apply. Each starts from the same safe landing page and a fresh browser context, with independent test identity and cleared storage. The persona receives only the target, first-success criterion, safety rules, and persona instructions. Never expose previous agents' findings. Wait for completion and close/reset the session before starting the next.
 
 | Persona | Behavior to simulate | Stop condition |
 | --- | --- | --- |
@@ -66,6 +66,7 @@ Run the bundled reporter for a baseline-only summary (or construct the same tabl
 Once changes are applied in local/preview:
 
 1. Give **four new subagents** only the initial task, the same first-success criterion, and persona behavior. Do **not** give them baseline reports, issue lists, or implementation details.
+   If using an approved single-agent approximation, label this verification as non-independent rather than claiming fresh agents.
 2. Reset browser contexts and test accounts/data. Keep viewport, throttling attempt, app seed, and start conditions comparable to the baseline. If not comparable, mark the comparison limited and explain why.
 3. Run the same four personas sequentially; write `qa/first-users/after/<persona>.json`. Map observed occurrences back to stable issue IDs during consolidation by a separate reviewer, not by injecting the old list into the fresh testers.
 4. From the target application root, run `python /absolute/path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict`, replacing the path with this installed skill's location. Attach generated summary, reproduction steps, screenshot references, changes, and test output.
