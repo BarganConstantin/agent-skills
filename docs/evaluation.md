@@ -47,3 +47,7 @@ Publish the full tested prompts, test fixtures where licensing allows, review cr
 - [Agent Skills specification](https://agentskills.io/specification): discoverability, progressive disclosure, and portable skill packaging.
 - [Microsoft's Agent Skills guidance](https://learn.microsoft.com/en-us/agent-framework/agents/skills): loaded skill context and runtime/tool boundaries.
 - [Controlled v0.2.0 example](https://github.com/BarganConstantin/agent-skills/releases/tag/v0.2.0): prepared browser fixture, **not** this benchmark.
+
+## Runnable review scorer (instrumentation only)
+
+The local [evaluation scorer](../evals/README.md) now implements consistent paired-run scoring, duplicate defect handling, clean fixtures, false-positive counts, and disclosure of incomplete/unreviewed/failed runs. It does **not** conduct the agent attempts, authenticate reviewers, verify screenshots or supply measured effectiveness data. Collect the actual control/skill outputs and independently adjudicate them first.
