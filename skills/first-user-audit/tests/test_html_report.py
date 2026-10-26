@@ -69,6 +69,19 @@ class HtmlReportTests(unittest.TestCase):
         self.assertNotIn("<script>evil()", html)
         self.assertNotIn("<img", html)
 
+    def test_shared_issue_includes_all_persona_evidence_paths(self):
+        a = issue("Shared issue")
+        b = issue("Shared issue")
+        a["evidence"] = ["qa/first-users/evidence/impatient.png"]
+        b["evidence"] = ["qa/first-users/evidence/mobile.png"]
+        self.put("baseline", "impatient", issues=[a])
+        self.put("baseline", "mobile", issues=[b])
+        response = self.run_cli("--baseline-only")
+        self.assertEqual(response.returncode, 0, response.stderr)
+        html = (self.root / "summary.html").read_text(encoding="utf-8")
+        self.assertIn("impatient.png", html)
+        self.assertIn("mobile.png", html)
+
     def test_rejects_missing_reports_in_strict_mode_without_writing(self):
         self.put("baseline", "impatient")
         response = self.run_cli("--strict")
