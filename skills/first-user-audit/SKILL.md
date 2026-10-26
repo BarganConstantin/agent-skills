@@ -9,6 +9,13 @@ compatibility: Agent runtime with local code access, browser MCP, and ideally is
 
 Find observable points of friction on the path from the landing page to the first successful user outcome. Document what happened, make bounded fixes, and run a fresh verification pass. This is *simulated first-user QA*, not actual user research.
 
+## Select an execution mode
+
+- **Audit only (default):** observe four baseline personas, collect evidence, and report issues and owner decisions. **Do not edit application files or run an after-pass.** This is the safest first run.
+- **Audit + Fix + Verify (explicit opt-in):** after the baseline, make only permitted bounded technical changes and run four fresh verification personas. If changes cannot be applied, label verification **not run**.
+
+If the user does not choose a mode, use **audit only**. Both modes require the same safety preflight, real browser tools, and honest isolation disclosures.
+
 ## Mandatory preflight: stop safely
 
 1. Identify the target application and confirm a running **local or isolated preview** URL. If the URL is production, a shared live environment, or cannot be confidently classified, **stop** and ask for a safe environment. Do not create production accounts or data.
@@ -53,7 +60,11 @@ Review all four reports. Assign a **stable issue ID** (`FUA-001`, etc.) to each 
 
 Run the bundled reporter for a baseline-only summary (or construct the same tables manually if Python is unavailable). Rank by the **number of distinct personas affected (4 maximum)**, then severity; use click count and drop-off stage as extra context, not as a fabricated conversion metric.
 
-### Fix policy
+### Audit-only stop
+
+When in **audit-only** mode, do not change application code, configuration or product copy. Run the bundled reporter from the target application root with `--baseline-only` (not `--strict`), or produce equivalent tables manually if Python is unavailable. Include missing personas, blockers and capability gaps. Finish with the baseline findings and owner decisions. **Do not imply an after-pass, fix or improvement took place.**
+
+### Fix policy — Audit + Fix + Verify mode only
 
 - Record `pricing`, `terms`, and `privacy` findings for the owner. **Do not change** pricing, policies, legal claims, payment terms or data processing promises.
 - Fix **reproducible, bounded, technical or UX implementation issues** in one cohesive change pass when project guardrails and tests allow. Favor small changes: accessible CTA, visible errors, validation, mobile layout, retry handling, idempotent submissions.
@@ -61,7 +72,7 @@ Run the bundled reporter for a baseline-only summary (or construct the same tabl
 - For each fix record related issue IDs, changed files, focused tests, outcome, and remaining risks. Run relevant automated tests. No claim of completion unless the result is observed.
 - If the code cannot be edited, offer a patch plan but mark the after-pass as **not run** rather than inventing improvement.
 
-## Fresh, independent verification
+## Fresh, independent verification — Audit + Fix + Verify mode only
 
 Once changes are applied in local/preview:
 
@@ -74,6 +85,6 @@ Once changes are applied in local/preview:
 
 ## Reporting contract
 
-Report in this order: environment; first-success criterion; capability checks; baseline findings; ranked issues; code changes and tests; independent after-pass; per-persona before/after; limitations; owner decisions. Include concrete screenshots or their relative paths. **Never fabricate screenshots, subagents, test outcomes, performance measurements or success claims.**
+Report in this order: mode; environment; first-success criterion; capability checks; baseline findings; ranked issues; limitations; owner decisions. **Only for Audit + Fix + Verify**, additionally report code changes and tests, independent after-pass, and per-persona before/after results. Include concrete screenshots or their relative paths. **Never fabricate screenshots, subagents, test outcomes, performance measurements or success claims.**
 
 A persona that did not reach first success has `clicks_to_success: null`, not a guessed click count. If any prerequisite is missing, say exactly which stage was stopped and why.
