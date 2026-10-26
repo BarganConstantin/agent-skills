@@ -87,3 +87,7 @@ python -m unittest discover -s tests -v
 ```
 
 **No skill-vs-control performance results are claimed by this directory until independent runs are collected and published.**
+
+## Controlled browser fixture
+
+[Activation Lab](fixtures/README.md) is a tiny, localhost-only self-serve application with five pre-registered observable defects and a deliberately corrected version. Its [manifest](fixtures/manifest.json) includes a clean fixture to reveal false-positive reporting. The dedicated Chromium CI verifies fixture behavior, **not any AI agent's success**. Because the truth table is public, evaluations on this fixture alone cannot establish generalization; retain a genuinely independent held-out app for a meaningful performance claim.
