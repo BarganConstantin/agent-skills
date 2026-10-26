@@ -85,3 +85,7 @@ python /absolute/path/to/first-user-audit/scripts/summarize.py --root qa/first-u
 python /absolute/path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict
 python /absolute/path/to/first-user-audit/scripts/summarize.py --root qa/first-users --strict --verify-evidence --project-root /absolute/path/to/audited-application
 ```
+
+## Offline HTML presentation (optional)
+
+To inspect the same validated reports as a static offline page, use [html-report.md](html-report.md). It supports baseline-only and strict verification modes and does not change the JSON report contract. Content is HTML-escaped; evidence filenames are printed, not loaded or copied. Review sensitive fields before sharing.

@@ -52,10 +52,12 @@ Define **first success** before testing: e.g. *a fresh test account creates a wo
 
 - Four persona reports with reachability, actual clicks *to success* (or `null` when blocked), issues and capability gaps.
 - Concrete screenshots, reproduction steps and stable issue IDs; evidence must be inspected for personal data before sharing.
-- A prioritized Markdown summary. The optional local Python reporter validates report consistency; `--verify-evidence` checks paths and existence, **not screenshot authenticity**.
+- A prioritized Markdown summary, plus an **optional offline HTML report** to review findings visually. The local Python tools validate report consistency; `--verify-evidence` checks paths and existence, **not screenshot authenticity**.
 - In **Audit + Fix + Verify** mode: owner-approved bounded technical fixes, relevant tests and four fresh verification runs, with honest before/after limitations.
 
 Reports live under the **target application's ignored** `qa/first-users/` directory. The [report schema and commands](skills/first-user-audit/references/report-format.md) explain how to inspect them. Python 3.10+ is only needed for the optional reporter.
+
+For a standalone report you can open locally, run the [offline HTML reporter](skills/first-user-audit/references/html-report.md) after collecting persona JSON. It escapes report content, makes no network requests, and deliberately does not embed potentially sensitive screenshots.
 
 ## See a reviewed, controlled example
 

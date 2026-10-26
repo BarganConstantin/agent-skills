@@ -87,4 +87,6 @@ Once changes are applied in local/preview:
 
 Report in this order: mode; environment; first-success criterion; capability checks; baseline findings; ranked issues; limitations; owner decisions. **Only for Audit + Fix + Verify**, additionally report code changes and tests, independent after-pass, and per-persona before/after results. Include concrete screenshots or their relative paths. **Never fabricate screenshots, subagents, test outcomes, performance measurements or success claims.**
 
+If the owner wants a local visual report, use the optional [offline HTML reporter](references/html-report.md) after validating persona JSON. It has the same completeness/comparability rules, does not embed screenshots, and never verifies their authenticity. Keep generated HTML in the audited app's ignored QA directory; review sensitive data before sharing.
+
 A persona that did not reach first success has `clicks_to_success: null`, not a guessed click count. If any prerequisite is missing, say exactly which stage was stopped and why.
