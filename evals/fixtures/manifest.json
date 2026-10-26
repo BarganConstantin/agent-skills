@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "fixtures": [
+    {
+      "fixture_id": "activation-lab-seeded",
+      "truth_ids": [
+        "FX-CTA-01",
+        "FX-PRICING-01",
+        "FX-MOBILE-01",
+        "FX-VALIDATION-01",
+        "FX-IDEMPOTENCY-01"
+      ]
+    },
+    {
+      "fixture_id": "activation-lab-reference",
+      "truth_ids": []
+    }
+  ]
+}
