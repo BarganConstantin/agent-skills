@@ -50,11 +50,20 @@ def persona_card(persona, report):
     )
 
 
-def issue_table(rows):
+def issue_table(rows, persona_reports):
     if not rows:
         return '<p class="muted">No issues reported in available persona records. This does not prove the application has no issues.</p>'
     items = []
     for issue in rows:
+        # Aggregation ranks by issue ID; collect evidence from *every* affected
+        # persona so the visible report does not silently discard screenshots.
+        evidence = list(dict.fromkeys(
+            path
+            for record in persona_reports.values()
+            for observation in record["issues"]
+            if observation["id"] == issue["id"]
+            for path in observation["evidence"]
+        ))
         details = (
             '<details><summary>Reproduction and evidence</summary>' +
             '<p><b>Location:</b> ' + e(issue["location"]) + '</p>' +
@@ -62,7 +71,7 @@ def issue_table(rows):
             '<p><b>Expected:</b> ' + e(issue["expected"]) + '</p>' +
             '<p><b>Observed:</b> ' + e(issue["actual"]) + '</p>' +
             '<p><b>Evidence paths (not verified by this page):</b> ' +
-            e(", ".join(map(str, issue["evidence"])) or "None") + '</p></details>'
+            e(", ".join(map(str, evidence)) or "None") + '</p></details>'
         )
         items.append(
             '<tr><td><code>' + e(issue["id"]) + '</code></td><td>' + e(len(issue["personas"])) +
@@ -84,7 +93,7 @@ def phase_section(phase, data, missing):
     if conflicts:
         completeness += '<p class="warning">Issue-ID conflicts require reviewer inspection: ' + e("; ".join(sorted(set(conflicts)))) + '</p>'
     personas = '<div class="personas">' + "".join(persona_card(name, data.get(name)) for name in audit.PERSONAS) + '</div>'
-    return head + cards + completeness + personas + '<h3>Ranked findings</h3>' + issue_table(rows) + '</section>'
+    return head + cards + completeness + personas + '<h3>Ranked findings</h3>' + issue_table(rows, data) + '</section>'
 
 
 def comparison_section(reports, missing):
