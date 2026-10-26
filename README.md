@@ -91,6 +91,6 @@ The skill [defines exact safety boundaries and run instructions](skills/first-us
 
 Have a reproducible obstacle, a real app case study with redacted evidence, or a failure mode we missed? [Open an issue](https://github.com/BarganConstantin/agent-skills/issues). Contributions should include the smallest safe reproduction and relevant regression tests. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-We're working toward repeatable **with-skill vs without-skill** behavior evaluation—not manufactured benchmark wins. Read the [evaluation protocol](docs/evaluation.md) and propose a test case.
+We're working toward repeatable **with-skill vs without-skill** behavior evaluation—not manufactured benchmark wins. Read the [evaluation protocol](docs/evaluation.md) and the [local reviewed-run scorer](evals/README.md); propose a test case. **No real comparative benchmark results are claimed yet.**
 
 [MIT license](LICENSE) · [Security and private vulnerability reporting](SECURITY.md) · [v0.2.0 controlled demo](https://github.com/BarganConstantin/agent-skills/releases/tag/v0.2.0)
