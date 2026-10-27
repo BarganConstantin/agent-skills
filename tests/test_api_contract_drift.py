@@ -188,6 +188,41 @@ class ContractGuardTests(unittest.TestCase):
         self.new["paths"]["/items"]["post"]["security"] = [{"Token": []}]
         self.assertIn("anonymous_access_removed", codes(self.old, self.new))
 
+    def test_published_demo_has_exactly_three_pre_registered_risks(self):
+        root = Path(__file__).resolve().parents[1]
+        example = root / "examples" / "api-contract-drift"
+        before = guard.load(example / "before.json")
+        after = guard.load(example / "after.json")
+        result = guard.compare(before, after)
+        self.assertEqual(
+            [(issue["code"], issue["operation"]) for issue in result["potential_breaks"]],
+            [
+                ("anonymous_access_removed", "GET /catalog"),
+                ("required_parameter", "POST /orders"),
+                ("required_property", "POST /orders"),
+            ],
+        )
+        self.assertEqual(result["warnings"], [])
+        text = guard.as_markdown(result)
+        self.assertIn("Potential client breaks: 3", text)
+        self.assertIn("X-Region", text)
+        self.assertIn("accountId", text)
+
+    def test_published_demo_strict_cli_fails_only_for_detected_risks(self):
+        root = Path(__file__).resolve().parents[1]
+        example = root / "examples" / "api-contract-drift"
+        args = ["--before", str(example / "before.json"),
+                "--after", str(example / "after.json"), "--format", "json"]
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = guard.main(args + ["--fail-on-risk"])
+        self.assertEqual(code, 1)
+        observed = json.loads(out.getvalue())
+        self.assertEqual(len(observed["potential_breaks"]), 3)
+        self.assertNotIn("does prove", observed["disclaimer"].lower())
+
     def test_rejects_invalid_version(self):
         with tempfile.TemporaryDirectory() as d:
             file = Path(d) / "api.json"
