@@ -15,7 +15,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-19272b" alt="MIT licensed" /></a>
 </p>
 
-**Small, useful tools for coding agents.** Keep work context, review API changes, test a first-time user's journey, and recall good ideas. Built for Claude Code, Codex, and other compatible agents.
+**Focused tools for coding agents.** Keep context, review APIs, test user journeys, and recall good ideas. For Claude Code, Codex, and compatible agents.
 
 ## See a result in 30 seconds
 
@@ -101,4 +101,4 @@ CI checks Python tests and [installation from the public GitHub repo](.github/wo
 
 [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Growth research](docs/growth-research.md) · [MIT](LICENSE)
 
-If the toolkit helped you, a GitHub star helps other developers find it.
+If this helps, consider a GitHub star.
