@@ -69,6 +69,87 @@ def request_schema(doc, request, media, label, warnings):
     return val
 
 
+def effective_security(document, operation, label, warnings):
+    """Return OR-alternatives; each mapping is an AND of scheme/scope requirements.
+
+    The OpenAPI default [] and an explicit {} alternative both permit anonymous
+    calls. Operation-level security *replaces* root security, even when [].
+    """
+    raw = operation["security"] if "security" in operation else document.get("security", [])
+    if not isinstance(raw, list):
+        warnings.add(label + ": security must be a list; not compared")
+        return None
+    if not raw:
+        return [{}]
+    alternatives = []
+    for entry in raw:
+        if not isinstance(entry, dict) or any(
+            not isinstance(name, str)
+            or not isinstance(scopes, list)
+            or any(not isinstance(scope, str) for scope in scopes)
+            for name, scopes in entry.items()
+        ):
+            warnings.add(label + ": malformed security requirement; not compared")
+            return None
+        alternatives.append({name: frozenset(scopes) for name, scopes in entry.items()})
+    return alternatives
+
+
+def security_alternative_preserved(old_requirement, new_requirement):
+    """A caller satisfying the old AND-set must also satisfy a new OR-choice.
+
+    Empty new requirements permit everyone. A new requirement is compatible
+    only if it is a subset of the old schemes and each scheme's scopes.
+    """
+    return all(
+        name in old_requirement and scopes.issubset(old_requirement[name])
+        for name, scopes in new_requirement.items()
+    )
+
+
+def security_scheme_details(document, name, label, warnings):
+    components = document.get("components", {})
+    if not isinstance(components, dict):
+        warnings.add(label + ": malformed components; security scheme not comparable")
+        return None
+    schemes = components.get("securitySchemes", {})
+    if not isinstance(schemes, dict) or not isinstance(schemes.get(name), dict):
+        warnings.add(label + ": undefined or unsupported security scheme " + name)
+        return None
+    scheme = schemes[name]
+    # Ignore description/bearerFormat metadata; compare auth-mechanism fields.
+    fields = ("type", "scheme", "name", "in", "openIdConnectUrl", "flows")
+    return {key: scheme[key] for key in fields if key in scheme}
+
+
+def compare_security(before, old_operation, after, new_operation, label, report, warnings):
+    previous = effective_security(before, old_operation, label + " before", warnings)
+    current = effective_security(after, new_operation, label + " after", warnings)
+    if previous is None or current is None:
+        return
+    for old_choice in previous:
+        if any(security_alternative_preserved(old_choice, option) for option in current):
+            continue
+        if not old_choice:
+            report("anonymous_access_removed", label, "Previously anonymous access now requires authorization")
+        else:
+            report(
+                "security_alternative_tightened", label,
+                "An existing authorization alternative is no longer sufficient: " +
+                ", ".join(sorted(old_choice))
+            )
+    used_before = {key for alternative in previous for key in alternative}
+    used_after = {key for alternative in current for key in alternative}
+    for name in sorted(used_before & used_after):
+        old_scheme = security_scheme_details(before, name, label + " before", warnings)
+        new_scheme = security_scheme_details(after, name, label + " after", warnings)
+        if old_scheme is not None and new_scheme is not None and old_scheme != new_scheme:
+            report(
+                "security_scheme_changed", label,
+                "Authentication scheme definition changed for " + name
+            )
+
+
 def compare(before, after):
     problems, warnings = [], set()
 
@@ -92,6 +173,7 @@ def compare(before, after):
             if not isinstance(new, dict):
                 report("operation_removed", where, "Previously available operation removed")
                 continue
+            compare_security(before, old, after, new, where, report, warnings)
             old_params = parameters(before, old_path, old, where, warnings)
             new_params = parameters(after, new_path, new, where, warnings)
             for key, entry in sorted(new_params.items()):
@@ -145,7 +227,7 @@ def compare(before, after):
         "result": "manual_review_required" if problems or warnings else "no_checked_regressions_found",
         "potential_breaks": problems,
         "warnings": sorted(warnings),
-        "disclaimer": "Limited OpenAPI 3 JSON triage, not exhaustive. Does not check all types, security, enums, nested/composed schemas, runtime behavior, or external refs. Zero findings DOES NOT prove compatibility.",
+        "disclaimer": "Limited OpenAPI 3 JSON triage, not exhaustive. Checks declared security requirements and core scheme fields only; does not verify runtime authorization, all types, enums, nested/composed schemas, or external refs. Zero findings DOES NOT prove compatibility.",
     }
 
 

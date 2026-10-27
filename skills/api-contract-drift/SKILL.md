@@ -1,6 +1,6 @@
 ---
 name: api-contract-drift
-description: Check whether API changes may break existing clients before merging or releasing. Compare before/after OpenAPI 3 JSON specs offline; identify removed operations, newly required parameters or request fields, and disappearing response codes/media. Give a focused review checklist without pretending a zero-diff result proves compatibility. Use for .NET, Python, Node, Java or any backend exporting OpenAPI.
+description: Check whether API changes may break existing clients before merging or releasing. Compare before/after OpenAPI 3 JSON specs offline; identify removed operations, newly required parameters or request fields, disappearing response codes/media, and authorization requirements tightened by OpenAPI security rules. Give a focused review checklist without pretending a zero-diff result proves compatibility. Use for .NET, Python, Node, Java or any backend exporting OpenAPI.
 license: MIT
 compatibility: Python 3.10+ for the optional standard-library comparator. Works offline with local OpenAPI 3.x JSON exports; no browser MCP, cloud access or service credentials required.
 ---
@@ -31,6 +31,9 @@ Substitute the actual installed location. The script **reads only local JSON fil
 - Newly required query/path/header/cookie parameters or previously optional parameters becoming required.
 - Request bodies becoming required and newly required **top-level** JSON body properties in straightforward or local-`$ref` schemas.
 - Removed accepted request content types, documented response status codes or response content types.
+- **Previously anonymous operations becoming authenticated**, previously allowed security alternatives/scopes being tightened, and material changes to referenced authentication scheme definitions (e.g., header API key to bearer token). Resolve operation-level overrides before comparing global security requirements.
+
+To see an actual reproducible result **without your own API**, run [the safe example](https://github.com/BarganConstantin/agent-skills/tree/main/examples/api-contract-drift) from a clone of this repository. Its two JSON specifications intentionally introduce three compatibility risks.
 
 To consume a machine-readable result, pass `--format json`. By default the script returns exit code **0 if it ran successfully**, even with flagged risks, so review reports rather than assuming a successful process is a compatibility verdict. CI integrations may opt into `--fail-on-risk` (exit **1** on a flagged potential break; exit **2** on input/errors).
 
@@ -51,6 +54,6 @@ For every finding record:
 
 Report the number of potential risks, coverage warnings, the exact spec files compared, the command and observed exit code, and what *was not checked*. When there are **zero findings**, say *“No regressions detected in the supported OpenAPI 3 JSON subset; compatibility is unverified outside that subset.”*
 
-The comparator does **not** check all schema nesting/compositions, all enum and type changes, authorization requirements, server/runtime behavior, generated SDK effects, OpenAPI document validity, references to external files/URLs, or unknown vendor extensions. Use a mature comprehensive diff tool such as [oasdiff](https://www.oasdiff.com/docs/breaking-changes) for broader production gates. See [scope and sources](references/limitations.md) for concrete supported cases and caveats.
+The comparator does **not** check all schema nesting/compositions, all enum and type changes, runtime authorization behavior or client credentials, server/runtime behavior, generated SDK effects, OpenAPI document validity, references to external files/URLs, or unknown vendor extensions. Use a mature comprehensive diff tool such as [oasdiff](https://www.oasdiff.com/docs/breaking-changes) for broader production gates. See [scope and sources](references/limitations.md) for concrete supported cases and caveats.
 
 If a risk cannot be reproduced, label it *potential*, not proven. If you have no usable before/after specs, produce a safe export plan rather than an invented “passed” review.

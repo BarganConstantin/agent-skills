@@ -119,6 +119,110 @@ class ContractGuardTests(unittest.TestCase):
         self.assertEqual(result["result"], "manual_review_required")
         self.assertTrue(result["warnings"])
 
+    def test_root_security_added_breaks_anonymous_operation(self):
+        self.new["components"] = {"securitySchemes": {
+            "Token": {"type": "apiKey", "in": "header", "name": "X-Token"}}}
+        self.new["security"] = [{"Token": []}]
+        self.assertIn("anonymous_access_removed", codes(self.old, self.new))
+
+    def test_operation_can_override_root_security_to_allow_anonymous(self):
+        self.new["security"] = [{"Token": []}]
+        self.new["paths"]["/items"]["post"]["security"] = []
+        self.assertNotIn("anonymous_access_removed", codes(self.old, self.new))
+
+    def test_optional_auth_with_empty_requirement_is_not_removed(self):
+        self.old["security"] = [{"Token": []}, {}]
+        self.new["security"] = [{"Token": []}, {}]
+        self.assertNotIn("anonymous_access_removed", codes(self.old, self.new))
+
+    def test_removing_anonymous_alternative_is_flagged(self):
+        self.old["security"] = [{"Token": []}, {}]
+        self.new["security"] = [{"Token": []}]
+        self.assertIn("anonymous_access_removed", codes(self.old, self.new))
+
+    def test_dropping_existing_auth_alternative_is_flagged(self):
+        self.old["security"] = [{"Token": []}, {"OAuth": ["read"]}]
+        self.new["security"] = [{"OAuth": ["read"]}]
+        self.assertIn("security_alternative_tightened", codes(self.old, self.new))
+
+    def test_newly_required_oauth_scope_is_flagged(self):
+        self.old["security"] = [{"OAuth": ["read"]}]
+        self.new["security"] = [{"OAuth": ["read", "write"]}]
+        self.assertIn("security_alternative_tightened", codes(self.old, self.new))
+
+    def test_looser_security_is_not_flagged(self):
+        self.old["security"] = [{"OAuth": ["read", "write"]}]
+        self.new["security"] = [{"OAuth": ["read"]}, {}]
+        self.assertNotIn("security_alternative_tightened", codes(self.old, self.new))
+
+    def test_same_auth_scheme_with_changed_mechanism_is_flagged(self):
+        self.old["security"] = [{"Token": []}]
+        self.new["security"] = [{"Token": []}]
+        self.old["components"] = {"securitySchemes": {
+            "Token": {"type": "apiKey", "name": "X-Token", "in": "header"}}}
+        self.new["components"] = {"securitySchemes": {
+            "Token": {"type": "http", "scheme": "bearer"}}}
+        self.assertIn("security_scheme_changed", codes(self.old, self.new))
+
+    def test_security_scheme_description_only_change_is_not_flagged(self):
+        self.old["security"] = [{"Token": []}]
+        self.new["security"] = [{"Token": []}]
+        self.old["components"] = {"securitySchemes": {
+            "Token": {"type": "apiKey", "name": "X-Token", "in": "header",
+                      "description": "Old copy"}}}
+        self.new["components"] = {"securitySchemes": {
+            "Token": {"type": "apiKey", "name": "X-Token", "in": "header",
+                      "description": "New copy"}}}
+        self.assertNotIn("security_scheme_changed", codes(self.old, self.new))
+
+    def test_malformed_security_creates_warning_not_fabricated_finding(self):
+        self.new["security"] = [{"Token": "not-a-list"}]
+        result = guard.compare(self.old, self.new)
+        self.assertTrue(any("security" in warning for warning in result["warnings"]))
+        self.assertFalse(any("anonymous_access_removed" == x["code"] for x in result["potential_breaks"]))
+
+    def test_root_security_overridden_on_existing_operations(self):
+        self.old["security"] = [{"Token": []}]
+        self.old["paths"]["/items"]["post"]["security"] = []
+        self.new["security"] = [{"Token": []}]
+        self.new["paths"]["/items"]["post"]["security"] = [{"Token": []}]
+        self.assertIn("anonymous_access_removed", codes(self.old, self.new))
+
+    def test_published_demo_has_exactly_three_pre_registered_risks(self):
+        root = Path(__file__).resolve().parents[1]
+        example = root / "examples" / "api-contract-drift"
+        before = guard.load(example / "before.json")
+        after = guard.load(example / "after.json")
+        result = guard.compare(before, after)
+        self.assertEqual(
+            [(issue["code"], issue["operation"]) for issue in result["potential_breaks"]],
+            [
+                ("anonymous_access_removed", "GET /catalog"),
+                ("required_parameter", "POST /orders"),
+                ("required_property", "POST /orders"),
+            ],
+        )
+        self.assertEqual(result["warnings"], [])
+        text = guard.as_markdown(result)
+        self.assertIn("Potential client breaks: 3", text)
+        self.assertIn("X-Region", text)
+        self.assertIn("accountId", text)
+
+    def test_published_demo_strict_cli_fails_only_for_detected_risks(self):
+        root = Path(__file__).resolve().parents[1]
+        example = root / "examples" / "api-contract-drift"
+        args = ["--before", str(example / "before.json"),
+                "--after", str(example / "after.json"), "--format", "json"]
+        import contextlib
+        import io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = guard.main(args + ["--fail-on-risk"])
+        self.assertEqual(code, 1)
+        observed = json.loads(out.getvalue())
+        self.assertEqual(len(observed["potential_breaks"]), 3)
+        self.assertNotIn("does prove", observed["disclaimer"].lower())
+
     def test_rejects_invalid_version(self):
         with tempfile.TemporaryDirectory() as d:
             file = Path(d) / "api.json"

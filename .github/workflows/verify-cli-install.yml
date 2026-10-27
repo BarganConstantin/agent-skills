@@ -4,12 +4,12 @@ on:
   push:
     branches: [main]
     paths:
-      - "skills/first-user-audit/**"
+      - "skills/**"
       - "scripts/verify_cli_onboarding.sh"
       - ".github/workflows/verify-cli-install.yml"
   pull_request:
     paths:
-      - "skills/first-user-audit/**"
+      - "skills/**"
       - "scripts/verify_cli_onboarding.sh"
       - ".github/workflows/verify-cli-install.yml"
   workflow_dispatch:
