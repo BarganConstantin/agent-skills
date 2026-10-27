@@ -14,6 +14,9 @@ The bundled comparator is intentionally **small, offline, readable and conservat
 | Previously accepted request media type removed | Clients using that content type may be rejected |
 | Previously documented response code removed | SDKs and client flows may treat results differently |
 | Response media type removed | Existing clients expecting e.g. JSON may fail |
+| Anonymous access removed by global or operation-level security | Previously unauthenticated clients may stop working |
+| Existing authentication alternatives or scopes tightened | Clients configured with an old valid token or scheme may stop working |
+| Referenced authentication scheme definition changed | Auth header, scheme or OAuth details may now require client changes |
 
 References to `#/components/...` are followed when the pointer is valid, non-cyclic and resolves to a JSON object. Path and operation parameters are merged with operation-level parameters overriding path-level parameters by matching `(in, name)`.
 
@@ -22,9 +25,11 @@ References to `#/components/...` are followed when the pointer is valid, non-cyc
 - YAML input, Swagger 2.0, malformed OpenAPI docs, remote refs and schema files.
 - Recursive property checks, complex `allOf`, `anyOf`, `oneOf`, `not`, `additionalProperties` constraints and top-level typed arrays.
 - Parameter and property type changes, narrowing enum values, numeric/string range changes, changed header serialization and request/response schema compatibility beyond explicit checks.
-- New authentication and authorization requirements, `security` scheme changes, rate limits, deprecations, server URL updates, runtime behavior and SDK behavior.
+- Runtime enforcement of authentication rules, **validation of security scheme credentials**, token lifecycle, auth-server compatibility, undeclared auth requirements, rate limits, deprecations, server URL updates and SDK behavior. We compare only declared OpenAPI global/operation security alternatives, required scopes and core definition fields.
 - Invalid or context-dependent response status fallbacks (e.g., `default` and wildcard response keys): treat removals as **review signals**, not proof of breakage.
 - Changes whose impact depends on unknown clients. The comparison is static: tests and owner approval are still needed.
+
+Security rules follow OpenAPI OR-of-AND semantics; `security: []` and an empty `{}` alternative mean anonymous calls are allowed. The comparator applies operation-level `security` as an override of root security, including empty arrays. New authorization options that preserve an old valid option are not automatically breaking. Invalid security definitions produce warnings; a changed scheme is reported as **potentially** breaking, not proof of runtime rejection.
 
 If a local reference is missing or cyclic, or a schema uses unsupported composition, the script reports a warning. **Warnings are unresolved coverage**, not a pass. New files may contain internal routes or identifiers: review the report before sharing publicly.
 
