@@ -52,7 +52,7 @@ python scripts/render_library.py --write
 python scripts/render_library.py --check
 ```
 
-`--check` only reads files and fails on drift; CI runs it on every PR. `--write` changes **only the local `docs/library.md`** and requires an explicit request. The SVG category graphic intentionally avoids a hard-coded project count and needs a design update if the actual five visible category names change.
+`--check` only reads files and fails on drift; CI runs it on every PR. `--write` changes **only the two local views** (`docs/library.md` and `docs/library-explorer.html`) and requires an explicit request. The SVG category graphic intentionally avoids a hard-coded project count and needs a design update if the actual five visible category names change.
 
 ## Commands
 
