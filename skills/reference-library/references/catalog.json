@@ -391,6 +391,12 @@
       "name": "Agent Workflows",
       "tagline": "Structured planning, tool use, context and multi-agent engineering.",
       "icon": "↗"
+    },
+    {
+      "id": "inbox",
+      "name": "Inbox / To Review",
+      "tagline": "Newly saved links that still need classification and verification.",
+      "icon": "+"
     }
   ]
 }
