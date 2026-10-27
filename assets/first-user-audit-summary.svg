@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="640" viewBox="0 0 1200 640" role="img" aria-labelledby="heading explainer">
+<title id="heading">First User Audit: from invisible friction to observable findings</title>
+<desc id="explainer">A styled visual summary of a controlled fixture: three observed friction points, zero out of four baseline personas reaching first success, and four out of four reaching it on a separately prepared reference variant. These are not real users or conversion measurements.</desc>
+<defs>
+ <linearGradient id="background" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#121923"/><stop offset="1" stop-color="#19232d"/></linearGradient>
+ <linearGradient id="card" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f7f9f7"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="14" stdDeviation="20" flood-color="#040a0b" flood-opacity=".25"/></filter>
+ <linearGradient id="accent" x1="0" x2="1"><stop offset="0" stop-color="#69dcb5"/><stop offset="1" stop-color="#a8f2ca"/></linearGradient>
+</defs>
+<rect width="1200" height="640" fill="url(#background)"/>
+<circle cx="970" cy="-120" r="390" fill="#2f4748" opacity=".22"/>
+<circle cx="-90" cy="670" r="320" fill="#365063" opacity=".17"/>
+<g font-family="Inter, 'Inter Display', Arial, sans-serif">
+<rect x="66" y="59" width="33" height="33" rx="9" fill="url(#accent)"/>
+<path d="M76 70h15M76 76h10M76 82h6" fill="none" stroke="#163127" stroke-width="3" stroke-linecap="round"/>
+<text x="111" y="81" font-size="17" font-weight="700" fill="#edf6f3">FIRST USER AUDIT</text>
+<text x="66" y="166" font-size="48" font-weight="750" letter-spacing="-1.9" fill="#f7faf9">Find the friction.</text>
+<text x="66" y="221" font-size="48" font-weight="750" letter-spacing="-1.9" fill="#9ae6c8">Before your users do.</text>
+<text x="66" y="270" font-size="17" fill="#a9bec5">Four browser perspectives. Observable problems.</text>
+<text x="66" y="297" font-size="17" fill="#a9bec5">Screenshots, steps to reproduce, honest limits.</text>
+<rect x="66" y="355" width="439" height="1" fill="#3b4b54"/>
+<text x="66" y="389" font-size="12" font-weight="700" letter-spacing="2.1" fill="#90acb5">OBSERVED IN THE CONTROLLED FIXTURE</text>
+<g font-size="18" fill="#e0e8e8">
+<circle cx="76" cy="429" r="4" fill="#f0bf82"/><text x="91" y="435">Primary CTA didn’t advance the journey</text>
+<circle cx="76" cy="474" r="4" fill="#f0bf82"/><text x="91" y="480">Mobile layout hid the primary action</text>
+<circle cx="76" cy="519" r="4" fill="#f0bf82"/><text x="91" y="525">Privacy link returned a 404</text>
+</g>
+<rect x="581" y="70" width="554" height="479" rx="22" fill="url(#card)" filter="url(#shadow)"/>
+<rect x="582" y="70" width="553" height="62" rx="22" fill="#fff"/>
+<path d="M582 111h553v1H582z" fill="#ebefed"/>
+<circle cx="613" cy="102" r="5" fill="#ffb89a"/><circle cx="632" cy="102" r="5" fill="#ffde9f"/><circle cx="651" cy="102" r="5" fill="#a3e4c9"/>
+<text x="680" y="107" font-size="14" font-weight="700" fill="#283f41">Controlled browser study</text>
+<rect x="965" y="88" width="138" height="27" rx="13.5" fill="#edf3ee"/>
+<text x="1034" y="106" text-anchor="middle" font-size="11" font-weight="700" fill="#48665a">4 perspectives</text>
+<text x="614" y="163" font-size="12" font-weight="700" letter-spacing="1.2" fill="#687e7c">FIRST SUCCESS REACHED</text>
+<rect x="614" y="184" width="220" height="136" rx="14" fill="#f6eae4"/>
+<text x="635" y="213" font-size="13" font-weight="700" fill="#8d5848">Baseline</text>
+<text x="635" y="276" font-size="57" font-weight="760" letter-spacing="-2" fill="#753c2b">0<tspan font-size="26" fill="#b38a7c">/4</tspan></text>
+<text x="635" y="301" font-size="11.5" fill="#8d5848">Simulated personas</text>
+<path d="M846 252h44m-15-13 15 13-15 13" stroke="#647977" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<rect x="900" y="184" width="202" height="136" rx="14" fill="#e2f3e8"/>
+<text x="921" y="213" font-size="13" font-weight="700" fill="#347658">Prepared reference</text>
+<text x="921" y="276" font-size="57" font-weight="760" letter-spacing="-2" fill="#256746">4<tspan font-size="26" fill="#729b85">/4</tspan></text>
+<text x="921" y="301" font-size="11.5" fill="#347658">Simulated personas</text>
+<text x="614" y="360" font-size="12" font-weight="700" letter-spacing="1.2" fill="#687e7c">REPRODUCIBLE FINDINGS</text>
+<g>
+ <rect x="614" y="379" width="488" height="37" rx="9" fill="#f2f5f4"/>
+ <rect x="628" y="391" width="55" height="16" rx="6" fill="#fff0df"/>
+ <text x="656" y="402.7" font-size="10.7" text-anchor="middle" font-weight="700" fill="#9b5b23">FUA-001</text>
+ <text x="700" y="403" font-size="13.5" font-weight="600" fill="#344d4b">Broken primary navigation</text>
+ <rect x="614" y="426" width="488" height="37" rx="9" fill="#f2f5f4"/>
+ <rect x="628" y="438" width="55" height="16" rx="6" fill="#fff0df"/>
+ <text x="656" y="449.7" font-size="10.7" text-anchor="middle" font-weight="700" fill="#9b5b23">FUA-002</text>
+ <text x="700" y="450" font-size="13.5" font-weight="600" fill="#344d4b">375px viewport obstruction</text>
+ <rect x="614" y="473" width="488" height="37" rx="9" fill="#f2f5f4"/>
+ <rect x="628" y="485" width="55" height="16" rx="6" fill="#fff0df"/>
+ <text x="656" y="496.7" font-size="10.7" text-anchor="middle" font-weight="700" fill="#9b5b23">FUA-003</text>
+ <text x="700" y="497" font-size="13.5" font-weight="600" fill="#344d4b">Privacy route returned 404</text>
+</g>
+<path d="M66 578h1068" stroke="#43545d" stroke-width="1"/>
+<text x="66" y="607" font-size="13" fill="#a9bac1">Illustrative summary of a deliberately broken fixture • Not real-user conversion data</text>
+<text x="1135" y="607" font-size="13" text-anchor="end" font-weight="700" fill="#8fe1c0">agent-skills</text>
+</g>
+</svg>
