@@ -45,7 +45,7 @@ Installed Agent Skills are loaded on demand, based on their names/descriptions a
 
 ## Keeping the visual gallery synchronized
 
-The **catalog JSON** is the single source for category names, counts, original links, summaries and license labels. Never manually edit the generated category tables between the markers in `docs/library.md`. After intentionally updating the canonical catalog, run from the repository root:
+The **catalog JSON** is the single source for category names, counts, original links, summaries and license labels. Never manually edit the generated category tables between the markers in `docs/library.md` or the generated `docs/library-explorer.html`. The self-contained explorer uses `assets/library-explorer-template.html`; its search, filters and card content work offline without requests. After intentionally updating the canonical catalog, run from the repository root:
 
 ```bash
 python scripts/render_library.py --write
