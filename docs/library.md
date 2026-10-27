@@ -2,7 +2,11 @@
 
 **A handpicked shelf of useful developer projects.** Start with the kind of work you're doing—not a wall of links. Every entry leads to its **original GitHub repository**, explains *when it helps*, and records a reviewed license. Nothing is copied or installed just by being listed.
 
-*This gallery is generated from [the canonical catalog](../skills/reference-library/references/catalog.json). After editing the catalog, run `python scripts/render_library.py --write`; CI checks for drift. The visuals are static-first, with optional finite animation.*
+*The public gallery and offline explorer are generated from [the canonical catalog](../skills/reference-library/references/catalog.json). After editing the catalog, run `python scripts/render_library.py --write`; CI checks both views for drift. The visuals are static-first, with optional finite animation.*
+
+### Prefer interactive browsing?
+
+Clone the repository, then **open `docs/library-explorer.html` in your web browser** (double-click the file, or use `open` / `xdg-open`). It works offline with no server, package installation or account: search by task, select a category, inspect original GitHub links and clear the filters. [View the generated HTML file](library-explorer.html) — note that GitHub's code viewer displays HTML source rather than running the page. The page contacts no services while filtering; clicking an original repository link opens GitHub.
 
 <p align="center"><img src="../assets/library-map.svg" alt="Five library categories: UI/UX, Backend/API, Code Review, Testing/QA and Agent Workflows, shown in a subtly animated developer workbench." width="100%" /></p>
 
