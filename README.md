@@ -1,164 +1,81 @@
 # Agent Skills for Developers
 
-**Three focused open-source workflows for coding agents.** Install what you need; no account, subscription, or private app access required just to inspect a skill.
-
-| Skill | When to use it | Setup |
-| --- | --- | --- |
-| **[Handoff with Receipts](skills/handoff-with-receipts/SKILL.md)** | Switching between Claude Code / Codex, ending a long session, or handing work to another engineer; capture actual Git state, verified claims and the next safe action | No MCP; optional Git + Python 3.10+ |
-| **[API Contract Drift](skills/api-contract-drift/SKILL.md)** | Review potential client-breaking changes between two OpenAPI 3 JSON exports, before release | Offline Python 3.10+; no MCP |
-| **[First User Audit](skills/first-user-audit/SKILL.md)** | Check whether a first-time visitor can reach actual value in a local web app with a real browser and reproducible evidence | Browser MCP + safe local/isolated preview |
-
-**Try the skill that fits your next task** (Node.js 22.20+ and npm):
-
-```bash
-npx skills add BarganConstantin/agent-skills --skill handoff-with-receipts
-# or
-npx skills add BarganConstantin/agent-skills --skill api-contract-drift
-# or
-npx skills add BarganConstantin/agent-skills --skill first-user-audit
-```
-
-These are three separate choices, **not** an instruction to install all three. A one-command install only adds the selected skill's files; you still need to run the relevant task in your agent. [Real public GitHub installation checks](.github/workflows/public-install.yml) run on published changes and weekly, with installer telemetry disabled.
-
-
-## Handoff with Receipts — new
-
-A handoff is only useful if the next agent knows **what actually happened**. This skill separates *verified observations* from *old claims* and *unknowns*, takes an optional **path-redacted Git snapshot**, and helps reconcile branch/worktree changes before work resumes.
-
-```bash
-npx skills add BarganConstantin/agent-skills --skill handoff-with-receipts
-```
-
-Then prompt your coding agent:
-
-```text
-Use handoff-with-receipts to prepare a resumable checkpoint of this task.
-Capture current Git branch, HEAD and dirty counts if Git is available.
-Separate VERIFIED command output from REPORTED history and UNKNOWNs.
-Keep my scope restrictions; redact secrets. Tell the next agent the
-first safe action. Do not change my code, commit, or push.
-```
-
-**No Git repo?** Still make an honest note with Git state marked `NOT CHECKED`. See the [handoff template](skills/handoff-with-receipts/assets/handoff-template.md) and [evidence limits / source inspiration](skills/handoff-with-receipts/references/evidence-boundaries.md).
-
----
-
-## API Contract Drift — new
-
-**Spot risky API changes before they surprise your clients.** Compare old and proposed OpenAPI 3 JSON contracts offline. See removed operations, newly required parameters/body fields, missing response codes, and explicit blind spots. This is conservative triage, **not** a proof that the API is compatible.
-
-```bash
-npx skills add BarganConstantin/agent-skills --skill api-contract-drift
-```
-
-Then ask your agent: *Use api-contract-drift to compare these two OpenAPI 3 JSON exports. Report possible client breaks, exact evidence, and anything not checked. Do not change production or the API automatically.*
-
-The optional [standard-library comparator](skills/api-contract-drift/scripts/compare_openapi.py) can run directly. [Read its supported checks and limitations](skills/api-contract-drift/references/limitations.md).
-
-**See it catch three real contract changes in 30 seconds:** [run the offline OpenAPI before/after demo](examples/api-contract-drift/README.md) — newly required authentication, a header parameter and a request property, with an actual JSON report.
-
----
-
-## First User Audit
-
-**Find where first-time visitors get stuck — before they give up.**
-
-An open-source [Agent Skill](https://agentskills.io/specification) for browser-based first-user QA. It follows a new visitor from your landing page to the first useful result, captures observable friction with screenshots and reproduction steps, and produces a reviewable report.
+**Three focused skills. Real checks, explicit limits, no account required.** Pick one workflow for Claude Code, Codex, or another compatible coding agent.
 
 [![Validate skills](https://github.com/BarganConstantin/agent-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/BarganConstantin/agent-skills/actions/workflows/validate.yml)
+[![Public GitHub install](https://github.com/BarganConstantin/agent-skills/actions/workflows/public-install.yml/badge.svg)](https://github.com/BarganConstantin/agent-skills/actions/workflows/public-install.yml)
 [![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-![Designed visual summary of a controlled First User Audit study: three observed issues and simulated first-success results for a deliberately defective and prepared reference fixture](assets/first-user-audit-summary.svg)
+| Choose a skill | Problem it helps you solve | Prerequisites |
+| --- | --- | --- |
+| **[Handoff with Receipts](skills/handoff-with-receipts/SKILL.md)** | Continue a coding task in a fresh session without confusing previous claims with verified Git state | No MCP; Git/Python optional |
+| **[API Contract Drift](skills/api-contract-drift/SKILL.md)** | Flag potentially breaking changes between two OpenAPI 3 JSON versions | Offline Python 3.10+ |
+| **[First User Audit](skills/first-user-audit/SKILL.md)** | See where a first-time visitor is blocked on a local web app, with actual browser evidence | Browser MCP + safe preview |
 
-*Illustration of a **controlled fixture** from [v0.2.0](https://github.com/BarganConstantin/agent-skills/releases/tag/v0.2.0), not a product screenshot, real-user conversion study, or proof of autonomous bug fixing. [Inspect the original evidence](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo).*
+## See a result in 30 seconds (no AI agent needed)
 
-### Try Quick Check
-
-Run in your **web application's project** (Node.js 22.20+ and npm):
-
-```bash
-npx skills add BarganConstantin/agent-skills --skill first-user-audit
-```
-
-**Want to preview the instructions before installing?** The current [Skills CLI](https://github.com/vercel-labs/skills/blob/main/docs/commands.md) also supports:
-
-```bash
-npx skills use BarganConstantin/agent-skills --skill first-user-audit
-```
-
-This prints a skill-use prompt without adding an installed skill to your project; it **does not** start an agent or a browser audit. The CI [installer smoke test](.github/workflows/verify-cli-install.yml) verifies both discovery and this preview command with telemetry disabled.
-
-With the skill installed, give your coding agent this request:
-
-```text
-Use first-user-audit in QUICK CHECK mode on my local app.
-Identify the first useful user outcome; inspect browser and safety
-prerequisites, then follow one new visitor's primary journey.
-Collect real screenshots and reproduction steps. Do not edit my app.
-Report actual results, missing capabilities, and 1/4 persona coverage.
-```
-
-**Requirements:** a running localhost or confirmed isolated preview (never production), a connected browser MCP such as [Playwright MCP](skills/first-user-audit/references/browser-setup.md), a fresh/resettable test session, and test-only accounts/integrations if needed. Installing the skill does *not* install a browser connection or sandbox. [Quick Check protocol](skills/first-user-audit/references/quick-check.md).
-
-Quick Check is a single-agent **read-only** first journey. No independent subagents are required. The other three personas are explicitly reported as **not run**.
-
-**Trying this for the first time?** Follow the [Claude Code / Codex setup and first-run guide](docs/first-five-testers.md). If you try it—even if browser setup fails—[share your first-run feedback](https://github.com/BarganConstantin/agent-skills/issues/new?template=first-run-feedback.yml). We’re looking for the first five **independent** attempts to improve onboarding, not asking for artificial installations or stars.
-
-#### No web app ready? Try the practice lab
-
-The repository contains a **localhost-only sample app with deliberately seeded onboarding problems**. You can use it to exercise the real browser workflow without creating accounts or supplying customer data.
+The **API Contract Drift** comparator comes with two synthetic OpenAPI documents and three deliberately planted problems. Clone the repo and run:
 
 ```bash
 git clone https://github.com/BarganConstantin/agent-skills.git
 cd agent-skills
-python evals/fixtures/activation_lab.py --variant seeded --port 8765
+python skills/api-contract-drift/scripts/compare_openapi.py \
+  --before examples/api-contract-drift/before.json \
+  --after examples/api-contract-drift/after.json
 ```
 
-Then follow the [five-minute practice guide](docs/practice-lab.md) to install the skill, connect your agent's browser MCP and run a read-only Quick Check. The lab is a **public training fixture**, not an independent evaluation or claim of AI performance.
+The report flags **three potential client-breaking changes**: a formerly public endpoint requiring authentication, a new mandatory request header, and a new mandatory JSON body field. Those are *controlled fixture results*, **not** proof of agent quality, live API behavior, or full OpenAPI compatibility.
+
+[See the example and expected output](examples/api-contract-drift/README.md) · [Read exact limitations](skills/api-contract-drift/references/limitations.md)
+
+## Install a skill into your coding agent
+
+With Node.js 22.20+ and npm, choose **one**:
+
+```bash
+npx skills add BarganConstantin/agent-skills --skill handoff-with-receipts
+# or
+npx skills add BarganConstantin/agent-skills --skill api-contract-drift
+# or
+npx skills add BarganConstantin/agent-skills --skill first-user-audit
+```
+
+The Skills CLI copies the selected skill instructions into your agent environment; it does **not** automatically execute a task. We [test installation from the public GitHub repository](.github/workflows/public-install.yml) for Claude Code and Codex with CI telemetry disabled. These tests do not count as independent user adoption.
+
+Not ready to install? Preview one skill's instructions without adding it:
+
+```bash
+npx skills use BarganConstantin/agent-skills --skill handoff-with-receipts
+```
+
+## What to ask your agent
+
+**Handoff with Receipts**
+
+> Use handoff-with-receipts to prepare a continuation note. Verify the current branch, HEAD, and dirty worktree if Git is available. Separate VERIFIED facts from REPORTED history and UNKNOWNs. Preserve my scope restrictions. Don't commit or push anything.
+
+**API Contract Drift**
+
+> Use api-contract-drift with my old and new OpenAPI 3 JSON exports. Identify potential client-breaking changes, show evidence and limitations. Do not modify my API.
+
+### Try Quick Check
+
+**First User Audit**
+
+> Use first-user-audit in QUICK CHECK mode on my safe local web app. Define one first-success event, verify browser tools, and follow a new visitor's first journey. Capture actual evidence. Do not edit my app. Label the remaining three personas NOT RUN.
+
+Requires a **real connected browser MCP**, a localhost or verified isolated preview, and safe test data. If any prerequisite is missing, the skill must stop rather than fabricate findings.
+
+#### No web app ready? Try the practice lab
+
+The repository includes a [localhost-only synthetic app](docs/practice-lab.md) with intentionally seeded onboarding issues. You can use it to practice browser QA without using a customer's app. It is **not** an independent agent evaluation.
 
 ### Need a deeper audit?
 
-| Workflow | Coverage | App changes? |
-| --- | --- | --- |
-| **Quick Check** | One first-impression journey; 1/4 personas | No |
-| **Audit Only** (default when not specified) | Four isolated perspectives: impatient, skeptic, mobile, breaker | No |
-| **Audit + Fix + Verify** (explicit opt-in) | Four baseline perspectives, bounded technical fixes, four fresh verification passes | Limited and permitted only |
+First User Audit also supports four distinct browser perspectives (impatient, skeptic, mobile, breaker) and an opt-in bounded fix/verify mode. Read the [full walkthrough](docs/first-user-audit.md) and [safety preflight](skills/first-user-audit/references/browser-setup.md). We do not claim an independently proven model performance lift.
 
-The full workflow checks the obvious CTA, pricing/terms/privacy clarity, mobile layout at 375 CSS pixels, and invalid inputs/retries. Independent subagents are required for genuine isolation; without them, the full audit needs explicit approval for an honestly labeled lower-isolation approximation.
+## Real feedback is more valuable than synthetic popularity
 
-All workflows **stop** when a safe preview or working browser automation is unavailable. A successful skill installation is not proof that the browser audit can run.
+Trying a skill for the first time, even if setup fails? [Share what happened](https://github.com/BarganConstantin/agent-skills/issues/new?template=first-run-feedback.yml). Report only redacted steps: no credentials, private code or client URLs. [First-five-testers guide](docs/first-five-testers.md).
 
-### What gets reported
-
-- **First success:** observable outcome and proof, or a clear reason it wasn't reached.
-- **Friction:** exact route, expected vs actual behavior, reproduction steps, screenshots, and stable issue IDs.
-- **Coverage and limits:** personas actually run, clicks to success (or `null` when blocked), verified vs unsupported capabilities.
-- **Report:** structured JSON, a Markdown summary, and an [optional offline HTML view](skills/first-user-audit/references/html-report.md) with no telemetry or remote dependencies.
-
-Artifacts stay in the **audited application's ignored** `qa/first-users/` directory. Inspect for private data before sharing. Python 3.10+ is needed only for the optional report generators; no Python packages are required for them.
-
-### Evidence, not promises
-
-Our historical [Task Cabin v0.2.0 controlled demonstration](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo) recorded:
-
-| Observed problem in deliberately defective app | Personas affected |
-| --- | --- |
-| The main CTA failed to navigate | Impatient + breaker |
-| Mobile content pushed the CTA offscreen | Mobile |
-| Privacy policy link led to a 404 | Skeptic |
-
-The four baseline simulated personas reached first success **0/4** times; four different runs against a **separately prepared corrected fixture** reached it **4/4** times. These are controlled observations, not independent validation on an unknown app, statistically meaningful conversion measurements, or an autonomous repair benchmark. CI tests validate tooling and fixtures; they don't rerun the full agent study.
-
-[View the historical screenshots and reports](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo) · [Read the engineering article](https://dev.to/bargan/i-built-an-agent-skill-that-tests-your-app-like-four-first-time-users-180d)
-
-### Scope and contribute
-
-Designed for local or isolated-preview **web apps** before launch or after onboarding changes. **Not** production penetration testing, real-user research, legal review, device touch emulation, or permission to change auth, billing, security, pricing, retention, or external integrations.
-
-We are building an independently reviewable [with-skill vs without-skill evaluation](docs/evaluation.md), with a [local scorer](evals/README.md) and [controlled browser fixture](evals/fixtures/README.md). **No genuine comparative performance improvement has been measured yet.**
-
-Found a reproducible issue or tested Quick Check on your app? [Open a GitHub issue](https://github.com/BarganConstantin/agent-skills/issues) with safely redacted steps. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). If the skill helps you, consider starring this repository to help others discover it.
-
-Growth decisions are based on [dated research, observed failures and testable experiments](docs/growth-research.md), not artificial installs or star trading.
-
-MIT licensed · [Full skill instructions](skills/first-user-audit/SKILL.md) · [Report schema](skills/first-user-audit/references/report-format.md)
+Our [growth research](docs/growth-research.md) tracks testable decisions rather than fabricated installs or stars. Read [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md) and the [MIT license](LICENSE). If these tools help your project, a GitHub star makes them easier to discover.
