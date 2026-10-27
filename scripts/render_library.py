@@ -6,6 +6,7 @@ Only local repository files. No external requests, installs or Git operations.
 """
 import argparse
 import html
+import json
 from pathlib import Path
 import re
 import sys
@@ -17,6 +18,9 @@ from library import LibraryError, canonical_url, load  # noqa: E402
 
 CATALOG = LIBRARY / "references" / "catalog.json"
 PAGE = ROOT / "docs" / "library.md"
+EXPLORER = ROOT / "docs" / "library-explorer.html"
+TEMPLATE = ROOT / "assets" / "library-explorer-template.html"
+DATA_MARKER = "<!-- CATALOG_DATA -->"
 START = "<!-- BEGIN GENERATED LIBRARY — edit catalog.json, not this section -->"
 END = "<!-- END GENERATED LIBRARY -->"
 HEADING = "## Browse by area"
@@ -124,28 +128,47 @@ def expected(existing, data):
     return existing[:first] + section + "\n\n" + existing[last:]
 
 
+def render_explorer(data, template):
+    """Build a self-contained, offline HTML explorer with non-executable JSON data.
+
+    HTML/JavaScript/CSS are maintained in the local template. Content is loaded
+    from the validated canonical catalog, then inserted inside a JSON script
+    tag; '<' and '&' are escaped to stop embedded content closing the tag.
+    """
+    if template.count(DATA_MARKER) != 1:
+        raise LibraryError("HTML template must contain exactly one data marker")
+    payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    payload = (payload.replace("&", r"\u0026").replace("<", r"\u003c")
+               .replace(">", r"\u003e"))
+    element = '<script id="library-data" type="application/json">' + payload + "</script>"
+    return template.replace(DATA_MARKER, element)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Render/check the Markdown library index from catalog.json")
     actions = parser.add_mutually_exclusive_group(required=True)
-    actions.add_argument("--check", action="store_true", help="Read-only CI drift check")
-    actions.add_argument("--write", action="store_true", help="Explicitly update the Markdown index")
+    actions.add_argument("--check", action="store_true", help="Read-only Markdown + HTML drift check")
+    actions.add_argument("--write", action="store_true", help="Explicitly update both local library pages")
     args = parser.parse_args(argv)
     try:
         data = load(CATALOG)
-        existing = PAGE.read_text(encoding="utf-8")
-        output = expected(existing, data)
+        markdown = PAGE.read_text(encoding="utf-8")
+        current_html = EXPLORER.read_text(encoding="utf-8")
+        template = TEMPLATE.read_text(encoding="utf-8")
+        output = expected(markdown, data)
+        output_html = render_explorer(data, template)
         if args.check:
-            if existing != output:
-                print("docs/library.md is stale; run python scripts/render_library.py --write",
+            if markdown != output or current_html != output_html:
+                print("Library pages are stale; run python scripts/render_library.py --write",
                       file=sys.stderr)
                 return 1
-            print("Reference Library page matches the canonical catalog.")
+            print("Both offline HTML explorer and Markdown gallery match the canonical catalog.")
             return 0
-        if existing != output:
+        if markdown != output:
             PAGE.write_text(output, encoding="utf-8")
-            print("Updated docs/library.md from the canonical catalog.")
-        else:
-            print("docs/library.md is already in sync.")
+        if current_html != output_html:
+            EXPLORER.write_text(output_html, encoding="utf-8")
+        print("Library pages generated from canonical catalog.")
         return 0
     except (LibraryError, OSError, UnicodeError, KeyError, TypeError) as exc:
         print("Library render error: " + str(exc), file=sys.stderr)

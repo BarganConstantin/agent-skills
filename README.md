@@ -71,12 +71,11 @@ npx skills use BarganConstantin/agent-skills --skill reference-library
 
 ## The reference library
 
-**Find the good ideas when you need them.** The [organized library](docs/library.md) groups verified project references by **UI/UX · Backend/API · Code Review · Testing/QA · Agent Workflows** and links to every original repository.
+**Find useful ideas when you need them.** Browse the [categorized library](docs/library.md) or open `docs/library-explorer.html` locally after cloning for **instant search and filters**. GitHub shows HTML source, not the interactive page. The original projects are always linked.
 
 <a href="docs/library.md"><img src="assets/library-map.svg" alt="Animated category map of the reference library: UI/UX, Backend, Review, Testing and Agent Workflows." width="100%" /></a>
 
 ```bash
-python skills/reference-library/scripts/library.py categories
 python skills/reference-library/scripts/library.py browse backend
 python skills/reference-library/scripts/library.py search "landing page design" --category ui-ux
 ```
