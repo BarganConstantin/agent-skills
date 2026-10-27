@@ -24,6 +24,8 @@ jobs:
         run: python scripts/validate_skills.py
       - name: Check shell scripts for syntax errors
         run: bash -n scripts/verify_cli_onboarding.sh scripts/verify_public_install.sh
+      - name: Verify Reference Library page matches its canonical JSON
+        run: python scripts/render_library.py --check
       - name: Run validator unit tests
         run: python -m unittest discover -s tests -v
       - name: Run reporter unit tests
