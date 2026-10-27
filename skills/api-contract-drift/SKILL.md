@@ -33,7 +33,7 @@ Substitute the actual installed location. The script **reads only local JSON fil
 - Removed accepted request content types, documented response status codes or response content types.
 - **Previously anonymous operations becoming authenticated**, previously allowed security alternatives/scopes being tightened, and material changes to referenced authentication scheme definitions (e.g., header API key to bearer token). Resolve operation-level overrides before comparing global security requirements.
 
-To see an actual reproducible result **without your own API**, run [the safe example](../../examples/api-contract-drift/README.md) from a clone of this repository. Its two JSON specifications intentionally introduce three compatibility risks.
+To see an actual reproducible result **without your own API**, run [the safe example](https://github.com/BarganConstantin/agent-skills/tree/main/examples/api-contract-drift) from a clone of this repository. Its two JSON specifications intentionally introduce three compatibility risks.
 
 To consume a machine-readable result, pass `--format json`. By default the script returns exit code **0 if it ran successfully**, even with flagged risks, so review reports rather than assuming a successful process is a compatibility verdict. CI integrations may opt into `--fail-on-risk` (exit **1** on a flagged potential break; exit **2** on input/errors).
 
