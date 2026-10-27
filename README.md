@@ -1,6 +1,6 @@
 # Agent Skills for Developers
 
-**Three focused skills. Real checks, explicit limits, no account required.** Pick one workflow for Claude Code, Codex, or another compatible coding agent.
+**Four focused skills. Real checks, explicit limits, no account required.** Pick one workflow for Claude Code, Codex, or another compatible coding agent.
 
 [![Validate skills](https://github.com/BarganConstantin/agent-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/BarganConstantin/agent-skills/actions/workflows/validate.yml)
 [![Public GitHub install](https://github.com/BarganConstantin/agent-skills/actions/workflows/public-install.yml/badge.svg)](https://github.com/BarganConstantin/agent-skills/actions/workflows/public-install.yml)
@@ -11,6 +11,7 @@
 | **[Handoff with Receipts](skills/handoff-with-receipts/SKILL.md)** | Continue a coding task in a fresh session without confusing previous claims with verified Git state | No MCP; Git/Python optional |
 | **[API Contract Drift](skills/api-contract-drift/SKILL.md)** | Flag potentially breaking changes between two OpenAPI 3 JSON versions | Offline Python 3.10+ |
 | **[First User Audit](skills/first-user-audit/SKILL.md)** | See where a first-time visitor is blocked on a local web app, with actual browser evidence | Browser MCP + safe preview |
+| **[Reference Library](skills/reference-library/SKILL.md)** | Find saved project inspirations when working on UI, motion or developer tools; add new bookmarks intentionally | Offline Python 3.10+; no MCP |
 
 ## See a result in 30 seconds (no AI agent needed)
 
@@ -38,6 +39,8 @@ npx skills add BarganConstantin/agent-skills --skill handoff-with-receipts
 npx skills add BarganConstantin/agent-skills --skill api-contract-drift
 # or
 npx skills add BarganConstantin/agent-skills --skill first-user-audit
+# or
+npx skills add BarganConstantin/agent-skills --skill reference-library
 ```
 
 The Skills CLI copies the selected skill instructions into your agent environment; it does **not** automatically execute a task. We [test installation from the public GitHub repository](.github/workflows/public-install.yml) for Claude Code and Codex with CI telemetry disabled. These tests do not count as independent user adoption.
@@ -53,6 +56,12 @@ npx skills use BarganConstantin/agent-skills --skill handoff-with-receipts
 **Handoff with Receipts**
 
 > Use handoff-with-receipts to prepare a continuation note. Verify the current branch, HEAD, and dirty worktree if Git is available. Separate VERIFIED facts from REPORTED history and UNKNOWNs. Preserve my scope restrictions. Don't commit or push anything.
+
+**Reference Library**
+
+> Use reference-library to search what I've saved for my current design or coding task. Show relevant original sources, why they help, and tradeoffs before proposing an approach. Do not install or copy anything automatically.
+
+The initial library includes [Hallmark](https://github.com/Nutlope/hallmark) and [Elaya AI Design Skills](https://github.com/elayadesign/ai-design-skills). [Search, curate and sync rules](skills/reference-library/references/curation.md). Saving into one installed copy does **not** sync to your other projects.
 
 **API Contract Drift**
 
