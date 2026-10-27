@@ -19,6 +19,14 @@ Run in your **web application's project** (Node.js 22.20+ and npm):
 npx skills add BarganConstantin/agent-skills --skill first-user-audit
 ```
 
+**Want to preview the instructions before installing?** The current [Skills CLI](https://github.com/vercel-labs/skills/blob/main/docs/commands.md) also supports:
+
+```bash
+npx skills use BarganConstantin/agent-skills --skill first-user-audit
+```
+
+This prints a skill-use prompt without adding an installed skill to your project; it **does not** start an agent or a browser audit. The CI [installer smoke test](.github/workflows/verify-cli-install.yml) verifies both discovery and this preview command with telemetry disabled.
+
 With the skill installed, give your coding agent this request:
 
 ```text
