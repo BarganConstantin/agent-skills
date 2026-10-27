@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'none'; connect-src 'none'; font-src 'none'; object-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">
+  <title>Reference Library · agent-skills</title>
+  <style>
+    :root {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: #e7f0e7; background: #0b1113; color-scheme: dark;
+      --ink: #e7f0e7; --muted: #9bb1a6; --line: #34483f;
+      --accent: #d8fb85; --surface: #132023; --card: #172527;
+    }
+    * { box-sizing: border-box }
+    html { scroll-behavior: smooth }
+    body { margin: 0; min-width: 300px; }
+    a { color: inherit; text-decoration: none }
+    a:hover { color: var(--accent) }
+    button, input { font: inherit }
+    button:focus-visible, a:focus-visible, input:focus-visible {
+      outline: 3px solid var(--accent); outline-offset: 3px;
+    }
+    .shell { width: min(1230px, calc(100% - 48px)); margin: 0 auto }
+    header { display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; padding: 27px 0; border-bottom: 1px solid var(--line) }
+    .brand { display: inline-flex; align-items: center; gap: 11px;
+      font-weight: 750; font-size: 17px; letter-spacing: -.04em; }
+    .brand-mark { display: grid; place-items: center; width: 34px; height: 34px;
+      background: var(--accent); color: #14211a; border-radius: 10px; font-size: 18px; }
+    .brand small { color: var(--accent) }
+    .header-link { font-size: 13px; color: var(--muted); border: 1px solid var(--line);
+      padding: 11px 16px; border-radius: 999px }
+    main { padding-bottom: 95px }
+    .hero { padding: 68px 0 42px; display: grid; grid-template-columns: 1.25fr .75fr;
+      gap: 40px; align-items: end }
+    .eyebrow { color: var(--accent); font-size: 12px; font-weight: 750;
+      letter-spacing: .19em; text-transform: uppercase; }
+    h1 { font-size: clamp(44px, 6.5vw, 86px); line-height: .99; margin: 22px 0;
+      letter-spacing: -.072em; max-width: 850px; }
+    h1 em { color: var(--accent); font-style: normal }
+    .lead { color: var(--muted); max-width: 650px; font-size: 18px; line-height: 1.68 }
+    .hero-side { padding: 28px; border: 1px solid var(--line); border-radius: 20px;
+      background: linear-gradient(145deg, #1b302c, #121c1e); position: relative; }
+    .hero-side::before { content: ""; position: absolute; top: 0; right: 25px;
+      width: 50px; height: 3px; background: var(--accent); }
+    .hero-side strong { font-size: 48px; letter-spacing: -.07em; display: block; }
+    .hero-side p { color: var(--muted); line-height: 1.55; font-size: 13px;
+      margin: 5px 0 17px; }
+    .hero-side .fine { color: var(--accent); font-size: 12px; letter-spacing: .05em }
+    .toolbar { position: sticky; top: 0; z-index: 5; background: rgba(11,17,19,.98);
+      border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+      padding: 18px 0 14px; }
+    .toolbar-inner { display: flex; flex-direction: column; gap: 17px; }
+    .search-row { display: flex; align-items: center; gap: 12px }
+    .search-wrap { display: flex; align-items: center; gap: 12px; flex: 1;
+      min-width: 0; background: #1a2a2a; border: 1px solid #465d50;
+      border-radius: 12px; padding: 0 15px; }
+    .search-wrap:focus-within { border-color: var(--accent); }
+    .search-icon { font-size: 22px; color: var(--accent) }
+    #search { background: transparent; border: none; color: var(--ink); outline: none;
+      width: 100%; min-height: 50px; padding: 8px 0; font-size: 15px; }
+    #search::placeholder { color: #93aa9e; opacity: 1 }
+    #clear { background: transparent; color: var(--muted); border: none;
+      cursor: pointer; padding: 10px; }
+    #clear:hover { color: var(--accent) }
+    .shortcut { color: var(--muted); border: 1px solid var(--line); border-radius: 8px;
+      font-size: 12px; padding: 12px; white-space: nowrap; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter { cursor: pointer; border-radius: 999px; color: #b2c3b7;
+      background: transparent; padding: 10px 15px; font-size: 12px;
+      font-weight: 650; border: 1px solid #3b5148; }
+    .filter:hover { background: #1c3128; color: white }
+    .filter[aria-pressed="true"] { background: var(--accent); border-color: var(--accent);
+      color: #142116 }
+    .filter .count { opacity: .7; font-variant-numeric: tabular-nums; margin-left: 5px }
+    .status-line { display: flex; justify-content: space-between; align-items: center;
+      gap: 18px; margin: 31px 0 18px; color: var(--muted); font-size: 13px; }
+    .status-line b { color: var(--ink) }
+    .status-line span:last-child { text-align: right }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+      padding: 23px; display: flex; flex-direction: column; min-height: 310px;
+      transition: transform .22s ease, border-color .22s ease; }
+    .card:hover { transform: translateY(-3px); border-color: #8fab75 }
+    .card-top { display: flex; justify-content: space-between; gap: 12px; }
+    .number { color: var(--accent); font-size: 12px; font-family: ui-monospace, monospace;
+      letter-spacing: .12em }
+    .type { color: var(--muted); font-size: 11px; }
+    .card h2 { font-size: 23px; letter-spacing: -.035em; margin: 22px 0 10px }
+    .summary { margin: 0; color: #b7c8bf; font-size: 14px; line-height: 1.65; flex: 1 }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px }
+    .tag { font-size: 10px; border: 1px solid #405447; border-radius: 6px;
+      color: #b8cbb7; padding: 5px 7px }
+    .meta { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between; gap: 10px;
+      font-size: 11px; color: var(--muted) }
+    .meta .verified { color: #c4f59f }
+    .external { margin-top: 18px; font-size: 12px; font-weight: 750; color: var(--accent) }
+    .external::after { content: " ↗" }
+    .empty { text-align: center; border: 1px dashed #4b6657; border-radius: 17px;
+      padding: 60px 24px; margin: 26px 0 }
+    .empty h2 { margin-top: 0 }
+    .empty p { color: var(--muted); line-height: 1.6 }
+    .empty[hidden], .card[hidden], .filter[hidden] { display: none }
+    footer { color: var(--muted); padding: 28px 0 45px; border-top: 1px solid var(--line);
+      font-size: 13px; line-height: 1.7 }
+    footer a { text-decoration: underline; text-underline-offset: 3px }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 44px }
+      .hero-side { max-width: 460px }
+      .cards { grid-template-columns: repeat(2,minmax(0,1fr)) }
+      .shortcut { display: none }
+    }
+    @media (max-width: 580px) {
+      .shell { width: min(100% - 28px, 1230px) }
+      .cards { grid-template-columns: 1fr }
+      .hero { padding-top: 42px }
+      h1 { font-size: clamp(45px, 10vw, 66px) }
+      .status-line { flex-direction: column; align-items: flex-start; }
+      .card { min-height: 250px }
+      .filter { padding: 9px 12px }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important;
+        transition-duration: .01ms !important; animation: none !important }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a class="brand" href="../README.md" aria-label="Agent Skills repository README"><span class="brand-mark">⌁</span> agent-skills<small>.</small></a>
+    <a class="header-link" href="https://github.com/BarganConstantin/agent-skills" target="_blank" rel="noopener noreferrer">GitHub repository ↗</a>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <div class="eyebrow">The reference library / Developer edition</div>
+        <h1 id="hero-title">Good ideas deserve a <em>second look.</em></h1>
+        <p class="lead">A considered shelf of code, design and agent tooling worth remembering. Browse by discipline, find what solves your problem, then go directly to the original project.</p>
+      </div>
+      <div class="hero-side">
+        <div class="eyebrow">Library snapshot</div>
+        <strong id="total">—</strong><p>unique bookmarked projects</p>
+        <span class="fine" id="topic-count">Curated across developer disciplines</span>
+        <p>Reference only. No packages installed, no claims of independent testing or endorsement.</p>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="toolbar">
+  <div class="shell toolbar-inner">
+    <div class="search-row">
+      <label for="search" class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><input id="search" type="search" autocomplete="off" placeholder="Search tools, tasks, technologies…" aria-label="Search references"><span aria-hidden="true"></span></label>
+      <button id="clear" type="button" aria-label="Clear search">Clear</button>
+      <span class="shortcut" aria-hidden="true">Press / to search</span>
+    </div>
+    <nav class="filters" aria-label="Filter reference category" id="filters"></nav>
+  </div>
+</div>
+<div class="shell">
+  <div class="status-line">
+    <span id="status" role="status" aria-live="polite">Loading saved references…</span>
+    <span>Original sources · Dated notes · No external dependencies</span>
+  </div>
+  <section id="cards" class="cards" aria-label="Matching developer projects"></section>
+  <div class="empty" id="empty" hidden><h2>No matching sources.</h2><p>Try another term or select All areas.<br>We won't invent a recommendation that wasn't saved.</p></div>
+  <footer>
+    <p>This is a generated <strong>offline snapshot</strong> of the canonical catalog. Bookmarking does not install, execute, or approve any external code. Check upstream documentation and licensing before reuse.</p>
+    <p><a href="../skills/reference-library/references/catalog.json">Catalog JSON</a> · <a href="library.md">GitHub-friendly Markdown library</a> · <a href="../skills/reference-library/SKILL.md">Reference Library Agent Skill</a></p>
+  </footer>
+</div>
+<script id="library-data" type="application/json">{"schema_version":1,"description":"Curated external project references, not vendored code or installed dependencies. Inspect upstream afresh before using.","entries":[{"id":"hallmark","name":"Hallmark","url":"https://github.com/Nutlope/hallmark","owner":"Nutlope","type":"design-agent-skill","license":"MIT","license_source":"https://github.com/Nutlope/hallmark/blob/main/LICENSE","reviewed_at":"2026-10-27","status":"reference-only","tags":["design","ui","ux","frontend","landing-page","website","redesign","visual-quality","design-review","themes","responsive","anti-slop","interfata","pagina","design-system"],"use_when":"Building or reviewing distinctive landing pages, web UI and visual systems; avoiding generic AI-looking layouts and checking responsive quality.","look_for":["Distinctive visual directions and theme selection rather than generic templates","Real browser-based visual checks, accessibility/contrast and responsive layouts","Audit/redesign workflow and preservation of existing functional behavior"],"cautions":["Its upstream install or invocation does not happen just because it is indexed here.","Theme count, rules and implementation can change; consult the live upstream skill before relying on details.","Design rules are inspiration, not a license to copy assets or make unsupported performance claims."],"categories":["ui-ux"],"summary":"Distinctive interface design, design themes, responsive audits and avoiding generic AI-looking layouts."},{"id":"ai-design-skills","name":"AI Design Skills (Elaya)","url":"https://github.com/elayadesign/ai-design-skills","owner":"elayadesign","type":"design-skill-collection","license":"MIT","license_source":"https://github.com/elayadesign/ai-design-skills/blob/main/LICENSE","reviewed_at":"2026-10-27","status":"reference-only","tags":["design","ui","ux","frontend","landing-page","website","copywriting","conversion","typography","design-system","motion","animation","showcase","video","interfata","pagina","animatie"],"use_when":"Planning a landing page from the audience and conversion goal, choosing a visual system, or producing motion demonstrations of an existing design.","look_for":["Landing-page-design: offer, audience, structure, conversion copy and visual rules","Design-to-motion: animated showcase from a static design; inspect current prerequisites upstream","Editable design values and explicit design constraints"],"cautions":["Read the specific upstream SKILL.md and its license/credits before using or adapting; some ideas reference additional upstream projects.","Do not invent conversion statistics, logos, testimonials or other proof.","A collection link is not evidence that its skills have been installed or tested in this project."],"categories":["ui-ux"],"summary":"Landing-page content and visual systems, plus animation/motion showcase workflows."},{"id":"microsoft-aspire","name":"Aspire","url":"https://github.com/microsoft/aspire","owner":"microsoft","type":"backend-developer-platform","license":"MIT","license_source":"https://github.com/microsoft/aspire/blob/main/LICENSE.TXT","reviewed_at":"2026-10-27","status":"reference-only","categories":["backend"],"summary":"Code-first app composition, service integrations, observability and local development for distributed apps.","tags":["dotnet","csharp","backend","api","microservices","observability","local-development","distributed","deployment","aspire"],"use_when":"Working on .NET or mixed-language distributed systems; debugging services, telemetry and local app orchestration.","look_for":["Official code-first app host and dashboard","Local orchestration and service integration patterns","OpenTelemetry and developer observability workflows"],"cautions":["This is a developer platform, not an Agent Skill.","Check supported versions and required runtimes before adoption.","External services and deployments need explicit authorization."]},{"id":"microsoft-agent-framework","name":"Microsoft Agent Framework","url":"https://github.com/microsoft/agent-framework","owner":"microsoft","type":"agent-framework","license":"MIT","license_source":"https://github.com/microsoft/agent-framework/blob/main/LICENSE","reviewed_at":"2026-10-27","status":"reference-only","categories":["backend","agent-workflows"],"summary":"Build, orchestrate and host AI agents in .NET and Python, with reusable workflow patterns.","tags":["dotnet","csharp","python","backend","agent","multi-agent","mcp","workflow","orchestration","llm","integration"],"use_when":"Building backend agents, durable workflows, MCP integrations or multi-agent orchestration in .NET or Python.","look_for":["Official agent orchestration and hosting examples","Agent Skills and MCP integration samples","Workflows, tool approval, observability and evaluation patterns"],"cautions":["Framework integration is not equivalent to installing an Agent Skill.","Choose a current version and review runtime, provider and hosting requirements.","Use test credentials and explicit approvals for external model or service calls."]},{"id":"oasdiff","name":"oasdiff","url":"https://github.com/oasdiff/oasdiff","owner":"oasdiff","type":"openapi-compatibility-cli","license":"Apache-2.0","license_source":"https://github.com/oasdiff/oasdiff/blob/main/LICENSE","reviewed_at":"2026-10-27","status":"reference-only","categories":["backend","review"],"summary":"Compare OpenAPI specifications and surface breaking changes in local tooling or CI.","tags":["backend","api","openapi","swagger","contract","breaking-changes","review","code-review","compatibility","ci"],"use_when":"Reviewing backend API changes, migrating consumers, auditing schema changes and adding compatibility checks to pull requests.","look_for":["Breaking-change rule catalog and accurate API diff semantics","PR review and CI integration patterns","Support for varied OpenAPI versions and schema compositions"],"cautions":["Use trusted local specs; hosted side-by-side features may upload or share contract details.","Our api-contract-drift skill is intentionally a much narrower independent comparator.","License is Apache-2.0, not MIT; retain applicable notices if importing material."]},{"id":"playwright-mcp","name":"Playwright MCP","url":"https://github.com/microsoft/playwright-mcp","owner":"microsoft","type":"browser-mcp-server","license":"Apache-2.0","license_source":"https://github.com/microsoft/playwright-mcp/blob/main/LICENSE","reviewed_at":"2026-10-27","status":"reference-only","categories":["testing"],"summary":"Give agents real browser navigation and interaction through a structured MCP interface.","tags":["browser","testing","qa","playwright","mcp","automation","e2e","accessibility","browser-testing"],"use_when":"An agent needs to inspect a safe local app, reproduce a user journey, or gather actual interactive browser evidence.","look_for":["Browser state lifecycle and isolated test sessions","Accessibility snapshots and deterministic page interaction","Agent client setup and permissions"],"cautions":["An MCP connection alone is not proof that a browser workflow succeeded.","Use local/staging environments; avoid customer accounts or live payments.","Upstream also recommends Playwright CLI+Skills for some token-sensitive coding workflows."]},{"id":"playwright-cli","name":"Playwright CLI","url":"https://github.com/microsoft/playwright-cli","owner":"microsoft","type":"browser-cli","license":"Apache-2.0","license_source":"https://github.com/microsoft/playwright-cli/blob/main/LICENSE","reviewed_at":"2026-10-27","status":"reference-only","categories":["testing"],"summary":"Run browser actions and inspect pages from a CLI; useful with coding-agent skill workflows.","tags":["testing","qa","browser","playwright","cli","e2e","screenshots","automation","agent-tools"],"use_when":"An agent or developer prefers concise shell-driven browser checks, screenshots, selector inspection or test reproduction.","look_for":["Browser CLI commands and skills integration","Browser screenshots and element inspection","Tradeoffs versus a persistent MCP browser session"],"cautions":["CLI automation is not a substitute for a safe test environment.","Verify client setup and isolation before testing live user journeys.","Do not execute upstream install scripts automatically just because this link is bookmarked."]},{"id":"superpowers","name":"Superpowers","url":"https://github.com/obra/superpowers","owner":"obra","type":"agent-skills-methodology","license":"MIT","license_source":"https://github.com/obra/superpowers/blob/main/LICENSE","reviewed_at":"2026-10-27","status":"reference-only","categories":["review","testing","agent-workflows"],"summary":"Composable agent workflows for planning, test-driven work, debugging and verification.","tags":["agent","workflow","review","code-review","testing","tdd","debugging","verification","planning","skills"],"use_when":"Reviewing plans, implementing changes with evidence, debugging systematically, or creating a repeatable test-first agent workflow.","look_for":["Verification-before-completion and clean evidence boundaries","Structured TDD and systematic debugging skills","Composable planning/review workflow, with realistic agent constraints"],"cautions":["Strong opinionated workflows may conflict with a project's agreed process.","Check what commands and subagents a particular host actually supports.","Do not reproduce its skill instructions without following the MIT license conditions."]},{"id":"spec-kit","name":"Spec Kit","url":"https://github.com/github/spec-kit","owner":"github","type":"spec-driven-workflow-toolkit","license":"MIT","license_source":"https://github.com/github/spec-kit/blob/main/LICENSE","reviewed_at":"2026-10-27","status":"reference-only","categories":["review","agent-workflows"],"summary":"Structured specification, feature planning, bug investigation and decision reviews for coding agents.","tags":["agent","workflow","planning","specification","spec-driven","review","code-review","requirements","bugs","engineering"],"use_when":"Starting a complex feature, reviewing ambiguous requirements or creating a traceable plan and decision record before implementation.","look_for":["Spec-driven feature process and review checkpoints","Bugfix and idea assessment workflows","Documented outcomes and repeatable templates"],"cautions":["Templates guide decisions but do not replace human review.","An entire process toolkit may be excessive for simple one-line tasks.","Verify tool and project integration requirements before introducing it."]}],"categories":[{"id":"ui-ux","name":"UI / UX","tagline":"Interfaces, visual systems, motion and meaningful first impressions.","icon":"✦"},{"id":"backend","name":"Backend / API","tagline":"Services, .NET orchestration, API contracts and agent infrastructure.","icon":"⌘"},{"id":"review","name":"Code Review","tagline":"Spot regressions, interrogate assumptions and review changes before shipping.","icon":"◎"},{"id":"testing","name":"Testing / QA","tagline":"Real-browser evidence, reproducible checks and test-first workflows.","icon":"◇"},{"id":"agent-workflows","name":"Agent Workflows","tagline":"Structured planning, tool use, context and multi-agent engineering.","icon":"↗"},{"id":"inbox","name":"Inbox / To Review","tagline":"Newly saved links that still need classification and verification.","icon":"+"}]}</script>
+<script>
+(function () {
+  "use strict";
+  const payloadNode = document.getElementById("library-data");
+  const data = JSON.parse(payloadNode.textContent);
+  payloadNode.remove();
+  const entries = data.entries.slice();
+  const categories = data.categories.filter(x => x.id !== "inbox");
+  const input = document.getElementById("search");
+  const container = document.getElementById("cards");
+  const status = document.getElementById("status");
+  const filters = document.getElementById("filters");
+  const empty = document.getElementById("empty");
+  const clear = document.getElementById("clear");
+  let category = "all";
+
+  function normalize(value) {
+    return String(value || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
+  function node(type, className, text) {
+    const element = document.createElement(type);
+    if (className) element.className = className;
+    if (text != null) element.textContent = text;
+    return element;
+  }
+  function externalLink(label, href, className) {
+    const el = node("a", className, label);
+    el.href = href;
+    el.target = "_blank";
+    el.rel = "noopener noreferrer";
+    return el;
+  }
+  function createFilter(id, name, total) {
+    const button = node("button", "filter", name + " ");
+    button.type = "button";
+    button.setAttribute("aria-pressed", id === category ? "true" : "false");
+    const count = node("span", "count", String(total));
+    count.setAttribute("aria-hidden", "true");
+    button.append(count);
+    button.addEventListener("click", function () {
+      category = id;
+      for (const candidate of filters.querySelectorAll("button")) {
+        candidate.setAttribute("aria-pressed", candidate === button ? "true" : "false");
+      }
+      update();
+    });
+    return button;
+  }
+  filters.append(createFilter("all", "All areas", entries.length));
+  for (const group of categories) {
+    filters.append(createFilter(group.id, group.name,
+      entries.filter(entry => entry.categories.includes(group.id)).length));
+  }
+  if (entries.some(entry => entry.categories.includes("inbox"))) {
+    filters.append(createFilter("inbox", "Inbox / unreviewed",
+      entries.filter(entry => entry.categories.includes("inbox")).length));
+  }
+
+  function makeCard(entry, position) {
+    const article = node("article", "card");
+    const head = node("div", "card-top");
+    head.append(node("span", "number", String(position).padStart(2, "0") + " / SOURCE"));
+    head.append(node("span", "type", entry.type.replace(/-/g, " ")));
+    article.append(head);
+    article.append(node("h2", null, entry.name));
+    article.append(node("p", "summary", entry.summary));
+    const labels = node("div", "tags");
+    for (const id of entry.categories) {
+      const group = data.categories.find(x => x.id === id);
+      if (group) labels.append(node("span", "tag", group.name));
+    }
+    article.append(labels);
+    const meta = node("div", "meta");
+    meta.append(node("span", null, entry.license + " license"));
+    meta.append(node("span", entry.status === "reference-only" ? "verified" : "",
+      entry.status === "reference-only" ? "Reviewed " + entry.reviewed_at : "Needs review"));
+    article.append(meta);
+    article.append(externalLink("View original repository", entry.url, "external"));
+    return article;
+  }
+  function update() {
+    const query = normalize(input.value.trim());
+    const terms = query.split(/\s+/).filter(Boolean);
+    const matches = entries.filter(entry => {
+      if (category !== "all" && !entry.categories.includes(category)) return false;
+      const content = normalize([entry.name, entry.owner, entry.type, entry.summary,
+        entry.use_when, entry.tags.join(" "), entry.look_for.join(" "),
+        entry.categories.join(" ")].join(" "));
+      return terms.every(term => content.includes(term));
+    });
+    container.replaceChildren();
+    matches.forEach((entry, index) => container.append(makeCard(entry, index + 1)));
+    empty.hidden = matches.length !== 0;
+    status.textContent = matches.length + " of " + entries.length + " saved sources" +
+      (category === "all" ? "" : " · " +
+       (data.categories.find(group => group.id === category) || {}).name) +
+      (query ? " · matching \"" + input.value.trim() + "\"" : "");
+  }
+  document.getElementById("total").textContent = String(entries.length).padStart(2, "0");
+  document.getElementById("topic-count").textContent =
+    categories.length + " curated developer categories";
+  input.addEventListener("input", update);
+  clear.addEventListener("click", function () { input.value = ""; update(); input.focus(); });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "/" && !event.ctrlKey && !event.metaKey && !event.altKey &&
+        !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+      event.preventDefault();
+      input.focus();
+    }
+  });
+  update();
+}());
+</script>
+</body>
+</html>
