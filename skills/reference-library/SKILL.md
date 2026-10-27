@@ -9,7 +9,7 @@ compatibility: Python 3.10+ for optional offline search and local bookmark captu
 
 **Purpose:** give coding agents a durable, searchable map of projects the owner has deliberately bookmarked. It is a **reference index**, not a list of tools that are automatically installed, trusted, verified continuously, or granted permission to edit the owner's projects.
 
-The library ships with vetted, dated links to **Hallmark** and **Elaya AI Design Skills**. Add more only when the user intentionally saves them. See [catalog](references/catalog.json) and [curation rules](references/curation.md).
+The library ships with **nine curated public references in five areas**: UI/UX, Backend/API, Code Review, Testing/QA and Agent Workflows. This includes Hallmark and Elaya AI Design Skills. Some projects belong to multiple areas. See the [browseable library](https://github.com/BarganConstantin/agent-skills/blob/main/docs/library.md), [catalog](references/catalog.json) and [curation rules](references/curation.md). Save other projects when the owner requests it.
 
 ## When to consult it
 
@@ -24,13 +24,15 @@ The library ships with vetted, dated links to **Hallmark** and **Elaya AI Design
 With Python 3.10+ and this skill installed, run its bundled standard-library CLI (substitute the real installed path):
 
 ```bash
-python /path/to/reference-library/scripts/library.py list
-python /path/to/reference-library/scripts/library.py search "landing page design"
-python /path/to/reference-library/scripts/library.py search "motion animated UI"
+python /path/to/reference-library/scripts/library.py categories
+python /path/to/reference-library/scripts/library.py browse ui-ux
+python /path/to/reference-library/scripts/library.py browse backend
+python /path/to/reference-library/scripts/library.py search "landing page design" --category ui-ux
+python /path/to/reference-library/scripts/library.py search "API review" --category review
 python /path/to/reference-library/scripts/library.py show hallmark
 ```
 
-The CLI reads only [the local JSON catalog](references/catalog.json): **no network, no Git writes, no installing upstream dependencies and no edits to other repositories.** Search matches saved tags and task descriptions; if nothing fits, say no matching reference was found rather than inventing one.
+The CLI reads only [the local JSON catalog](references/catalog.json): **no network, no Git writes, no installing upstream dependencies and no edits to other repositories.** Search matches saved tags and task descriptions; `--category` narrows results to a single curated area. If nothing fits, say no matching reference was found rather than inventing one. The `categories` command shows category names and source counts. A saved source may appear in multiple areas without creating duplicates.
 
 For each match, tell the user **why** it is relevant, its original URL, and the tradeoff/cautions. Recommend browsing official upstream docs before implementation. Ask whether to **learn from its ideas**, **install it in the current approved project**, or **adapt a concept independently**. Those are separate actions requiring their normal permissions and license checks. A linked project is not a dependency or an endorsement.
 
@@ -44,10 +46,11 @@ For each match, tell the user **why** it is relevant, its original URL, and the 
    python /path/to/reference-library/scripts/library.py add \
      --id example-project --name "Example Project" \
      --url https://github.com/example/project \
-     --tags design,frontend --use-when "Review visual patterns"
+     --tags design,frontend --categories ui-ux \
+     --use-when "Review visual patterns"
    ```
 
-4. Only after the user requests saving, add `--write` to update the **local catalog file**. The command never pushes, commits, clones, fetches or updates other repositories. New CLI entries are marked `unverified-reference` and `license: unknown` until actually reviewed.
+4. Only after the user requests saving, add `--write` to update the **local catalog file**. The command never pushes, commits, clones, fetches or updates other repositories. New CLI entries are marked `unverified-reference` and `license: unknown` until actually reviewed. If `--categories` is omitted, they enter the `inbox` for deliberate categorization instead of being assigned a misleading area.
 5. **Persistence:** installed skill directories are snapshots. An edit to an installed copy will *not automatically sync* into the canonical `BarganConstantin/agent-skills` repository or other projects. If a durable shared library is requested, update the **canonical JSON in that approved repository**, review the diff, run tests and commit there using authorized repo tools. Only that repository is writable in this project.
 
 ## Using the library while building
@@ -62,4 +65,4 @@ For each match, tell the user **why** it is relevant, its original URL, and the 
 
 When retrieving: show *name, original link, match rationale, useful idea, limitations, saved review date* and clearly mark that no installation happened. When saving: show *canonical file changed, newly added ID, source, review status and whether saved to the approved repository*. Never claim the catalog refreshes itself, remembers uncommitted chat links, or verifies external stars/commits automatically.
 
-**This skill contains references, not upstream code.** MIT licenses of saved projects are recorded for traceability; if you later reuse substantial code/text/assets, check obligations for each copied part and preserve required notices. An upstream project being MIT-licensed does not mean you can disregard attribution and license retention for copied materials.
+**This skill contains references, not upstream code.** MIT and Apache-2.0 licenses of saved projects are recorded for traceability; if you later reuse substantial code/text/assets, check obligations for each copied part and preserve required notices. An upstream project being MIT-licensed does not mean you can disregard attribution and license retention for copied materials.

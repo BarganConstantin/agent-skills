@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 296" role="img" aria-labelledby="title desc">
+<title id="title">Reference Library — five areas to explore</title>
+<desc id="desc">Five organized reference categories: UI and UX, Backend and API, Code Review, Testing and QA, Agent Workflows. A small indicator travels across the top and stops.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0c161a"/><stop offset="1" stop-color="#1b292b"/></linearGradient><linearGradient id="tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#233333"/><stop offset="1" stop-color="#142024"/></linearGradient></defs>
+<rect width="1280" height="296" rx="18" fill="url(#bg)"/>
+<path d="M35 30h1210M35 266h1210" fill="none" stroke="#466254" stroke-opacity=".55"/>
+<g font-family="Arial, Helvetica, sans-serif">
+<text x="38" y="62" fill="#d8fa92" font-size="13" font-weight="700" letter-spacing="2.4">THE KNOWLEDGE SHELF</text>
+<text x="38" y="93" fill="#eef5ee" font-size="27" font-weight="700" letter-spacing="-.6">Find the right reference. Skip the guesswork.</text>
+<text x="1238" y="60" text-anchor="end" fill="#9eb6a7" font-size="12" font-family="Courier New, Courier, monospace">FIVE AREAS / NINE SOURCES</text>
+</g>
+<g fill="url(#tile)" stroke="#3d5a50" stroke-width="1">
+<rect x="36" y="123" width="232" height="118" rx="11"/><rect x="280" y="123" width="232" height="118" rx="11"/><rect x="524" y="123" width="232" height="118" rx="11"/><rect x="768" y="123" width="232" height="118" rx="11"/><rect x="1012" y="123" width="232" height="118" rx="11"/>
+</g>
+<g font-family="Arial, Helvetica, sans-serif">
+<text x="56" y="157" font-size="13" font-weight="700" fill="#d8fa92">01 / DESIGN</text><text x="56" y="194" font-size="24" font-weight="700" fill="#f6faf5">UI / UX</text><text x="56" y="222" font-size="13" fill="#9fb7ac">Interfaces · Motion</text>
+<text x="300" y="157" font-size="13" font-weight="700" fill="#d8fa92">02 / ENGINEERING</text><text x="300" y="194" font-size="24" font-weight="700" fill="#f6faf5">Backend</text><text x="300" y="222" font-size="13" fill="#9fb7ac">API · .NET · Services</text>
+<text x="544" y="157" font-size="13" font-weight="700" fill="#d8fa92">03 / QUALITY</text><text x="544" y="194" font-size="24" font-weight="700" fill="#f6faf5">Code Review</text><text x="544" y="222" font-size="13" fill="#9fb7ac">Contracts · Decisions</text>
+<text x="788" y="157" font-size="13" font-weight="700" fill="#d8fa92">04 / VERIFICATION</text><text x="788" y="194" font-size="24" font-weight="700" fill="#f6faf5">Testing / QA</text><text x="788" y="222" font-size="13" fill="#9fb7ac">Browser · Automation</text>
+<text x="1032" y="157" font-size="13" font-weight="700" fill="#d8fa92">05 / AGENTS</text><text x="1032" y="194" font-size="22" font-weight="700" fill="#f6faf5">Workflows</text><text x="1032" y="222" font-size="13" fill="#9fb7ac">Plan · Build · Verify</text>
+</g>
+<path d="M36 252h1208" stroke="#54715c" stroke-width="2"/>
+<circle cx="48" cy="252" r="5" fill="#d8fa92"><animate attributeName="cx" from="48" to="1228" dur="10s" repeatCount="2" fill="freeze"/></circle>
+</svg>

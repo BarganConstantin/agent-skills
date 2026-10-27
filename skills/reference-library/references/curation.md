@@ -6,16 +6,25 @@ The library is a **bookmarks + task-context index**, not an automatically update
 
 - **Hallmark** — [Nutlope/hallmark](https://github.com/Nutlope/hallmark), [MIT license](https://github.com/Nutlope/hallmark/blob/main/LICENSE). Source documentation describes a distinctive UI/design skill, theme variations, responsive browser checks, and an audit/redesign option. In our index: useful for visual-quality research, not a vendored theme catalog.
 - **AI Design Skills** — [elayadesign/ai-design-skills](https://github.com/elayadesign/ai-design-skills), [MIT license](https://github.com/elayadesign/ai-design-skills/blob/main/LICENSE). Source README lists `landing-page-design` and `design-to-motion`; it focuses on landing-page intent/copy and visual motion. In our index: useful for design strategy and showcasing UI, not a claim of conversion gains.
+- **Aspire** — [microsoft/aspire](https://github.com/microsoft/aspire), MIT. Backend orchestration and observability; this is a platform, not a standalone Agent Skill.
+- **Microsoft Agent Framework** — [microsoft/agent-framework](https://github.com/microsoft/agent-framework), MIT. .NET/Python agent and multi-agent workflows.
+- **oasdiff** — [oasdiff/oasdiff](https://github.com/oasdiff/oasdiff), Apache-2.0. OpenAPI compatibility analysis for backends and code reviews.
+- **Playwright MCP** and **Playwright CLI** — [MCP](https://github.com/microsoft/playwright-mcp) / [CLI](https://github.com/microsoft/playwright-cli), Apache-2.0. Browser tools for different testing workflows.
+- **Superpowers** — [obra/superpowers](https://github.com/obra/superpowers), MIT. Code review, TDD, agent workflow methodology.
+- **Spec Kit** — [github/spec-kit](https://github.com/github/spec-kit), MIT. Structured specification, assessment, feature and bugfix processes.
+
+See [the readable categorized shelf](../../../docs/library.md) for what to use when and links to individual license notices.
 
 Features and licensing are observations at the **review date**, not guarantees of current behavior. Inspect upstream again before invoking a specific skill or borrowing material.
 
 ## What goes in a saved entry
 
-- Canonical upstream **HTTPS URL**, human-readable name, unique stable ID.
+- Canonical upstream **HTTPS URL**, human-readable name, unique stable ID, short summary and one or more controlled **categories**.
 - Original owner and kind, brief task-relevant tags and a one-paragraph **use_when** explanation.
 - Specific things worth investigating; honest cautions and adoption prerequisites.
 - License and its authoritative source URL **only after verifying** them.
 - Review date and status: `reference-only` (read and summarized) or `unverified-reference` (saved without independently checking contents).
+- Allowed categories: `ui-ux`, `backend`, `review`, `testing`, `agent-workflows`. Multiple are allowed only when helpful. New bookmarks default to `inbox`, awaiting curation.
 
 Do **not** store access tokens, company URLs, private project files, user identities, giant descriptions, screenshots, remote executable commands, pasted upstream skills or sensitive context. Stars are deliberately not cached because they become stale and are not a suitability criterion.
 
@@ -37,8 +46,9 @@ Installed Agent Skills are loaded on demand, based on their names/descriptions a
 ## Commands
 
 ```bash
-python skills/reference-library/scripts/library.py list
-python skills/reference-library/scripts/library.py search "landing page design"
+python skills/reference-library/scripts/library.py categories
+python skills/reference-library/scripts/library.py browse testing
+python skills/reference-library/scripts/library.py search "OpenAPI backend review" --category review
 python skills/reference-library/scripts/library.py show ai-design-skills
 ```
 

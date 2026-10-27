@@ -15,7 +15,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-19272b" alt="MIT licensed" /></a>
 </p>
 
-**Small, useful tools for coding agents.** Keep work context, review API changes, test a first-time user's journey, and recall good ideas. Built for Claude Code, Codex, and other compatible agents.
+**Focused tools for coding agents.** Keep context, review APIs, test user journeys, and recall good ideas. For Claude Code, Codex, and compatible agents.
 
 ## See a result in 30 seconds
 
@@ -71,15 +71,19 @@ npx skills use BarganConstantin/agent-skills --skill reference-library
 
 ## The reference library
 
-**Find the good ideas when you need them.** Start with [Hallmark](https://github.com/Nutlope/hallmark) for distinctive UI and [Elaya's AI Design Skills](https://github.com/elayadesign/ai-design-skills) for landing pages and motion.
+**Find the good ideas when you need them.** The [organized library](docs/library.md) groups verified project references by **UI/UX · Backend/API · Code Review · Testing/QA · Agent Workflows** and links to every original repository.
+
+<a href="docs/library.md"><img src="assets/library-map.svg" alt="Animated category map of the reference library: UI/UX, Backend, Review, Testing and Agent Workflows." width="100%" /></a>
 
 ```bash
-python skills/reference-library/scripts/library.py search "landing page design"
+python skills/reference-library/scripts/library.py categories
+python skills/reference-library/scripts/library.py browse backend
+python skills/reference-library/scripts/library.py search "landing page design" --category ui-ux
 ```
 
 Or tell your agent: *“Use reference-library. What have I saved that can help this UI task? Show source links and reasons.”*
 
-Our [curated catalog](skills/reference-library/references/catalog.json) stores original links, tags, use cases and review dates, **not third-party code**. Installed copies do not sync automatically to other projects. [Curation rules](skills/reference-library/references/curation.md).
+Our [curated catalog](skills/reference-library/references/catalog.json) stores **9 unique** original links, categories, tags, use cases and review dates, **not third-party code**. Installed copies do not sync automatically to other projects. [Curation rules](skills/reference-library/references/curation.md).
 
 ## Try browser-based first-user QA
 
@@ -97,4 +101,4 @@ CI checks Python tests and [installation from the public GitHub repo](.github/wo
 
 [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [Growth research](docs/growth-research.md) · [MIT](LICENSE)
 
-If the toolkit helped you, a GitHub star helps other developers find it.
+If this helps, consider a GitHub star.
