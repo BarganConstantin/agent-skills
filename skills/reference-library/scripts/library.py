@@ -39,8 +39,11 @@ def canonical_url(value):
         p = urlsplit(value.strip())
     except ValueError as exc:
         raise LibraryError("Invalid URL") from exc
-    host = p.hostname
-    if p.scheme != "https" or not host or "." not in host or p.username or p.password or p.port:
+    try:
+        host, port = p.hostname, p.port
+    except ValueError as exc:
+        raise LibraryError("Invalid reference URL host or port") from exc
+    if p.scheme != "https" or not host or "." not in host or p.username or p.password or port:
         raise LibraryError("References require a public HTTPS URL without credentials or port")
     if host in ("localhost", "127.0.0.1") or any(x.isspace() for x in value):
         raise LibraryError("Private or malformed references are not accepted")
