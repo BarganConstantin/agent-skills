@@ -1,4 +1,35 @@
-# First User Audit
+# Agent Skills for Developers
+
+**Two focused open-source workflows for coding agents.** Install what you need; no account, subscription, or private app access required just to inspect a skill.
+
+| Skill | When to use it | Setup |
+| --- | --- | --- |
+| **[Handoff with Receipts](skills/handoff-with-receipts/SKILL.md)** | Switching between Claude Code / Codex, ending a long session, or handing work to another engineer; capture actual Git state, verified claims and the next safe action | No MCP; optional Git + Python 3.10+ |
+| **[First User Audit](skills/first-user-audit/SKILL.md)** | Check whether a first-time visitor can reach actual value in a local web app with a real browser and reproducible evidence | Browser MCP + safe local/isolated preview |
+
+## Handoff with Receipts — new
+
+A handoff is only useful if the next agent knows **what actually happened**. This skill separates *verified observations* from *old claims* and *unknowns*, takes an optional **path-redacted Git snapshot**, and helps reconcile branch/worktree changes before work resumes.
+
+```bash
+npx skills add BarganConstantin/agent-skills --skill handoff-with-receipts
+```
+
+Then prompt your coding agent:
+
+```text
+Use handoff-with-receipts to prepare a resumable checkpoint of this task.
+Capture current Git branch, HEAD and dirty counts if Git is available.
+Separate VERIFIED command output from REPORTED history and UNKNOWNs.
+Keep my scope restrictions; redact secrets. Tell the next agent the
+first safe action. Do not change my code, commit, or push.
+```
+
+**No Git repo?** Still make an honest note with Git state marked `NOT CHECKED`. See the [handoff template](skills/handoff-with-receipts/assets/handoff-template.md) and [evidence limits / source inspiration](skills/handoff-with-receipts/references/evidence-boundaries.md).
+
+---
+
+## First User Audit
 
 **Find where first-time visitors get stuck — before they give up.**
 
@@ -11,7 +42,7 @@ An open-source [Agent Skill](https://agentskills.io/specification) for browser-b
 
 *Illustration of a **controlled fixture** from [v0.2.0](https://github.com/BarganConstantin/agent-skills/releases/tag/v0.2.0), not a product screenshot, real-user conversion study, or proof of autonomous bug fixing. [Inspect the original evidence](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo).*
 
-## Try Quick Check
+### Try Quick Check
 
 Run in your **web application's project** (Node.js 22.20+ and npm):
 
@@ -43,7 +74,7 @@ Quick Check is a single-agent **read-only** first journey. No independent subage
 
 **Trying this for the first time?** Follow the [Claude Code / Codex setup and first-run guide](docs/first-five-testers.md). If you try it—even if browser setup fails—[share your first-run feedback](https://github.com/BarganConstantin/agent-skills/issues/new?template=first-run-feedback.yml). We’re looking for the first five **independent** attempts to improve onboarding, not asking for artificial installations or stars.
 
-### No web app ready? Try the practice lab
+#### No web app ready? Try the practice lab
 
 The repository contains a **localhost-only sample app with deliberately seeded onboarding problems**. You can use it to exercise the real browser workflow without creating accounts or supplying customer data.
 
@@ -55,7 +86,7 @@ python evals/fixtures/activation_lab.py --variant seeded --port 8765
 
 Then follow the [five-minute practice guide](docs/practice-lab.md) to install the skill, connect your agent's browser MCP and run a read-only Quick Check. The lab is a **public training fixture**, not an independent evaluation or claim of AI performance.
 
-## Need a deeper audit?
+### Need a deeper audit?
 
 | Workflow | Coverage | App changes? |
 | --- | --- | --- |
@@ -67,7 +98,7 @@ The full workflow checks the obvious CTA, pricing/terms/privacy clarity, mobile 
 
 All workflows **stop** when a safe preview or working browser automation is unavailable. A successful skill installation is not proof that the browser audit can run.
 
-## What gets reported
+### What gets reported
 
 - **First success:** observable outcome and proof, or a clear reason it wasn't reached.
 - **Friction:** exact route, expected vs actual behavior, reproduction steps, screenshots, and stable issue IDs.
@@ -76,7 +107,7 @@ All workflows **stop** when a safe preview or working browser automation is unav
 
 Artifacts stay in the **audited application's ignored** `qa/first-users/` directory. Inspect for private data before sharing. Python 3.10+ is needed only for the optional report generators; no Python packages are required for them.
 
-## Evidence, not promises
+### Evidence, not promises
 
 Our historical [Task Cabin v0.2.0 controlled demonstration](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo) recorded:
 
@@ -90,7 +121,7 @@ The four baseline simulated personas reached first success **0/4** times; four d
 
 [View the historical screenshots and reports](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo) · [Read the engineering article](https://dev.to/bargan/i-built-an-agent-skill-that-tests-your-app-like-four-first-time-users-180d)
 
-## Scope and contribute
+### Scope and contribute
 
 Designed for local or isolated-preview **web apps** before launch or after onboarding changes. **Not** production penetration testing, real-user research, legal review, device touch emulation, or permission to change auth, billing, security, pricing, retention, or external integrations.
 

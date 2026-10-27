@@ -12,6 +12,7 @@ cd "$WORKDIR"
 echo "::group::CLI skill discovery without installing"
 npx --yes skills@latest add "$GITHUB_WORKSPACE" --list | tee discovery.txt
 grep -Fq "first-user-audit" discovery.txt
+grep -Fq "handoff-with-receipts" discovery.txt
 echo "::endgroup::"
 
 echo "::group::Real project-local installation to Claude Code and Codex"
@@ -26,6 +27,19 @@ for target in ".agents/skills/first-user-audit" ".claude/skills/first-user-audit
 done
 echo "::endgroup::"
 
+echo "::group::Install the evidence-backed handoff skill for both clients"
+npx --yes skills@latest add "$GITHUB_WORKSPACE" \
+  --skill handoff-with-receipts --agent claude-code --agent codex --copy --yes
+HANDOFF="$GITHUB_WORKSPACE/skills/handoff-with-receipts"
+for target in ".agents/skills/handoff-with-receipts" ".claude/skills/handoff-with-receipts"; do
+  test -f "$target/SKILL.md"
+  cmp "$HANDOFF/SKILL.md" "$target/SKILL.md"
+  cmp "$HANDOFF/scripts/git_snapshot.py" "$target/scripts/git_snapshot.py"
+  cmp "$HANDOFF/assets/handoff-template.md" "$target/assets/handoff-template.md"
+  cmp "$HANDOFF/references/evidence-boundaries.md" "$target/references/evidence-boundaries.md"
+done
+echo "::endgroup::"
+
 echo "::group::Generate usable prompt without installing or running an agent"
 mkdir -p "$WORKDIR/try-without-install"
 cd "$WORKDIR/try-without-install"
@@ -33,6 +47,9 @@ npx --yes skills@latest use "$GITHUB_WORKSPACE" \
   --skill first-user-audit > skill-prompt.txt
 grep -Fq "First User Audit" skill-prompt.txt
 grep -Fq "Quick Check" skill-prompt.txt
+npx --yes skills@latest use "$GITHUB_WORKSPACE" \
+  --skill handoff-with-receipts > handoff-prompt.txt
+grep -Fq "Handoff with Receipts" handoff-prompt.txt
 test ! -d .agents
 test ! -d .claude
 echo "::endgroup::"
