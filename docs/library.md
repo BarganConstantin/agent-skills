@@ -2,6 +2,8 @@
 
 **A handpicked shelf of useful developer projects.** Start with the kind of work you're doing—not a wall of links. Every entry leads to its **original GitHub repository**, explains *when it helps*, and records a reviewed license. Nothing is copied or installed just by being listed.
 
+*This gallery is generated from [the canonical catalog](../skills/reference-library/references/catalog.json). After editing the catalog, run `python scripts/render_library.py --write`; CI checks for drift. The visuals are static-first, with optional finite animation.*
+
 <p align="center"><img src="../assets/library-map.svg" alt="Five library categories: UI/UX, Backend/API, Code Review, Testing/QA and Agent Workflows, shown in a subtly animated developer workbench." width="100%" /></p>
 
 <!-- BEGIN GENERATED LIBRARY — edit catalog.json, not this section -->
