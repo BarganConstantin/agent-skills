@@ -21,20 +21,11 @@ START = "<!-- BEGIN GENERATED LIBRARY — edit catalog.json, not this section --
 END = "<!-- END GENERATED LIBRARY -->"
 HEADING = "## Browse by area"
 NEXT = "## Find exactly what you need"
-KNOWN_MAP = {
-    "ui-ux": "UI / UX",
-    "backend": "Backend",
-    "review": "Code Review",
-    "testing": "Testing / QA",
-    "agent-workflows": "Workflows",
-}
-
-
 def plain(value):
     """Escape display fields: no source-supplied HTML or Markdown structure."""
     text = " ".join(str(value).split())
     text = html.escape(text, quote=False)
-    for character in ("\\", "|", "[", "]", "\`"):
+    for character in ("\\", "|", "[", "]", "\x60"):
         text = text.replace(character, "\\" + character)
     return text
 
