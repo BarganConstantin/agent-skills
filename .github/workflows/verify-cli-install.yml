@@ -1,0 +1,31 @@
+name: Verify public skill installation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/first-user-audit/**"
+      - "scripts/verify_cli_onboarding.sh"
+      - ".github/workflows/verify-cli-install.yml"
+  pull_request:
+    paths:
+      - "skills/first-user-audit/**"
+      - "scripts/verify_cli_onboarding.sh"
+      - ".github/workflows/verify-cli-install.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  first-run:
+    name: Skills CLI discover, install, use
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify CLI onboarding without publishing telemetry
+        run: bash scripts/verify_cli_onboarding.sh
