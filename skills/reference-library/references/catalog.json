@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "description": "Curated external project references, not vendored code or installed dependencies. Inspect upstream afresh before using.",
+  "entries": [
+    {
+      "id": "hallmark",
+      "name": "Hallmark",
+      "url": "https://github.com/Nutlope/hallmark",
+      "owner": "Nutlope",
+      "type": "design-agent-skill",
+      "license": "MIT",
+      "license_source": "https://github.com/Nutlope/hallmark/blob/main/LICENSE",
+      "reviewed_at": "2026-10-27",
+      "status": "reference-only",
+      "tags": [
+        "design",
+        "ui",
+        "ux",
+        "frontend",
+        "landing-page",
+        "website",
+        "redesign",
+        "visual-quality",
+        "design-review",
+        "themes",
+        "responsive",
+        "anti-slop",
+        "interfata",
+        "pagina",
+        "design-system"
+      ],
+      "use_when": "Building or reviewing distinctive landing pages, web UI and visual systems; avoiding generic AI-looking layouts and checking responsive quality.",
+      "look_for": [
+        "Distinctive visual directions and theme selection rather than generic templates",
+        "Real browser-based visual checks, accessibility/contrast and responsive layouts",
+        "Audit/redesign workflow and preservation of existing functional behavior"
+      ],
+      "cautions": [
+        "Its upstream install or invocation does not happen just because it is indexed here.",
+        "Theme count, rules and implementation can change; consult the live upstream skill before relying on details.",
+        "Design rules are inspiration, not a license to copy assets or make unsupported performance claims."
+      ]
+    },
+    {
+      "id": "ai-design-skills",
+      "name": "AI Design Skills (Elaya)",
+      "url": "https://github.com/elayadesign/ai-design-skills",
+      "owner": "elayadesign",
+      "type": "design-skill-collection",
+      "license": "MIT",
+      "license_source": "https://github.com/elayadesign/ai-design-skills/blob/main/LICENSE",
+      "reviewed_at": "2026-10-27",
+      "status": "reference-only",
+      "tags": [
+        "design",
+        "ui",
+        "ux",
+        "frontend",
+        "landing-page",
+        "website",
+        "copywriting",
+        "conversion",
+        "typography",
+        "design-system",
+        "motion",
+        "animation",
+        "showcase",
+        "video",
+        "interfata",
+        "pagina",
+        "animatie"
+      ],
+      "use_when": "Planning a landing page from the audience and conversion goal, choosing a visual system, or producing motion demonstrations of an existing design.",
+      "look_for": [
+        "Landing-page-design: offer, audience, structure, conversion copy and visual rules",
+        "Design-to-motion: animated showcase from a static design; inspect current prerequisites upstream",
+        "Editable design values and explicit design constraints"
+      ],
+      "cautions": [
+        "Read the specific upstream SKILL.md and its license/credits before using or adapting; some ideas reference additional upstream projects.",
+        "Do not invent conversion statistics, logos, testimonials or other proof.",
+        "A collection link is not evidence that its skills have been installed or tested in this project."
+      ]
+    }
+  ]
+}
