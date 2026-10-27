@@ -36,7 +36,7 @@ class ReferenceLibraryTests(unittest.TestCase):
             self.assertTrue(item["summary"])
 
     def test_ui_design_query_returns_relevant_saved_links(self):
-        found = library.search(self.data, "UI design for a landing page", 5)
+        found = library.search(self.data, "UI design for a landing page", 5, "ui-ux")
         self.assertEqual({x["id"] for x in found}, {"hallmark", "ai-design-skills"})
         self.assertTrue(all(x["matched_tags"] for x in found))
         self.assertTrue(all(x["status"] == "reference-only" for x in found))
@@ -177,7 +177,7 @@ class ReferenceLibraryTests(unittest.TestCase):
         for entry in self.data["entries"]:
             self.assertIn(entry["url"], page)
             self.assertIn(entry["name"], page)
-        self.assertIn("does **not**", page)
+        self.assertIn("do **not** sync automatically", page)
 
     def test_do_not_follow_symlink_to_write_elsewhere(self):
         with tempfile.TemporaryDirectory() as work:
