@@ -5,11 +5,19 @@ on:
     branches: [main]
     paths:
       - "skills/**"
+      - "docs/library-explorer.html"
+      - "assets/library-explorer-template.html"
+      - "scripts/smoke_library_explorer.mjs"
+      - "scripts/render_library.py"
       - "scripts/verify_cli_onboarding.sh"
       - ".github/workflows/verify-cli-install.yml"
   pull_request:
     paths:
       - "skills/**"
+      - "docs/library-explorer.html"
+      - "assets/library-explorer-template.html"
+      - "scripts/smoke_library_explorer.mjs"
+      - "scripts/render_library.py"
       - "scripts/verify_cli_onboarding.sh"
       - ".github/workflows/verify-cli-install.yml"
   workflow_dispatch:
@@ -27,5 +35,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
+      - name: Smoke-test offline explorer behavior without network or dependencies
+        run: node scripts/smoke_library_explorer.mjs
       - name: Verify CLI onboarding without publishing telemetry
         run: bash scripts/verify_cli_onboarding.sh
