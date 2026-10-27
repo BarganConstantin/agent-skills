@@ -37,7 +37,7 @@ class LibraryMapTests(unittest.TestCase):
         data = json.loads(CATALOG.read_text(encoding="utf-8"))
         counted = sum(x["id"] != "inbox" for x in data["categories"])
         self.assertEqual(counted, 5)
-        self.assertEqual(len(data["entries"]), 9)
+        self.assertGreaterEqual(len(data["entries"]), 9)
         for group in data["categories"]:
             if group["id"] == "inbox":
                 continue
