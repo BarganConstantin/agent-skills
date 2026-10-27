@@ -31,8 +31,11 @@ class LibraryRenderingTests(unittest.TestCase):
         for entry in self.data["entries"]:
             self.assertIn(renderer.safe_link(entry["url"]), body)
             self.assertIn(renderer.plain(entry["name"]), body)
-        self.assertIn("9 unique sources", body)
-        self.assertIn("14 category placements", body)
+        self.assertIn(str(len(self.data["entries"])) + " unique sources", body)
+        self.assertIn(str(sum(
+            group["id"] in entry["categories"]
+            for group in self.data["categories"] if group["id"] != "inbox"
+            for entry in self.data["entries"])) + " category placements", body)
         self.assertIn("Backend / API", body)
 
     def test_multiple_memberships_do_not_duplicate_catalog_entries(self):
@@ -40,7 +43,7 @@ class LibraryRenderingTests(unittest.TestCase):
         backend = {e["id"] for e in data["entries"] if "backend" in e["categories"]}
         review = {e["id"] for e in data["entries"] if "review" in e["categories"]}
         self.assertIn("oasdiff", backend & review)
-        self.assertEqual(len({e["url"] for e in data["entries"]}), 9)
+        self.assertEqual(len({e["url"] for e in data["entries"]}), len(data["entries"]))
 
     def test_new_reference_changes_derived_counts_and_page(self):
         data = copy.deepcopy(self.data)
@@ -49,8 +52,10 @@ class LibraryRenderingTests(unittest.TestCase):
                      categories=["backend", "testing"])
         data["entries"].append(extra)
         refreshed = renderer.expected(self.original, data)
-        self.assertIn("10 unique sources", refreshed)
-        self.assertIn("16 category placements", refreshed)
+        self.assertIn(str(len(data["entries"])) + " unique sources", refreshed)
+        self.assertIn(str(sum(group["id"] in item["categories"]
+            for group in data["categories"] if group["id"] != "inbox"
+            for item in data["entries"])) + " category placements", refreshed)
         self.assertIn("Local Demo", refreshed)
         self.assertEqual(refreshed.count("Local Demo"), 2)
         self.assertIn("Find exactly what you need", refreshed)
@@ -95,7 +100,7 @@ class LibraryRenderingTests(unittest.TestCase):
                 with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
                     self.assertEqual(renderer.main(["--check"]), 0)
                 self.assertEqual(page.read_text(encoding="utf-8"), self.original)
-                page.write_text(self.original.replace("9 unique sources", "7 unique sources"),
+                page.write_text(self.original.replace(str(len(self.data["entries"])) + " unique sources", "0 unique sources"),
                                 encoding="utf-8")
                 changed = page.read_bytes()
                 with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
