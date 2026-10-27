@@ -8,6 +8,19 @@
 | **[API Contract Drift](skills/api-contract-drift/SKILL.md)** | Review potential client-breaking changes between two OpenAPI 3 JSON exports, before release | Offline Python 3.10+; no MCP |
 | **[First User Audit](skills/first-user-audit/SKILL.md)** | Check whether a first-time visitor can reach actual value in a local web app with a real browser and reproducible evidence | Browser MCP + safe local/isolated preview |
 
+**Try the skill that fits your next task** (Node.js 22.20+ and npm):
+
+```bash
+npx skills add BarganConstantin/agent-skills --skill handoff-with-receipts
+# or
+npx skills add BarganConstantin/agent-skills --skill api-contract-drift
+# or
+npx skills add BarganConstantin/agent-skills --skill first-user-audit
+```
+
+These are three separate choices, **not** an instruction to install all three. A one-command install only adds the selected skill's files; you still need to run the relevant task in your agent. [Real public GitHub installation checks](.github/workflows/public-install.yml) run on published changes and weekly, with installer telemetry disabled.
+
+
 ## Handoff with Receipts — new
 
 A handoff is only useful if the next agent knows **what actually happened**. This skill separates *verified observations* from *old claims* and *unknowns*, takes an optional **path-redacted Git snapshot**, and helps reconcile branch/worktree changes before work resumes.
@@ -143,5 +156,7 @@ Designed for local or isolated-preview **web apps** before launch or after onboa
 We are building an independently reviewable [with-skill vs without-skill evaluation](docs/evaluation.md), with a [local scorer](evals/README.md) and [controlled browser fixture](evals/fixtures/README.md). **No genuine comparative performance improvement has been measured yet.**
 
 Found a reproducible issue or tested Quick Check on your app? [Open a GitHub issue](https://github.com/BarganConstantin/agent-skills/issues) with safely redacted steps. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). If the skill helps you, consider starring this repository to help others discover it.
+
+Growth decisions are based on [dated research, observed failures and testable experiments](docs/growth-research.md), not artificial installs or star trading.
 
 MIT licensed · [Full skill instructions](skills/first-user-audit/SKILL.md) · [Report schema](skills/first-user-audit/references/report-format.md)

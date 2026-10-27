@@ -1,0 +1,30 @@
+name: Public GitHub install smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/**"
+      - "scripts/verify_public_install.sh"
+      - ".github/workflows/public-install.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "18 7 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  remote-install:
+    if: github.repository == 'BarganConstantin/agent-skills'
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify published GitHub distribution
+        run: bash scripts/verify_public_install.sh
