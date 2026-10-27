@@ -57,6 +57,8 @@ The JSON document uses the following structure. This is an **illustrative schema
 }
 ```
 
+**Quick Check (one agent):** write only `baseline/impatient.json`. Set `capabilities.independent_subagent` to `not-applicable`, since no independently isolated subagent was used. Run the reporter with `--baseline-only` (never `--strict`). It will truthfully show **Completed reports: 1/4** and identify skeptic, mobile and breaker as **not run**. Do not extrapolate findings to the other perspectives or claim fresh independent verification.
+
 **Vocabulary**:
 
 - `phase`: `baseline` or `after`.
