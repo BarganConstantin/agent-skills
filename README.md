@@ -55,6 +55,8 @@ Then ask your agent: *Use api-contract-drift to compare these two OpenAPI 3 JSON
 
 The optional [standard-library comparator](skills/api-contract-drift/scripts/compare_openapi.py) can run directly. [Read its supported checks and limitations](skills/api-contract-drift/references/limitations.md).
 
+**See it catch three real contract changes in 30 seconds:** [run the offline OpenAPI before/after demo](examples/api-contract-drift/README.md) — newly required authentication, a header parameter and a request property, with an actual JSON report.
+
 ---
 
 ## First User Audit
