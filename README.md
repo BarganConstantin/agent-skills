@@ -1,114 +1,79 @@
 # First User Audit
 
-**Your app works. Can a first-time visitor reach the first useful result?**
+**Find where first-time visitors get stuck — before they give up.**
 
-First User Audit is an [Agent Skill](https://agentskills.io/specification) for **simulated first-user QA**. Run a safe, one-journey **Quick Check** or a four-persona browser audit to see where a new visitor gets stuck—with real screenshots, reproducible steps and an optional read-only HTML report. Bounded technical fixes and fresh verification require a separate opt-in.
+An open-source [Agent Skill](https://agentskills.io/specification) for browser-based first-user QA. It follows a new visitor from your landing page to the first useful result, captures observable friction with screenshots and reproduction steps, and produces a reviewable report.
 
 [![Validate skills](https://github.com/BarganConstantin/agent-skills/actions/workflows/validate.yml/badge.svg)](https://github.com/BarganConstantin/agent-skills/actions/workflows/validate.yml)
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> **Not a conversion study.** These are simulated, heuristic QA journeys—not real users, usability research, or evidence of improved business conversion.
+![Designed visual summary of a controlled First User Audit study: three observed issues and simulated first-success results for a deliberately defective and prepared reference fixture](assets/first-user-audit-summary.svg)
 
-## Try it: one journey, no application changes
+*Illustration of a **controlled fixture** from [v0.2.0](https://github.com/BarganConstantin/agent-skills/releases/tag/v0.2.0), not a product screenshot, real-user conversion study, or proof of autonomous bug fixing. [Inspect the original evidence](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo).*
 
-Install in your web application project (Node.js 22.20+ and npm):
+## Try Quick Check
+
+Run in your **web application's project** (Node.js 22.20+ and npm):
 
 ```bash
 npx skills add BarganConstantin/agent-skills --skill first-user-audit
 ```
 
-Then tell your Agent Skills-compatible coding agent:
+With the skill installed, give your coding agent this request:
 
 ```text
-Use first-user-audit in QUICK CHECK mode on my locally running app.
-Define the first useful user outcome, check browser tools and safety,
-then follow one fresh visitor's primary path with real browser evidence.
-Do not change my app. Report actual findings and mark the other
-three personas as not run.
+Use first-user-audit in QUICK CHECK mode on my local app.
+Identify the first useful user outcome; inspect browser and safety
+prerequisites, then follow one new visitor's primary journey.
+Collect real screenshots and reproduction steps. Do not edit my app.
+Report actual results, missing capabilities, and 1/4 persona coverage.
 ```
 
-**One run, one real browser journey, no independent subagents required.** You get a reproducible first-impression report and can escalate to four personas later. See the [Quick Check protocol](skills/first-user-audit/references/quick-check.md).
+**Requirements:** a running localhost or confirmed isolated preview (never production), a connected browser MCP such as [Playwright MCP](skills/first-user-audit/references/browser-setup.md), a fresh/resettable test session, and test-only accounts/integrations if needed. Installing the skill does *not* install a browser connection or sandbox. [Quick Check protocol](skills/first-user-audit/references/quick-check.md).
 
-Before running: you **must have a working browser MCP**, a local or confirmed isolated preview (not production), a clean test browser session, and safe test identities/data. See the [Playwright MCP setup](skills/first-user-audit/references/browser-setup.md). Installing the skill does **not** install browser tools, subagents, or sandboxing. Python 3.10+ is optional for rendering reports.
+Quick Check is a single-agent **read-only** first journey. No independent subagents are required. The other three personas are explicitly reported as **not run**.
 
-Want the full test? Ask: *Use first-user-audit in AUDIT-ONLY mode. Run all four isolated personas, capture evidence, and do not edit my app.* Genuine independent subagents are required unless you explicitly approve a disclosed lower-isolation alternative.
+## Need a deeper audit?
 
-### What it catches (controlled historical example)
+| Workflow | Coverage | App changes? |
+| --- | --- | --- |
+| **Quick Check** | One first-impression journey; 1/4 personas | No |
+| **Audit Only** (default when not specified) | Four isolated perspectives: impatient, skeptic, mobile, breaker | No |
+| **Audit + Fix + Verify** (explicit opt-in) | Four baseline perspectives, bounded technical fixes, four fresh verification passes | Limited and permitted only |
 
-| Browser observation | What was recorded |
+The full workflow checks the obvious CTA, pricing/terms/privacy clarity, mobile layout at 375 CSS pixels, and invalid inputs/retries. Independent subagents are required for genuine isolation; without them, the full audit needs explicit approval for an honestly labeled lower-isolation approximation.
+
+All workflows **stop** when a safe preview or working browser automation is unavailable. A successful skill installation is not proof that the browser audit can run.
+
+## What gets reported
+
+- **First success:** observable outcome and proof, or a clear reason it wasn't reached.
+- **Friction:** exact route, expected vs actual behavior, reproduction steps, screenshots, and stable issue IDs.
+- **Coverage and limits:** personas actually run, clicks to success (or `null` when blocked), verified vs unsupported capabilities.
+- **Report:** structured JSON, a Markdown summary, and an [optional offline HTML view](skills/first-user-audit/references/html-report.md) with no telemetry or remote dependencies.
+
+Artifacts stay in the **audited application's ignored** `qa/first-users/` directory. Inspect for private data before sharing. Python 3.10+ is needed only for the optional report generators; no Python packages are required for them.
+
+## Evidence, not promises
+
+Our historical [Task Cabin v0.2.0 controlled demonstration](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo) recorded:
+
+| Observed problem in deliberately defective app | Personas affected |
 | --- | --- |
-| Primary start CTA led nowhere | Impatient and breaker personas stopped at the same issue |
-| 375px viewport pushed the CTA offscreen | Mobile persona could not proceed |
-| Privacy link returned 404 | Skeptic persona could not inspect the policy |
+| The main CTA failed to navigate | Impatient + breaker |
+| Mobile content pushed the CTA offscreen | Mobile |
+| Privacy policy link led to a 404 | Skeptic |
 
-These are documented observations from our **deliberately broken v0.2.0 fixture**, not real-customer outcomes or evidence of autonomous fixing. Review the [raw screenshot evidence and report](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo).
-## Four perspectives, one measurable goal
+The four baseline simulated personas reached first success **0/4** times; four different runs against a **separately prepared corrected fixture** reached it **4/4** times. These are controlled observations, not independent validation on an unknown app, statistically meaningful conversion measurements, or an autonomous repair benchmark. CI tests validate tooling and fixtures; they don't rerun the full agent study.
 
-| Perspective | What it tries to uncover |
-| --- | --- |
-| **Impatient** | Is the obvious first action enough to get started? |
-| **Skeptic** | Are price, commitment, privacy and terms understandable? |
-| **Mobile** | Can someone progress at a verified 375 CSS-pixel viewport? |
-| **Breaker** | Do validation, retries, back navigation and duplicate actions work? |
+[View the historical screenshots and reports](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo) · [Read the engineering article](https://dev.to/bargan/i-built-an-agent-skill-that-tests-your-app-like-four-first-time-users-180d)
 
-Define **first success** before testing: e.g. *a fresh test account creates a workspace and reaches its dashboard*. "Clicked Sign up" is usually not the outcome.
+## Scope and contribute
 
-### What you get
+Designed for local or isolated-preview **web apps** before launch or after onboarding changes. **Not** production penetration testing, real-user research, legal review, device touch emulation, or permission to change auth, billing, security, pricing, retention, or external integrations.
 
-- One persona report in Quick Check or four reports in a full audit, with actual clicks *to success* (or `null` when blocked), issues, completion counts and capability gaps.
-- Concrete screenshots, reproduction steps and stable issue IDs; evidence must be inspected for personal data before sharing.
-- A prioritized Markdown summary, plus an **optional offline HTML report** to review findings visually. The local Python tools validate report consistency; `--verify-evidence` checks paths and existence, **not screenshot authenticity**.
-- In **Audit + Fix + Verify** mode: owner-approved bounded technical fixes, relevant tests and four fresh verification runs, with honest before/after limitations.
+We are building an independently reviewable [with-skill vs without-skill evaluation](docs/evaluation.md), with a [local scorer](evals/README.md) and [controlled browser fixture](evals/fixtures/README.md). **No genuine comparative performance improvement has been measured yet.**
 
-Reports live under the **target application's ignored** `qa/first-users/` directory. The [report schema and commands](skills/first-user-audit/references/report-format.md) explain how to inspect them. Python 3.10+ is only needed for the optional reporter.
+Found a reproducible issue or tested Quick Check on your app? [Open a GitHub issue](https://github.com/BarganConstantin/agent-skills/issues) with safely redacted steps. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). If the skill helps you, consider starring this repository to help others discover it.
 
-For a standalone report you can open locally, run the [offline HTML reporter](skills/first-user-audit/references/html-report.md) after collecting persona JSON. It escapes report content, makes no network requests, and deliberately does not embed potentially sensitive screenshots.
-
-## See a reviewed, controlled example
-
-The [v0.2.0 Task Cabin demo](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo) includes screenshots, eight persona reports, the fixture and [reviewed findings](https://github.com/BarganConstantin/agent-skills/blob/v0.2.0/examples/first-user-demo/report.md).
-
-| Prepared demo fixture | First success |
-| --- | --- |
-| Baseline with deliberate defects | **0 of 4** simulated personas |
-| Separately prepared fixed variant | **4 of 4** simulated personas |
-
-### Browser evidence from the controlled fixture
-
-| Baseline: mobile journey blocked | Prepared reference: mobile journey reaches first success |
-| --- | --- |
-| ![Controlled demo baseline mobile browser screenshot](https://raw.githubusercontent.com/BarganConstantin/agent-skills/v0.2.0/examples/first-user-demo/evidence/baseline-mobile-FUA-001.png) | ![Controlled demo after mobile browser screenshot](https://raw.githubusercontent.com/BarganConstantin/agent-skills/v0.2.0/examples/first-user-demo/evidence/after-mobile-success.png) |
-
-These are archived browser screenshots from the [reviewed v0.2.0 demonstration](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo), **not** independent customer-product evidence or proof that an agent autonomously fixed the app.
-
-Read the original [engineering write-up on DEV Community](https://dev.to/bargan/i-built-an-agent-skill-that-tests-your-app-like-four-first-time-users-180d). It documents the four-persona workflow; Quick Check was added later.
-
-This is **not** evidence that the skill autonomously fixed bugs in an unknown app or improved human conversion. The fixed version was prepared in advance. CI reran deterministic validation, **not** the eight agent-led browser sessions. The demo was deliberately removed from the current source tree to keep installations lean; its tagged archive remains inspectable.
-
-## Choose the workflow
-
-| Mode | Changes app code? | Verification | Start here? |
-| --- | --- | --- | --- |
-| **Quick Check** (explicit) | No | One browser journey, 1/4 coverage, no subagents required | **Start here** |
-| **Audit only** (default) | No | Four baseline persona runs, evidence and a prioritized report | For broader coverage |
-| **Audit + Fix + Verify** | Bounded technical changes only; sensitive changes require approval | Four baseline runs and four fresh verification runs when supported | After reviewing first audit |
-
-The skill [defines exact safety boundaries and run instructions](skills/first-user-audit/SKILL.md). In **all modes**, a missing safe environment or browser connection means **stop**, not fabricated results. Quick Check uses one agent by design; approximating the *full four-persona audit* with one agent requires explicit consent and must never be described as independent.
-
-## Scope and limits
-
-**Good fit:** browser-based signup, onboarding, self-serve activation and first-value journeys before launch or after UX changes.
-
-**Not covered:** production accounts, real payments, security penetration testing, actual human retention, representative user sampling, genuine touch-device testing by viewport resize alone, or automatic permission to change auth, billing, privacy or production configuration. Run real-user research alongside simulated QA.
-
-**Compatibility:** installation uses the open [skills CLI](https://github.com/vercel-labs/skills). Agent execution requires actual connected browser tools and the runtime capabilities described above. Successful installation does not prove end-to-end execution in each agent.
-
-## Contribute and verify
-
-Found a reproducible obstacle, have a redacted real-app case study, or see a failure mode we missed? [Open an issue](https://github.com/BarganConstantin/agent-skills/issues). Contributions should include the smallest safe reproduction and relevant regression tests. See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-We're working toward repeatable **with-skill vs without-skill** behavior evaluation—not manufactured benchmark wins. Read the [evaluation protocol](docs/evaluation.md) and the [local reviewed-run scorer](evals/README.md); propose a test case. **No real comparative benchmark results are claimed yet.**
-
-If the skill helps with your project, a [GitHub star](https://github.com/BarganConstantin/agent-skills) helps other developers find it. Practical bug reports and successful reproduction steps are even more valuable.
-
-[MIT license](LICENSE) · [Security and private vulnerability reporting](SECURITY.md) · [v0.2.0 controlled demo](https://github.com/BarganConstantin/agent-skills/releases/tag/v0.2.0)
+MIT licensed · [Full skill instructions](skills/first-user-audit/SKILL.md) · [Report schema](skills/first-user-audit/references/report-format.md)
