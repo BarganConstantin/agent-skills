@@ -51,7 +51,7 @@ class LandingPageTests(unittest.TestCase):
         self.assertIn("not", landing.lower())
         self.assertIn("not", detail.lower())
         self.assertIn("not a product screenshot", detail)
-        self.assertIn("not an independent", landing)
+        self.assertIn("**not** an independent agent evaluation", landing)
 
 
 if __name__ == "__main__":
