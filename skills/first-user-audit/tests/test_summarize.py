@@ -43,6 +43,17 @@ class SummaryTests(unittest.TestCase):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(json.dumps(synthetic_report(phase, persona, reached, issues)), encoding="utf8")
 
+    def test_quick_check_single_agent_reports_one_of_four(self):
+        self.put("baseline", "impatient", issues=[synthetic_issue()])
+        self.edit("baseline", "impatient", lambda report: report["capabilities"].update(
+            independent_subagent="not-applicable", browser_mcp="verified"))
+        self.assertEqual(summary.main(["--root", str(self.root), "--baseline-only"]), 0)
+        output = (self.root / "summary.md").read_text(encoding="utf-8")
+        self.assertIn("Completed reports: **1/4**", output)
+        self.assertIn("skeptic, mobile, breaker", output)
+        self.assertIn("| skeptic | not run |", output)
+        self.assertIn('"independent_subagent": "not-applicable"', output)
+        self.assertNotIn("Before / after", output)
     def test_baseline_only_ignores_invalid_after_report(self):
         self.put("baseline", "impatient")
         path = self.root / "after" / "impatient.json"
