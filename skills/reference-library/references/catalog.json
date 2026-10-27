@@ -39,7 +39,11 @@
         "Its upstream install or invocation does not happen just because it is indexed here.",
         "Theme count, rules and implementation can change; consult the live upstream skill before relying on details.",
         "Design rules are inspiration, not a license to copy assets or make unsupported performance claims."
-      ]
+      ],
+      "categories": [
+        "ui-ux"
+      ],
+      "summary": "Distinctive interface design, design themes, responsive audits and avoiding generic AI-looking layouts."
     },
     {
       "id": "ai-design-skills",
@@ -80,7 +84,313 @@
         "Read the specific upstream SKILL.md and its license/credits before using or adapting; some ideas reference additional upstream projects.",
         "Do not invent conversion statistics, logos, testimonials or other proof.",
         "A collection link is not evidence that its skills have been installed or tested in this project."
+      ],
+      "categories": [
+        "ui-ux"
+      ],
+      "summary": "Landing-page content and visual systems, plus animation/motion showcase workflows."
+    },
+    {
+      "id": "microsoft-aspire",
+      "name": "Aspire",
+      "url": "https://github.com/microsoft/aspire",
+      "owner": "microsoft",
+      "type": "backend-developer-platform",
+      "license": "MIT",
+      "license_source": "https://github.com/microsoft/aspire/blob/main/LICENSE.TXT",
+      "reviewed_at": "2026-10-27",
+      "status": "reference-only",
+      "categories": [
+        "backend"
+      ],
+      "summary": "Code-first app composition, service integrations, observability and local development for distributed apps.",
+      "tags": [
+        "dotnet",
+        "csharp",
+        "backend",
+        "api",
+        "microservices",
+        "observability",
+        "local-development",
+        "distributed",
+        "deployment",
+        "aspire"
+      ],
+      "use_when": "Working on .NET or mixed-language distributed systems; debugging services, telemetry and local app orchestration.",
+      "look_for": [
+        "Official code-first app host and dashboard",
+        "Local orchestration and service integration patterns",
+        "OpenTelemetry and developer observability workflows"
+      ],
+      "cautions": [
+        "This is a developer platform, not an Agent Skill.",
+        "Check supported versions and required runtimes before adoption.",
+        "External services and deployments need explicit authorization."
       ]
+    },
+    {
+      "id": "microsoft-agent-framework",
+      "name": "Microsoft Agent Framework",
+      "url": "https://github.com/microsoft/agent-framework",
+      "owner": "microsoft",
+      "type": "agent-framework",
+      "license": "MIT",
+      "license_source": "https://github.com/microsoft/agent-framework/blob/main/LICENSE",
+      "reviewed_at": "2026-10-27",
+      "status": "reference-only",
+      "categories": [
+        "backend",
+        "agent-workflows"
+      ],
+      "summary": "Build, orchestrate and host AI agents in .NET and Python, with reusable workflow patterns.",
+      "tags": [
+        "dotnet",
+        "csharp",
+        "python",
+        "backend",
+        "agent",
+        "multi-agent",
+        "mcp",
+        "workflow",
+        "orchestration",
+        "llm",
+        "integration"
+      ],
+      "use_when": "Building backend agents, durable workflows, MCP integrations or multi-agent orchestration in .NET or Python.",
+      "look_for": [
+        "Official agent orchestration and hosting examples",
+        "Agent Skills and MCP integration samples",
+        "Workflows, tool approval, observability and evaluation patterns"
+      ],
+      "cautions": [
+        "Framework integration is not equivalent to installing an Agent Skill.",
+        "Choose a current version and review runtime, provider and hosting requirements.",
+        "Use test credentials and explicit approvals for external model or service calls."
+      ]
+    },
+    {
+      "id": "oasdiff",
+      "name": "oasdiff",
+      "url": "https://github.com/oasdiff/oasdiff",
+      "owner": "oasdiff",
+      "type": "openapi-compatibility-cli",
+      "license": "Apache-2.0",
+      "license_source": "https://github.com/oasdiff/oasdiff/blob/main/LICENSE",
+      "reviewed_at": "2026-10-27",
+      "status": "reference-only",
+      "categories": [
+        "backend",
+        "review"
+      ],
+      "summary": "Compare OpenAPI specifications and surface breaking changes in local tooling or CI.",
+      "tags": [
+        "backend",
+        "api",
+        "openapi",
+        "swagger",
+        "contract",
+        "breaking-changes",
+        "review",
+        "code-review",
+        "compatibility",
+        "ci"
+      ],
+      "use_when": "Reviewing backend API changes, migrating consumers, auditing schema changes and adding compatibility checks to pull requests.",
+      "look_for": [
+        "Breaking-change rule catalog and accurate API diff semantics",
+        "PR review and CI integration patterns",
+        "Support for varied OpenAPI versions and schema compositions"
+      ],
+      "cautions": [
+        "Use trusted local specs; hosted side-by-side features may upload or share contract details.",
+        "Our api-contract-drift skill is intentionally a much narrower independent comparator.",
+        "License is Apache-2.0, not MIT; retain applicable notices if importing material."
+      ]
+    },
+    {
+      "id": "playwright-mcp",
+      "name": "Playwright MCP",
+      "url": "https://github.com/microsoft/playwright-mcp",
+      "owner": "microsoft",
+      "type": "browser-mcp-server",
+      "license": "Apache-2.0",
+      "license_source": "https://github.com/microsoft/playwright-mcp/blob/main/LICENSE",
+      "reviewed_at": "2026-10-27",
+      "status": "reference-only",
+      "categories": [
+        "testing"
+      ],
+      "summary": "Give agents real browser navigation and interaction through a structured MCP interface.",
+      "tags": [
+        "browser",
+        "testing",
+        "qa",
+        "playwright",
+        "mcp",
+        "automation",
+        "e2e",
+        "accessibility",
+        "browser-testing"
+      ],
+      "use_when": "An agent needs to inspect a safe local app, reproduce a user journey, or gather actual interactive browser evidence.",
+      "look_for": [
+        "Browser state lifecycle and isolated test sessions",
+        "Accessibility snapshots and deterministic page interaction",
+        "Agent client setup and permissions"
+      ],
+      "cautions": [
+        "An MCP connection alone is not proof that a browser workflow succeeded.",
+        "Use local/staging environments; avoid customer accounts or live payments.",
+        "Upstream also recommends Playwright CLI+Skills for some token-sensitive coding workflows."
+      ]
+    },
+    {
+      "id": "playwright-cli",
+      "name": "Playwright CLI",
+      "url": "https://github.com/microsoft/playwright-cli",
+      "owner": "microsoft",
+      "type": "browser-cli",
+      "license": "Apache-2.0",
+      "license_source": "https://github.com/microsoft/playwright-cli/blob/main/LICENSE",
+      "reviewed_at": "2026-10-27",
+      "status": "reference-only",
+      "categories": [
+        "testing"
+      ],
+      "summary": "Run browser actions and inspect pages from a CLI; useful with coding-agent skill workflows.",
+      "tags": [
+        "testing",
+        "qa",
+        "browser",
+        "playwright",
+        "cli",
+        "e2e",
+        "screenshots",
+        "automation",
+        "agent-tools"
+      ],
+      "use_when": "An agent or developer prefers concise shell-driven browser checks, screenshots, selector inspection or test reproduction.",
+      "look_for": [
+        "Browser CLI commands and skills integration",
+        "Browser screenshots and element inspection",
+        "Tradeoffs versus a persistent MCP browser session"
+      ],
+      "cautions": [
+        "CLI automation is not a substitute for a safe test environment.",
+        "Verify client setup and isolation before testing live user journeys.",
+        "Do not execute upstream install scripts automatically just because this link is bookmarked."
+      ]
+    },
+    {
+      "id": "superpowers",
+      "name": "Superpowers",
+      "url": "https://github.com/obra/superpowers",
+      "owner": "obra",
+      "type": "agent-skills-methodology",
+      "license": "MIT",
+      "license_source": "https://github.com/obra/superpowers/blob/main/LICENSE",
+      "reviewed_at": "2026-10-27",
+      "status": "reference-only",
+      "categories": [
+        "review",
+        "testing",
+        "agent-workflows"
+      ],
+      "summary": "Composable agent workflows for planning, test-driven work, debugging and verification.",
+      "tags": [
+        "agent",
+        "workflow",
+        "review",
+        "code-review",
+        "testing",
+        "tdd",
+        "debugging",
+        "verification",
+        "planning",
+        "skills"
+      ],
+      "use_when": "Reviewing plans, implementing changes with evidence, debugging systematically, or creating a repeatable test-first agent workflow.",
+      "look_for": [
+        "Verification-before-completion and clean evidence boundaries",
+        "Structured TDD and systematic debugging skills",
+        "Composable planning/review workflow, with realistic agent constraints"
+      ],
+      "cautions": [
+        "Strong opinionated workflows may conflict with a project's agreed process.",
+        "Check what commands and subagents a particular host actually supports.",
+        "Do not reproduce its skill instructions without following the MIT license conditions."
+      ]
+    },
+    {
+      "id": "spec-kit",
+      "name": "Spec Kit",
+      "url": "https://github.com/github/spec-kit",
+      "owner": "github",
+      "type": "spec-driven-workflow-toolkit",
+      "license": "MIT",
+      "license_source": "https://github.com/github/spec-kit/blob/main/LICENSE",
+      "reviewed_at": "2026-10-27",
+      "status": "reference-only",
+      "categories": [
+        "review",
+        "agent-workflows"
+      ],
+      "summary": "Structured specification, feature planning, bug investigation and decision reviews for coding agents.",
+      "tags": [
+        "agent",
+        "workflow",
+        "planning",
+        "specification",
+        "spec-driven",
+        "review",
+        "code-review",
+        "requirements",
+        "bugs",
+        "engineering"
+      ],
+      "use_when": "Starting a complex feature, reviewing ambiguous requirements or creating a traceable plan and decision record before implementation.",
+      "look_for": [
+        "Spec-driven feature process and review checkpoints",
+        "Bugfix and idea assessment workflows",
+        "Documented outcomes and repeatable templates"
+      ],
+      "cautions": [
+        "Templates guide decisions but do not replace human review.",
+        "An entire process toolkit may be excessive for simple one-line tasks.",
+        "Verify tool and project integration requirements before introducing it."
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "id": "ui-ux",
+      "name": "UI / UX",
+      "tagline": "Interfaces, visual systems, motion and meaningful first impressions.",
+      "icon": "✦"
+    },
+    {
+      "id": "backend",
+      "name": "Backend / API",
+      "tagline": "Services, .NET orchestration, API contracts and agent infrastructure.",
+      "icon": "⌘"
+    },
+    {
+      "id": "review",
+      "name": "Code Review",
+      "tagline": "Spot regressions, interrogate assumptions and review changes before shipping.",
+      "icon": "◎"
+    },
+    {
+      "id": "testing",
+      "name": "Testing / QA",
+      "tagline": "Real-browser evidence, reproducible checks and test-first workflows.",
+      "icon": "◇"
+    },
+    {
+      "id": "agent-workflows",
+      "name": "Agent Workflows",
+      "tagline": "Structured planning, tool use, context and multi-agent engineering.",
+      "icon": "↗"
     }
   ]
 }
