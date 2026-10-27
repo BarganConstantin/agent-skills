@@ -55,6 +55,7 @@ class ReadmeHeroTests(unittest.TestCase):
             self.assertTrue(duration.endswith("s"), duration)
             self.assertGreaterEqual(float(duration[:-1]), 7.0)
             self.assertIn(item.get("attributeName"), ("opacity", "cy"))
+            self.assertEqual(item.get("repeatCount"), "2", "Decorative motion must settle instead of looping forever")
         self.assertIn("READY WHEN YOU ARE", self.source)
 
 
