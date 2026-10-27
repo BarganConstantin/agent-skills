@@ -33,6 +33,8 @@ Report actual results, missing capabilities, and 1/4 persona coverage.
 
 Quick Check is a single-agent **read-only** first journey. No independent subagents are required. The other three personas are explicitly reported as **not run**.
 
+**Trying this for the first time?** Follow the [Claude Code / Codex setup and first-run guide](docs/first-five-testers.md). If you try it—even if browser setup fails—[share your first-run feedback](https://github.com/BarganConstantin/agent-skills/issues/new?template=first-run-feedback.yml). We’re looking for the first five **independent** attempts to improve onboarding, not asking for artificial installations or stars.
+
 ## Need a deeper audit?
 
 | Workflow | Coverage | App changes? |

@@ -1,0 +1,80 @@
+name: "Quick Check: first-run feedback"
+description: "Share a real first-run experience, including setup problems. No private data or screenshots required."
+title: "[Quick Check feedback] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying First User Audit! You do not need a successful audit to submit this form.
+        Please **redact private URLs, personal information, screenshots, tokens, secrets, and client data**.
+        Read the safe [first-run guide](https://github.com/BarganConstantin/agent-skills/blob/main/docs/first-five-testers.md).
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Coding agent
+      description: Which agent did you attempt to use?
+      options:
+        - Claude Code
+        - Codex
+        - Cursor
+        - Another Agent Skills-compatible agent
+        - Could not start an agent
+    validations:
+      required: true
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: What happened?
+      options:
+        - Could not install the skill
+        - Skill installed, but browser MCP was unavailable or could not connect
+        - Stopped safely because the environment or data was not suitable
+        - Browser ran, but first success was blocked
+        - Browser ran and first success was reached
+        - Unclear result or other problem
+    validations:
+      required: true
+  - type: dropdown
+    id: project
+    attributes:
+      label: Type of test project
+      description: Broad type only. Do not name private customer projects.
+      options:
+        - Locally running web app
+        - Isolated preview or staging app
+        - Controlled fixture or demo
+        - No app tested
+    validations:
+      required: true
+  - type: textarea
+    id: what-worked
+    attributes:
+      label: What worked, and where did you get stuck?
+      description: Describe the relevant behavior and commands without credentials or private links.
+      placeholder: "Example: installation worked; Playwright MCP did not expose browser_navigate after restarting Codex."
+    validations:
+      required: true
+  - type: dropdown
+    id: evidence
+    attributes:
+      label: Did you independently verify a finding?
+      options:
+        - Yes, reproduced an actual issue on my safe test app
+        - No, not yet
+        - No issue was found
+        - Not applicable; stopped before browser testing
+    validations:
+      required: true
+  - type: textarea
+    id: better
+    attributes:
+      label: What single change would make this easier?
+      description: Short product feedback is more valuable than star requests.
+      placeholder: "Example: include Codex browser MCP setup in the two-step install guide."
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Safe to share
+      options:
+        - label: "I checked that this issue contains no credentials, personal data, private client URLs, or unredacted customer screenshots."
+          required: true
