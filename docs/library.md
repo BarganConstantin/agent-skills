@@ -2,34 +2,37 @@
 
 **A handpicked shelf of useful developer projects.** Start with the kind of work you're doing—not a wall of links. Every entry leads to its **original GitHub repository**, explains *when it helps*, and records a reviewed license. Nothing is copied or installed just by being listed.
 
+*This gallery is generated from [the canonical catalog](../skills/reference-library/references/catalog.json). After editing the catalog, run `python scripts/render_library.py --write`; CI checks for drift. The visuals are static-first, with optional finite animation.*
+
 <p align="center"><img src="../assets/library-map.svg" alt="Five library categories: UI/UX, Backend/API, Code Review, Testing/QA and Agent Workflows, shown in a subtly animated developer workbench." width="100%" /></p>
 
+<!-- BEGIN GENERATED LIBRARY — edit catalog.json, not this section -->
 ## Browse by area
 
-[**UI and UX**](#ui-and-ux) · 2 references
-[**Backend and API**](#backend-and-api) · 3 references
+[**UI / UX**](#ui--ux) · 2 references
+[**Backend / API**](#backend--api) · 3 references
 [**Code Review**](#code-review) · 3 references
-[**Testing and QA**](#testing-and-qa) · 3 references
+[**Testing / QA**](#testing--qa) · 3 references
 [**Agent Workflows**](#agent-workflows) · 3 references
 
-> **Note:** Some tools appear in multiple areas because they solve more than one problem. These are *nine unique bookmarked projects*, not fourteen different installs. New unreviewed bookmarks go to an **Inbox** until classified.
+> **9 unique sources** · 14 category placements. A project may appear in more than one section without being duplicated in the catalog. New unreviewed bookmarks are collected in the Inbox.
 
 ## Explore saved projects
 
-### UI and UX
+### UI / UX
 
 Interfaces, visual systems, motion and meaningful first impressions.
 
-| Project · original GitHub | What makes it useful | Reach for it when… | License |
+| Original project | Why it's useful | Reach for it when… | License |
 | :-- | :-- | :-- | :-- |
 | **[Hallmark](https://github.com/Nutlope/hallmark)** | Distinctive interface design, design themes, responsive audits and avoiding generic AI-looking layouts. | Building or reviewing distinctive landing pages, web UI and visual systems; avoiding generic AI-looking layouts and checking responsive quality. | [MIT](https://github.com/Nutlope/hallmark/blob/main/LICENSE) |
 | **[AI Design Skills (Elaya)](https://github.com/elayadesign/ai-design-skills)** | Landing-page content and visual systems, plus animation/motion showcase workflows. | Planning a landing page from the audience and conversion goal, choosing a visual system, or producing motion demonstrations of an existing design. | [MIT](https://github.com/elayadesign/ai-design-skills/blob/main/LICENSE) |
 
-### Backend and API
+### Backend / API
 
 Services, .NET orchestration, API contracts and agent infrastructure.
 
-| Project · original GitHub | What makes it useful | Reach for it when… | License |
+| Original project | Why it's useful | Reach for it when… | License |
 | :-- | :-- | :-- | :-- |
 | **[Aspire](https://github.com/microsoft/aspire)** | Code-first app composition, service integrations, observability and local development for distributed apps. | Working on .NET or mixed-language distributed systems; debugging services, telemetry and local app orchestration. | [MIT](https://github.com/microsoft/aspire/blob/main/LICENSE.TXT) |
 | **[Microsoft Agent Framework](https://github.com/microsoft/agent-framework)** | Build, orchestrate and host AI agents in .NET and Python, with reusable workflow patterns. | Building backend agents, durable workflows, MCP integrations or multi-agent orchestration in .NET or Python. | [MIT](https://github.com/microsoft/agent-framework/blob/main/LICENSE) |
@@ -39,17 +42,17 @@ Services, .NET orchestration, API contracts and agent infrastructure.
 
 Spot regressions, interrogate assumptions and review changes before shipping.
 
-| Project · original GitHub | What makes it useful | Reach for it when… | License |
+| Original project | Why it's useful | Reach for it when… | License |
 | :-- | :-- | :-- | :-- |
 | **[oasdiff](https://github.com/oasdiff/oasdiff)** | Compare OpenAPI specifications and surface breaking changes in local tooling or CI. | Reviewing backend API changes, migrating consumers, auditing schema changes and adding compatibility checks to pull requests. | [Apache-2.0](https://github.com/oasdiff/oasdiff/blob/main/LICENSE) |
 | **[Superpowers](https://github.com/obra/superpowers)** | Composable agent workflows for planning, test-driven work, debugging and verification. | Reviewing plans, implementing changes with evidence, debugging systematically, or creating a repeatable test-first agent workflow. | [MIT](https://github.com/obra/superpowers/blob/main/LICENSE) |
 | **[Spec Kit](https://github.com/github/spec-kit)** | Structured specification, feature planning, bug investigation and decision reviews for coding agents. | Starting a complex feature, reviewing ambiguous requirements or creating a traceable plan and decision record before implementation. | [MIT](https://github.com/github/spec-kit/blob/main/LICENSE) |
 
-### Testing and QA
+### Testing / QA
 
 Real-browser evidence, reproducible checks and test-first workflows.
 
-| Project · original GitHub | What makes it useful | Reach for it when… | License |
+| Original project | Why it's useful | Reach for it when… | License |
 | :-- | :-- | :-- | :-- |
 | **[Playwright MCP](https://github.com/microsoft/playwright-mcp)** | Give agents real browser navigation and interaction through a structured MCP interface. | An agent needs to inspect a safe local app, reproduce a user journey, or gather actual interactive browser evidence. | [Apache-2.0](https://github.com/microsoft/playwright-mcp/blob/main/LICENSE) |
 | **[Playwright CLI](https://github.com/microsoft/playwright-cli)** | Run browser actions and inspect pages from a CLI; useful with coding-agent skill workflows. | An agent or developer prefers concise shell-driven browser checks, screenshots, selector inspection or test reproduction. | [Apache-2.0](https://github.com/microsoft/playwright-cli/blob/main/LICENSE) |
@@ -59,11 +62,12 @@ Real-browser evidence, reproducible checks and test-first workflows.
 
 Structured planning, tool use, context and multi-agent engineering.
 
-| Project · original GitHub | What makes it useful | Reach for it when… | License |
+| Original project | Why it's useful | Reach for it when… | License |
 | :-- | :-- | :-- | :-- |
 | **[Microsoft Agent Framework](https://github.com/microsoft/agent-framework)** | Build, orchestrate and host AI agents in .NET and Python, with reusable workflow patterns. | Building backend agents, durable workflows, MCP integrations or multi-agent orchestration in .NET or Python. | [MIT](https://github.com/microsoft/agent-framework/blob/main/LICENSE) |
 | **[Superpowers](https://github.com/obra/superpowers)** | Composable agent workflows for planning, test-driven work, debugging and verification. | Reviewing plans, implementing changes with evidence, debugging systematically, or creating a repeatable test-first agent workflow. | [MIT](https://github.com/obra/superpowers/blob/main/LICENSE) |
 | **[Spec Kit](https://github.com/github/spec-kit)** | Structured specification, feature planning, bug investigation and decision reviews for coding agents. | Starting a complex feature, reviewing ambiguous requirements or creating a traceable plan and decision record before implementation. | [MIT](https://github.com/github/spec-kit/blob/main/LICENSE) |
+<!-- END GENERATED LIBRARY -->
 
 ## Find exactly what you need
 

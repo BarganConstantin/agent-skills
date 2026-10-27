@@ -83,7 +83,7 @@ python skills/reference-library/scripts/library.py search "landing page design" 
 
 Or tell your agent: *“Use reference-library. What have I saved that can help this UI task? Show source links and reasons.”*
 
-Our [curated catalog](skills/reference-library/references/catalog.json) stores **9 unique** original links, categories, tags, use cases and review dates, **not third-party code**. Installed copies do not sync automatically to other projects. [Curation rules](skills/reference-library/references/curation.md).
+Our [curated catalog](skills/reference-library/references/catalog.json) stores original source links, categories, tags, use cases and review dates, **not third-party code**. Installed copies do not sync automatically to other projects. [Curation rules](skills/reference-library/references/curation.md).
 
 ## Try browser-based first-user QA
 
