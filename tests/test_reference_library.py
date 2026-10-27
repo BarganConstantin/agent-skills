@@ -171,8 +171,8 @@ class ReferenceLibraryTests(unittest.TestCase):
     def test_rendered_library_organizes_and_links_every_saved_project(self):
         page = (ROOT / "docs" / "library.md").read_text(encoding="utf-8")
         self.assertIn("assets/library-map.svg", page)
-        for heading in ("UI and UX", "Backend and API", "Code Review",
-                        "Testing and QA", "Agent Workflows"):
+        for heading in ("UI / UX", "Backend / API", "Code Review",
+                        "Testing / QA", "Agent Workflows"):
             self.assertIn("### " + heading, page)
         for entry in self.data["entries"]:
             self.assertIn(entry["url"], page)
