@@ -1,10 +1,11 @@
 # Agent Skills for Developers
 
-**Two focused open-source workflows for coding agents.** Install what you need; no account, subscription, or private app access required just to inspect a skill.
+**Three focused open-source workflows for coding agents.** Install what you need; no account, subscription, or private app access required just to inspect a skill.
 
 | Skill | When to use it | Setup |
 | --- | --- | --- |
 | **[Handoff with Receipts](skills/handoff-with-receipts/SKILL.md)** | Switching between Claude Code / Codex, ending a long session, or handing work to another engineer; capture actual Git state, verified claims and the next safe action | No MCP; optional Git + Python 3.10+ |
+| **[API Contract Drift](skills/api-contract-drift/SKILL.md)** | Review potential client-breaking changes between two OpenAPI 3 JSON exports, before release | Offline Python 3.10+; no MCP |
 | **[First User Audit](skills/first-user-audit/SKILL.md)** | Check whether a first-time visitor can reach actual value in a local web app with a real browser and reproducible evidence | Browser MCP + safe local/isolated preview |
 
 ## Handoff with Receipts — new
@@ -26,6 +27,20 @@ first safe action. Do not change my code, commit, or push.
 ```
 
 **No Git repo?** Still make an honest note with Git state marked `NOT CHECKED`. See the [handoff template](skills/handoff-with-receipts/assets/handoff-template.md) and [evidence limits / source inspiration](skills/handoff-with-receipts/references/evidence-boundaries.md).
+
+---
+
+## API Contract Drift — new
+
+**Spot risky API changes before they surprise your clients.** Compare old and proposed OpenAPI 3 JSON contracts offline. See removed operations, newly required parameters/body fields, missing response codes, and explicit blind spots. This is conservative triage, **not** a proof that the API is compatible.
+
+```bash
+npx skills add BarganConstantin/agent-skills --skill api-contract-drift
+```
+
+Then ask your agent: *Use api-contract-drift to compare these two OpenAPI 3 JSON exports. Report possible client breaks, exact evidence, and anything not checked. Do not change production or the API automatically.*
+
+The optional [standard-library comparator](skills/api-contract-drift/scripts/compare_openapi.py) can run directly. [Read its supported checks and limitations](skills/api-contract-drift/references/limitations.md).
 
 ---
 
