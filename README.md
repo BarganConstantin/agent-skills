@@ -76,7 +76,6 @@ npx skills use BarganConstantin/agent-skills --skill reference-library
 <a href="docs/library.md"><img src="assets/library-map.svg" alt="Animated category map of the reference library: UI/UX, Backend, Review, Testing and Agent Workflows." width="100%" /></a>
 
 ```bash
-python skills/reference-library/scripts/library.py categories
 python skills/reference-library/scripts/library.py browse backend
 python skills/reference-library/scripts/library.py search "landing page design" --category ui-ux
 ```
