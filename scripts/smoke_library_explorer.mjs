@@ -76,6 +76,8 @@ assert.equal(dom.cards.children.length, expectedBackend, "Clear preserves catego
 const all = dom.filters.children[0];
 all.handlers.click();
 assert.equal(dom.cards.children.length, data.entries.length);
+// The shortcut is intended for body focus; typing in an input must not steal focus.
+document.activeElement = new Element("body");
 const event = {key: "/", ctrlKey: false, metaKey: false, altKey: false,
                preventDefault() { this.prevented = true; }};
 document.handlers.keydown(event);
