@@ -73,6 +73,16 @@ The [v0.2.0 Task Cabin demo](https://github.com/BarganConstantin/agent-skills/tr
 | Baseline with deliberate defects | **0 of 4** simulated personas |
 | Separately prepared fixed variant | **4 of 4** simulated personas |
 
+### Browser evidence from the controlled fixture
+
+| Baseline: mobile journey blocked | Prepared reference: mobile journey reaches first success |
+| --- | --- |
+| ![Controlled demo baseline mobile browser screenshot](https://raw.githubusercontent.com/BarganConstantin/agent-skills/v0.2.0/examples/first-user-demo/evidence/baseline-mobile-FUA-001.png) | ![Controlled demo after mobile browser screenshot](https://raw.githubusercontent.com/BarganConstantin/agent-skills/v0.2.0/examples/first-user-demo/evidence/after-mobile-success.png) |
+
+These are archived browser screenshots from the [reviewed v0.2.0 demonstration](https://github.com/BarganConstantin/agent-skills/tree/v0.2.0/examples/first-user-demo), **not** independent customer-product evidence or proof that an agent autonomously fixed the app.
+
+Read the original [engineering write-up on DEV Community](https://dev.to/bargan/i-built-an-agent-skill-that-tests-your-app-like-four-first-time-users-180d). It documents the four-persona workflow; Quick Check was added later.
+
 This is **not** evidence that the skill autonomously fixed bugs in an unknown app or improved human conversion. The fixed version was prepared in advance. CI reran deterministic validation, **not** the eight agent-led browser sessions. The demo was deliberately removed from the current source tree to keep installations lean; its tagged archive remains inspectable.
 
 ## Choose the workflow
