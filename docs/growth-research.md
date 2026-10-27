@@ -46,3 +46,19 @@ Before changing strategy, ask: (1) what observable user friction are we fixing? 
 At each scheduled review: read current issues and CI; validate current GitHub counts; check recent changes to the official Agent Skills specification, skills CLI, and skills.sh docs **only where relevant**; assess one relevant competitor's concrete feature/installation path and its license; decide one hypothesis and test it. Skip code changes if none would increase real user value. Keep a dated research log rather than re-collecting superficial ideas. Never modify another repository.
 
 No external posts, submissions or messages without separate explicit authorization. The only allowed writable repository is `BarganConstantin/agent-skills`.
+
+
+## Homepage conversion experiment — 2026-10-27
+
+**Hypothesis:** developers are more likely to try a skill after seeing a reproducible task/result and a clearly separated install choice in the first screen. This is **untested for this repository** and does not imply a measured conversion rate.
+
+**External examples inspected:**
+
+- [Matt Pocock's engineering skills](https://github.com/mattpocock/skills): concise product viewpoint and prominent **30-second installation** rather than opening with exhaustive reference material.
+- [Addy Osmani's agent skills](https://github.com/addyosmani/agent-skills): prominently lists installation commands, specific per-skill examples and independent guide references.
+- [Superpowers](https://github.com/obra/superpowers): explains what a session *does* before listing many installation options.
+- [GitHub Octoverse 2026 analysis](https://github.blog/news-insights/octoverse/what-the-fastest-growing-tools-reveal-about-how-software-is-being-built/): emphasizes lower-friction setup and reproducible results; this is industry context, not proof that shorter README pages generate stars.
+
+**Implemented experiment:** Replaced a ~11.7k-character README heavily dominated by First User Audit with a ~5.3k-character catalog homepage. Above the install section, visitors now see a ready-to-run **synthetic API regression sample** (using fixtures with three verified checks); all detailed browser QA documentation and original controlled imagery remain in [docs/first-user-audit.md](first-user-audit.md). Added test coverage for links, preserved content and real commands.
+
+**What we will measure:** Github stars/forks and independent first-run feedback after publication. Github does not expose traffic views through the connected read-only API available here, so **do not claim view-to-star conversion or impressions**. If actual users report confusion, revisit layout based on specifics rather than repeated copywriting guesses. Do not manufacture visits through bots.
