@@ -9,7 +9,7 @@ compatibility: Python 3.10+ for optional offline search and local bookmark captu
 
 **Purpose:** give coding agents a durable, searchable map of projects the owner has deliberately bookmarked. It is a **reference index**, not a list of tools that are automatically installed, trusted, verified continuously, or granted permission to edit the owner's projects.
 
-The library ships with **nine curated public references in five areas**: UI/UX, Backend/API, Code Review, Testing/QA and Agent Workflows. This includes Hallmark and Elaya AI Design Skills. Some projects belong to multiple areas. See the [browseable library](https://github.com/BarganConstantin/agent-skills/blob/main/docs/library.md), [catalog](references/catalog.json) and [curation rules](references/curation.md). Save other projects when the owner requests it.
+The library ships with **curated public references in five areas**: UI/UX, Backend/API, Code Review, Testing/QA and Agent Workflows. This includes Hallmark and Elaya AI Design Skills. Some projects belong to multiple areas. See the [browseable library](https://github.com/BarganConstantin/agent-skills/blob/main/docs/library.md), [catalog](references/catalog.json) and [curation rules](references/curation.md). Save other projects when the owner requests it.
 
 ## When to consult it
 
@@ -64,5 +64,7 @@ For each match, tell the user **why** it is relevant, its original URL, and the 
 ## Output contract
 
 When retrieving: show *name, original link, match rationale, useful idea, limitations, saved review date* and clearly mark that no installation happened. When saving: show *canonical file changed, newly added ID, source, review status and whether saved to the approved repository*. Never claim the catalog refreshes itself, remembers uncommitted chat links, or verifies external stars/commits automatically.
+
+**This skill contains references, not upstream code.** After updating the canonical catalog, run `python scripts/render_library.py --write` from the **agent-skills repository root** and commit the generated `docs/library.md` in the same PR. CI runs `--check` and fails when the public gallery is stale. Never run the renderer on an unrelated repository.
 
 **This skill contains references, not upstream code.** MIT and Apache-2.0 licenses of saved projects are recorded for traceability; if you later reuse substantial code/text/assets, check obligations for each copied part and preserve required notices. An upstream project being MIT-licensed does not mean you can disregard attribution and license retention for copied materials.
