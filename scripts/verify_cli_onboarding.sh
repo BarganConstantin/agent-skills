@@ -14,6 +14,7 @@ npx --yes skills@latest add "$GITHUB_WORKSPACE" --list | tee discovery.txt
 grep -Fq "first-user-audit" discovery.txt
 grep -Fq "handoff-with-receipts" discovery.txt
 grep -Fq "api-contract-drift" discovery.txt
+grep -Fq "reference-library" discovery.txt
 echo "::endgroup::"
 
 echo "::group::Real project-local installation to Claude Code and Codex"
@@ -53,6 +54,19 @@ for target in ".agents/skills/api-contract-drift" ".claude/skills/api-contract-d
 done
 echo "::endgroup::"
 
+echo "::group::Install the saved reference library for both clients"
+npx --yes skills@latest add "$GITHUB_WORKSPACE" \
+  --skill reference-library --agent claude-code --agent codex --copy --yes
+LIBRARY="$GITHUB_WORKSPACE/skills/reference-library"
+for target in ".agents/skills/reference-library" ".claude/skills/reference-library"; do
+  test -f "$target/SKILL.md"
+  cmp "$LIBRARY/SKILL.md" "$target/SKILL.md"
+  cmp "$LIBRARY/references/catalog.json" "$target/references/catalog.json"
+  cmp "$LIBRARY/references/curation.md" "$target/references/curation.md"
+  cmp "$LIBRARY/scripts/library.py" "$target/scripts/library.py"
+done
+echo "::endgroup::"
+
 echo "::group::Generate usable prompt without installing or running an agent"
 mkdir -p "$WORKDIR/try-without-install"
 cd "$WORKDIR/try-without-install"
@@ -66,6 +80,9 @@ grep -Fq "Handoff with Receipts" handoff-prompt.txt
 npx --yes skills@latest use "$GITHUB_WORKSPACE" \
   --skill api-contract-drift > api-prompt.txt
 grep -Fq "API Contract Drift" api-prompt.txt
+npx --yes skills@latest use "$GITHUB_WORKSPACE" \
+  --skill reference-library > library-prompt.txt
+grep -Fq "Reference Library" library-prompt.txt
 test ! -d .agents
 test ! -d .claude
 echo "::endgroup::"
