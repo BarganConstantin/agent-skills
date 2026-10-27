@@ -62,6 +62,21 @@ def load(path):
     entries = data.get("entries")
     if not isinstance(entries, list):
         raise LibraryError("Catalog entries must be an array")
+    categories = data.get("categories")
+    if not isinstance(categories, list) or not categories:
+        raise LibraryError("Catalog needs a nonempty category taxonomy")
+    valid_categories = set()
+    for category in categories:
+        if not isinstance(category, dict):
+            raise LibraryError("Categories must be objects")
+        identifier = category.get("id")
+        if (not isinstance(identifier, str) or not ID.fullmatch(identifier)
+                or identifier in valid_categories or not isinstance(category.get("name"), str)
+                or not category["name"].strip()
+                or not isinstance(category.get("tagline"), str)
+                or not category["tagline"].strip()):
+            raise LibraryError("Category IDs must be unique slugs with a name and description")
+        valid_categories.add(identifier)
     ids, urls = set(), set()
     for entry in entries:
         if not isinstance(entry, dict):
@@ -81,6 +96,14 @@ def load(path):
             raise LibraryError("Reference tags must be an array of strings")
         if not isinstance(entry.get("use_when"), str):
             raise LibraryError("Every reference needs an explicit use_when explanation")
+        groups = entry.get("categories")
+        if (not isinstance(groups, list) or not groups or
+                len(set(groups)) != len(groups) or any(
+                    not isinstance(group, str) or group not in valid_categories for group in groups
+                )):
+            raise LibraryError("Every reference needs unique valid category IDs")
+        if not isinstance(entry.get("summary"), str) or not entry["summary"].strip():
+            raise LibraryError("Every reference needs a short summary")
         ids.add(key)
         urls.add(safe_url)
     return data
@@ -105,18 +128,47 @@ def match(entry, query):
     return score, matched_tags
 
 
-def search(data, query, limit):
+def validate_category(data, category):
+    if category is not None and category not in {x["id"] for x in data["categories"]}:
+        raise LibraryError("Unknown category: " + str(category))
+    return category
+
+
+def browse(data, category):
+    validate_category(data, category)
+    return [
+        {"id": entry["id"], "name": entry["name"], "url": entry["url"],
+         "summary": entry["summary"], "categories": entry["categories"],
+         "use_when": entry["use_when"], "status": entry["status"],
+         "license": entry["license"]}
+        for entry in data["entries"] if category is None or category in entry["categories"]
+    ]
+
+
+def list_categories(data):
+    return [
+        {"id": group["id"], "name": group["name"], "tagline": group["tagline"],
+         "count": sum(group["id"] in entry["categories"] for entry in data["entries"])}
+        for group in data["categories"]
+    ]
+
+
+def search(data, query, limit, category=None):
+    validate_category(data, category)
     if limit < 1 or limit > 50:
         raise LibraryError("Limit must be between 1 and 50")
     ranked = []
     for entry in data["entries"]:
+        if category is not None and category not in entry["categories"]:
+            continue
         score, tags = match(entry, query)
         if score > 0:
             ranked.append((score, entry["id"], tags, entry))
     ranked.sort(key=lambda item: (-item[0], item[1]))
     return [{"id": entry["id"], "name": entry["name"], "url": entry["url"],
              "score": score, "matched_tags": tags, "use_when": entry["use_when"],
-             "status": entry["status"]} for score, _, tags, entry in ranked[:limit]]
+             "status": entry["status"], "categories": entry["categories"],
+             "summary": entry["summary"]} for score, _, tags, entry in ranked[:limit]]
 
 
 def prepare_reference(data, args):
@@ -126,6 +178,10 @@ def prepare_reference(data, args):
     if any(item["id"] == args.id or canonical_url(item["url"]) == new_url
            for item in data["entries"]):
         raise LibraryError("Reference already saved; update/review its existing record")
+    requested_categories = [value.strip() for value in args.categories.split(",") if value.strip()]
+    if (not requested_categories or len(requested_categories) != len(set(requested_categories))
+            or any(cat not in {group["id"] for group in data["categories"]} for cat in requested_categories)):
+        raise LibraryError("Choose valid, non-duplicate categories; new bookmarks default to inbox")
     tags = [tag.strip().lower() for tag in args.tags.split(",") if tag.strip()]
     if not tags or len(tags) > 30 or any(not ID.fullmatch(t) for t in tags):
         raise LibraryError("Provide 1-30 comma-separated lowercase tag slugs")
@@ -136,7 +192,8 @@ def prepare_reference(data, args):
         "owner": "not-verified", "type": "reference",
         "license": "unknown", "license_source": None,
         "reviewed_at": None, "status": "unverified-reference",
-        "tags": sorted(set(tags)), "use_when": args.use_when.strip(),
+        "tags": sorted(set(tags)), "categories": requested_categories,
+        "summary": args.use_when.strip(), "use_when": args.use_when.strip(),
         "look_for": [], "cautions": [
             "Not independently inspected. Verify scope, ownership, license and current docs before using.",
             "Indexed only; no external software has been installed or executed.",
@@ -168,10 +225,15 @@ def main(argv=None):
     parser.add_argument("--catalog", type=Path, default=DEFAULT_CATALOG,
                         help="Catalog file (default: bundled references/catalog.json)")
     sub = parser.add_subparsers(dest="command", required=True)
-    sub.add_parser("list", help="Show all saved references")
-    find = sub.add_parser("search", help="Recommend already saved references for a task")
+    sub.add_parser("categories", help="List category names, purposes and reference counts")
+    listing = sub.add_parser("list", help="Show saved references, optionally filtered")
+    listing.add_argument("--category", help="Category slug, e.g. backend")
+    browsing = sub.add_parser("browse", help="Explore sources belonging to one category")
+    browsing.add_argument("category", help="Category slug, e.g. testing")
+    find = sub.add_parser("search", help="Recommend saved references for a task")
     find.add_argument("query", help="Task description, e.g. 'landing page animation'")
     find.add_argument("--limit", type=int, default=5)
+    find.add_argument("--category", help="Optional category filter, e.g. review")
     show = sub.add_parser("show", help="Show exactly one saved reference")
     show.add_argument("id")
     add = sub.add_parser("add", help="Prepare a bookmark; --write required to save it")
@@ -179,21 +241,26 @@ def main(argv=None):
     add.add_argument("--name", required=True)
     add.add_argument("--url", required=True)
     add.add_argument("--tags", required=True)
+    add.add_argument("--categories", default="inbox",
+                     help="Comma-separated category IDs; default inbox for later review")
     add.add_argument("--use-when", required=True)
     add.add_argument("--write", action="store_true",
                      help="Explicitly change the local catalog file; never syncs Git/other copies")
     args = parser.parse_args(argv)
     try:
         data = load(args.catalog)
-        if args.command == "list":
-            result = [{"id": e["id"], "name": e["name"], "url": e["url"],
-                       "tags": e["tags"], "status": e["status"]} for e in data["entries"]]
+        if args.command == "categories":
+            result = list_categories(data)
+        elif args.command == "list":
+            result = browse(data, args.category)
+        elif args.command == "browse":
+            result = browse(data, args.category)
         elif args.command == "show":
             result = next((e for e in data["entries"] if e["id"] == args.id), None)
             if result is None:
                 raise LibraryError("No saved reference with ID " + args.id)
         elif args.command == "search":
-            result = search(data, args.query, args.limit)
+            result = search(data, args.query, args.limit, args.category)
         else:
             result = prepare_reference(data, args)
             if args.write:
