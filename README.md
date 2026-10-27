@@ -43,6 +43,18 @@ Quick Check is a single-agent **read-only** first journey. No independent subage
 
 **Trying this for the first time?** Follow the [Claude Code / Codex setup and first-run guide](docs/first-five-testers.md). If you try it—even if browser setup fails—[share your first-run feedback](https://github.com/BarganConstantin/agent-skills/issues/new?template=first-run-feedback.yml). We’re looking for the first five **independent** attempts to improve onboarding, not asking for artificial installations or stars.
 
+### No web app ready? Try the practice lab
+
+The repository contains a **localhost-only sample app with deliberately seeded onboarding problems**. You can use it to exercise the real browser workflow without creating accounts or supplying customer data.
+
+```bash
+git clone https://github.com/BarganConstantin/agent-skills.git
+cd agent-skills
+python evals/fixtures/activation_lab.py --variant seeded --port 8765
+```
+
+Then follow the [five-minute practice guide](docs/practice-lab.md) to install the skill, connect your agent's browser MCP and run a read-only Quick Check. The lab is a **public training fixture**, not an independent evaluation or claim of AI performance.
+
 ## Need a deeper audit?
 
 | Workflow | Coverage | App changes? |
