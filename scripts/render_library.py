@@ -13,7 +13,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 LIBRARY = ROOT / "skills" / "reference-library"
 sys.path.insert(0, str(LIBRARY / "scripts"))
-from library import LibraryError, load  # noqa: E402
+from library import LibraryError, canonical_url, load  # noqa: E402
 
 CATALOG = LIBRARY / "references" / "catalog.json"
 PAGE = ROOT / "docs" / "library.md"
@@ -36,6 +36,15 @@ def anchor(title):
     return value.replace(" ", "-")
 
 
+def safe_link(value):
+    """Keep GitHub Markdown links unambiguous and reject unsafe schemes."""
+    url = canonical_url(value)
+    for char, encoded in (("(", "%28"), (")", "%29"), ('"', "%22"),
+                          ("<", "%3C"), (">", "%3E")):
+        url = url.replace(char, encoded)
+    return url
+
+
 def table(entries):
     result = [
         "| Original project | Why it's useful | Reach for it when… | License |",
@@ -43,14 +52,16 @@ def table(entries):
     ]
     for item in entries:
         name = plain(item["name"])
-        url = item["url"]
+        url = safe_link(item["url"])
         desc = plain(item["summary"])
         reason = plain(item["use_when"])
         license_name = plain(item["license"])
         license_url = item.get("license_source")
         verified = item.get("status") == "reference-only"
-        label = ("[" + license_name + "](" + license_url + ")"
-                 if verified and license_url else "Unverified")
+        if verified and not isinstance(license_url, str):
+            raise LibraryError("Verified references need a reviewed license URL")
+        label = ("[" + license_name + "](" + safe_link(license_url) + ")"
+                 if verified else "Unverified")
         result.append(
             "| **[" + name + "](" + url + ")** | " + desc
             + " | " + reason + " | " + label + " |"
