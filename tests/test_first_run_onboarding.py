@@ -42,6 +42,17 @@ class FirstRunIntakeTests(unittest.TestCase):
         self.assertIn("credentials", intro.lower())
         self.assertIn("private", intro.lower())
 
+    def test_practice_lab_is_discoverable_and_safe(self):
+        readme = README.read_text(encoding="utf-8")
+        practice = (ROOT / "docs" / "practice-lab.md").read_text(encoding="utf-8")
+        self.assertIn("docs/practice-lab.md", readme)
+        self.assertIn("evals/fixtures/activation_lab.py --variant seeded", practice)
+        self.assertIn("http://127.0.0.1:8765", practice)
+        self.assertIn("QUICK CHECK", practice)
+        self.assertIn("NOT RUN", practice)
+        self.assertIn("unblinded", practice.lower())
+        self.assertTrue((ROOT / "evals" / "fixtures" / "activation_lab.py").is_file())
+
     def test_readme_reaches_guide_and_feedback(self):
         readme = README.read_text(encoding="utf-8")
         guide = GUIDE.read_text(encoding="utf-8")
