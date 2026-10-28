@@ -35,7 +35,7 @@ class ApiFirstResultFeedbackTests(unittest.TestCase):
         text = str(self.form["body"]).lower()
         self.assertIn("does not", text)
         self.assertIn("real api", text)
-        self.assertIn("no ai agent", text)
+        self.assertIn("without an ai agent", text)
 
     def test_public_form_requires_explicit_redaction_acknowledgment(self):
         privacy = self.fields["privacy"]
