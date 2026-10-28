@@ -1,6 +1,6 @@
 # Growth research: evidence before more skills
 
-*Research checkpoint: 27 October 2026. Scope: only `BarganConstantin/agent-skills`.*
+*Research checkpoints: 27–28 October 2026. Scope: only `BarganConstantin/agent-skills`.*
 
 ## What the data supports
 
@@ -19,9 +19,9 @@ The [Infrasity MemClaw case study](https://www.infrasity.com/case-studies/github
 
 ## Current state and decision
 
-As measured using GitHub's repository API on 27 Oct 2026: **4 stars, 0 forks, 3 Agent Skills**. These are a snapshot, not a live counter. The maintainer profile, ccdeck and other repositories are out of scope.
+As measured using GitHub's repository API on 28 Oct 2026: **4 stars, 0 forks, 4 Agent Skills**. These are a snapshot, not a live counter. The maintainer profile, ccdeck and other repositories are out of scope.
 
-Our product catalog is [First User Audit](../skills/first-user-audit/SKILL.md), [Handoff with Receipts](../skills/handoff-with-receipts/SKILL.md), and [API Contract Drift](../skills/api-contract-drift/SKILL.md).
+Our skill catalog is [First User Audit](../skills/first-user-audit/SKILL.md), [Handoff with Receipts](../skills/handoff-with-receipts/SKILL.md), [API Contract Drift](../skills/api-contract-drift/SKILL.md) and [Reference Library](../skills/reference-library/SKILL.md).
 
 **Focus: help a stranger discover, install, obtain a useful result, and give specific feedback.** Next best change is not automatically a fourth skill.
 
@@ -62,3 +62,25 @@ No external posts, submissions or messages without separate explicit authorizati
 **Implemented experiment:** Replaced a ~11.7k-character README heavily dominated by First User Audit with a ~5.3k-character catalog homepage. Above the install section, visitors now see a ready-to-run **synthetic API regression sample** (using fixtures with three verified checks); all detailed browser QA documentation and original controlled imagery remain in [docs/first-user-audit.md](first-user-audit.md). Added test coverage for links, preserved content and real commands.
 
 **What we will measure:** Github stars/forks and independent first-run feedback after publication. Github does not expose traffic views through the connected read-only API available here, so **do not claim view-to-star conversion or impressions**. If actual users report confusion, revisit layout based on specifics rather than repeated copywriting guesses. Do not manufacture visits through bots.
+
+## First-result evidence checkpoint — 2026-10-28
+
+**Observed from this repository, not inferred:** GitHub's public repository API reports **4 stars, 0 forks**, **three open issues** (#4, #5, #7), **no open PRs**, and no comments on growth issue #7. All 22 visible historical PRs were authored by the maintainer; no independent issue, PR, or reproducible first-run report is currently confirmed in the inspected public surface. This **does not mean zero real users**: private usage, downloads, GitHub traffic and unreported installs were not available. The connected GitHub API rejected traffic/clones and traffic/views queries. The main-branch SHA `f70375a095260c74aeaac3f14085826787369dca` passed [Python validation](https://github.com/BarganConstantin/agent-skills/actions/runs/40482845862), [Skills CLI + offline browser UI smoke](https://github.com/BarganConstantin/agent-skills/actions/runs/40482845886), and [public-GitHub installation smoke](https://github.com/BarganConstantin/agent-skills/actions/runs/40482845825) on 27 October. These are **synthetic CI checks with `DISABLE_TELEMETRY=1`**, not independent user installs.
+
+**Updated external context (read on 28 October):** [Vercel's 25 September 2026 report](https://vercel.com/blog/state-of-agent-skills) describes ~1M registry listings, ~280M aggregate installs and extreme concentration (375 skills, 62% of installs; nearly half installed once). Its figures are **operator-reported aggregate counters**, not unique people, completed tasks, causal proof of quality, or evidence for this repository. The [official Skills CLI documentation](https://skills.sh/docs/cli) confirms `npx skills add` and opt-out via `DISABLE_TELEMETRY=1`; the [skills.sh FAQ](https://skills.sh/docs/faq) says the leaderboard is driven by anonymous install telemetry. The [official API docs](https://skills.sh/docs/api) require Vercel OIDC for authenticated queries. No authenticated registry data or independently confirmed `skills.sh` page for our repository was available; do **not** report install counts or publish an install-count badge. The [customization docs](https://skills.sh/docs/customize) apply only to listed repositories and refresh after genuine telemetry-enabled installs; there is no reason to add `skills.sh.json` now.
+
+**Competitor check, without accessing or modifying its GitHub repository:** The [public skills.sh listing for Superpowers](https://skills.sh/obra/superpowers) demonstrates a *specific task-first taxonomy* (brainstorming, systematic debugging, verification before completion) and one clear install command. The [third-party indexed license record](https://llmxp.ru/skills/obra-diagnosing-superpowers) reports **MIT, Copyright (c) 2025 Jesse Vincent**; this is a **secondary record**, not a fresh upstream-license verification. MIT redistribution of substantial copied material requires preservation of its license and copyright notice. We copied **no** competitor files, so no derivative attribution or reuse claim is made. Its public install counters are not evidence that our design will convert.
+
+**Open-source practice and failure mode:** [GitHub's published OSS onboarding case study](https://github.blog/open-source/social-impact/from-private-to-public-how-a-united-nations-organization-open-sourced-its-tech-in-four-steps/) recommends a clearly actionable README, safe sample data, contribution instructions and tests. This is **practice guidance**, not a controlled estimate of star growth. The plausible failure here is polishing screenshots, README and adding generic skills while the first independent user still has no easy way to report what happened. The repository already has a dedicated First User Audit intake form, but the **prominent 30-second API Contract Drift demo had no matching first-result form**. This is an observable documentation-to-feedback gap.
+
+### Exactly one active hypothesis: first-result feedback
+
+**Hypothesis H1 (not yet validated):** Giving a newcomer a *specific, privacy-safe feedback route directly beside the runnable synthetic API demo* will make it possible to capture at least one actionable independent first-run report without a maintainer conversation.
+
+**Change:** Add `.github/ISSUE_TEMPLATE/api-contract-drift-feedback.yml` with success **and failure** outcomes, mandatory privacy check, and a prominent link beside the README's demo. Do not install tools, copy external code, change other repositories or contact users. The GitHub issue form requires a GitHub account; this remains an access barrier, and no adoption lift is asserted.
+
+**Success signal (by 27 November 2026):** at least **one** unsolicited, non-maintainer public issue through this route that reports a concrete attempted command and observable output or blocker, with no sensitive content. Count only independently submitted evidence; a synthetic CI run, maintainer issue, star or install counter does not qualify.
+
+**Stop condition:** if no qualifying report appears by 27 November, **stop iterating on this feedback-form/README tactic**; do not interpret silence as zero users. Mark the hypothesis inconclusive due to unmeasured reach, and seek explicit permission for a small, opt-in external test before further distribution work. If reports arrive, first triage their real blockers and only then consider another code change. Never send unsolicited messages or enable CI telemetry.
+
+**Measurement limits:** No page views, impressions, form opens, unique installs or conversion denominator is accessible here. This experiment measures whether one independently reported first outcome exists, **not** the probability of adoption or a causal improvement in stars. Public GitHub star/fork counts remain separate health indicators.

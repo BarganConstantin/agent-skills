@@ -39,7 +39,7 @@ Potential client breaks: 3; coverage warnings: 0
 - required_property at POST /orders
 ```
 
-This is a **controlled fixture**, not a result from a real API or proof of complete compatibility. [Inspect the example](examples/api-contract-drift/README.md).
+**Synthetic fixture, not a real-API benchmark.** [Inspect example](examples/api-contract-drift/README.md) · [Report your first result or blocker](https://github.com/BarganConstantin/agent-skills/issues/new?template=api-contract-drift-feedback.yml).
 
 </details>
 
@@ -82,7 +82,7 @@ python skills/reference-library/scripts/library.py search "landing page design" 
 
 Or tell your agent: *“Use reference-library. What have I saved that can help this UI task? Show source links and reasons.”*
 
-Our [curated catalog](skills/reference-library/references/catalog.json) stores original source links, categories, tags, use cases and review dates, **not third-party code**. Installed copies do not sync automatically to other projects. [Curation rules](skills/reference-library/references/curation.md).
+[Catalog](skills/reference-library/references/catalog.json): source links, tags, use cases and review dates—**no third-party code**. Installs are local snapshots. [Curation rules](skills/reference-library/references/curation.md).
 
 ## Try browser-based first-user QA
 
