@@ -22,7 +22,7 @@ ASSERTION = re.compile(
 )
 CONSTANT_ASSERTION = re.compile(
     r"Assert\.(?:True\s*\(\s*true\s*\)|False\s*\(\s*false\s*\)"
-    r"|(?:Equal|Same|StrictEqual)\s*\(\s*([^,()]+?)\s*,\s*\1\s*\))"
+    r"|(?:Equal|Same|StrictEqual)\s*\(\s*([^\s,()][^,()]*?)\s*,\s*\1\s*\))"
 )
 MOQ_SETUP = re.compile(r"\.Setup\w*\s*\(\s*\w+\s*=>\s*\w+\.(\w+)")
 MOQ_VERIFY = re.compile(r"\.Verify\w*\s*\(\s*\w+\s*=>\s*\w+\.(\w+)")
