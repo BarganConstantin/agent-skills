@@ -31,6 +31,9 @@ PLAIN_STRING = re.compile(r'(\$@|@\$|\$|@)?"((?:[^"\\]|\\.|"")*)"')
 RAW_HOLE = re.compile(r"(?<!\{)\{+([^{}]+)\}+")
 PLAIN_HOLE = re.compile(r"(?<!\{)\{(?!\{)([^{}]+)\}")
 DATA_ROW = re.compile(r"\[\s*(?:InlineData|TestCase|DataRow|MemberData|ClassData|TestCaseSource)\b")
+MEMBER_DATA = re.compile(r"\[\s*MemberData\s*\(\s*(?:nameof\s*\(\s*(?:\w+\s*\.\s*)*(\w+)\s*\)|\"(\w+)\")")
+INITIALIZER = re.compile(r"\bnew\b[^;{]*\{")
+LOOP = re.compile(r"\b(?:for|foreach|while)\b")
 CHAR_LITERAL = re.compile(r"'(?:[^'\\]|\\.)'")
 NUMBER_LITERAL = re.compile(r"\b\d[\d_]*(?:\.\d+)?[mMdDfFlLuU]?\b")
 BOOLEAN_LITERAL = re.compile(r"\b(?:true|false)\b")
@@ -222,6 +225,7 @@ def tests_in_file(path):
             "name": name,
             "skipped": bool(SKIP_ATTRIBUTE.search(attributes_text)),
             "data_rows": data_rows(masked, without_comments, attributes_start, header_start),
+            "row_count": row_count(masked, without_comments, attributes_start, header_start),
             "signature": re.sub(rf"\b{re.escape(name)}\b", "M", without_comments[header_start:body_start], count=1),
             "body": without_comments[body_start:body_end],
             "masked_body": masked[body_start:body_end],
@@ -238,6 +242,69 @@ def data_rows(masked, without_comments, start, end):
             rows.append(collapse(without_comments[position:close]))
         position = close
     return rows
+
+
+def row_count(masked, without_comments, start, end):
+    count, exact = 0, True
+    position = start
+    while (position := masked.find("[", position, end)) != -1:
+        close = attribute_end(masked, position)
+        if DATA_ROW.match(masked, position):
+            member = MEMBER_DATA.match(without_comments, position)
+            rows = member_row_count(masked, without_comments, member.group(1) or member.group(2)) if member else None
+            if member is None and not masked.startswith(("[ClassData", "[TestCaseSource"), position):
+                rows = 1
+            count += rows if rows is not None else 1
+            exact = exact and rows is not None
+        position = close
+    return count, exact
+
+
+def member_row_count(masked, plain, name):
+    definition = re.compile(rf"\b{re.escape(name)}\s*(?:\(\s*\))?\s*(=>|=(?!=)|\{{)")
+    for match in definition.finditer(masked):
+        region_start, region_end = member_region(masked, match)
+        region = masked[region_start:region_end]
+        if "yield return" in region:
+            return None if LOOP.search(region) else region.count("yield return")
+        initializer = INITIALIZER.search(masked, region_start, region_end)
+        if initializer:
+            return top_level_elements(masked, plain, initializer.end() - 1)
+    return None
+
+
+def member_region(masked, match):
+    if match.group(1) == "{":
+        return match.end() - 1, matching_brace(masked, match.end() - 1)
+    depth = 0
+    for position in range(match.end(), len(masked)):
+        char = masked[position]
+        if char in "({[":
+            depth += 1
+        elif char in ")}]":
+            depth -= 1
+        elif char == ";" and depth == 0:
+            return match.end(), position
+    return match.end(), len(masked)
+
+
+def top_level_elements(masked, plain, open_brace):
+    depth = 0
+    commas = 0
+    last_separator = open_brace
+    for position in range(open_brace + 1, len(masked)):
+        char = masked[position]
+        if char in "({[":
+            depth += 1
+        elif char in ")}]":
+            if depth == 0:
+                trailing = plain[last_separator + 1:position].strip()
+                return commas + (1 if trailing else 0)
+            depth -= 1
+        elif char == "," and depth == 0:
+            commas += 1
+            last_separator = position
+    return None
 
 
 def attribute_end(masked, open_position):
@@ -309,7 +376,7 @@ def scan(scope):
     return {
         "tests": len(tests),
         "files": len({test["file"] for test in tests}),
-        "inventory": [dict(where(t), rows=len(t["data_rows"])) for t in tests],
+        "inventory": [dict(where(t), rows=t["row_count"][0], rows_exact=t["row_count"][1]) for t in tests],
         "skipped": [where(t) for t in tests if t["skipped"]],
         "no_assertion": [where(t) for t in active if not helpers.asserts(t["masked_body"])],
         "constant_assertion": [where(t) for t in active if CONSTANT_ASSERTION.search(t["body"])],
@@ -391,9 +458,14 @@ def print_folders(summary):
 
 def print_inventory(result):
     for row in result["inventory"]:
-        rows = f" ({row['rows']} data rows)" if row["rows"] else ""
+        plus = "" if row["rows_exact"] else "+"
+        rows = f" ({row['rows']}{plus} data rows)" if row["rows"] else ""
         print(f"{row['test']}{rows}")
-    print(f"\n{result['tests']} test methods, {sum(r['rows'] for r in result['inventory'])} data rows, {result['files']} files")
+    total = sum(r["rows"] for r in result["inventory"])
+    at_least = "" if all(r["rows_exact"] for r in result["inventory"]) else "at least "
+    print(f"\n{result['tests']} test methods, {at_least}{total} data rows, {result['files']} files")
+    if at_least:
+        print("A + marks member data the scanner could not count (built in a loop, or defined in another file).")
 
 
 def main():

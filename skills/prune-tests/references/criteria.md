@@ -81,12 +81,15 @@ Unless the user names the test explicitly:
   list it under "Known-defect pins"; it tells the team when the behaviour changes, and the user
   decides its fate when the defect is fixed;
 - the only test of a security, authorization, tenant-isolation, data-deletion or money decision;
-- a contract test: public API shape, serialization format, database mapping, migrations,
-  configuration defaults, wire protocol;
+- the only test of a contract: public API shape, serialization format, database mapping,
+  migrations, configuration defaults, wire protocol. A second test of the same contract may go
+  as DU when the witness checks that contract at least as strictly;
 - the only test at its boundary, for example the only integration test of a flow;
 - a test whose only oracle is "does not throw" when the setup or the call can throw for a real
   reason — the throw is the oracle;
-- the negative or edge-case twin of a positive test — the edge case is the distinct failure mode.
+- the negative or edge-case twin of a positive test — the edge case is the distinct failure mode —
+  unless a retained witness asserts the same negative or edge input at least as strictly; then it
+  is DU like any other test.
 
 ## Why these rules
 

@@ -190,6 +190,85 @@ class ScanCsTestsTests(unittest.TestCase):
         self.assertEqual([("Stub_then_verify", ["Load"])], [(r["test"].rsplit(" ", 1)[1], r["members"]) for r in rows])
 
 
+MEMBER_DATA_TESTS = '''
+public class RowsTests
+{
+    public static TheoryData<int, string> Pairs => new()
+    {
+        { 1, "a" },
+        { 2, "b, c" },
+        { 3, "d" },
+    };
+
+    public static TheoryData<string> Strings => new()
+    {
+        "first",
+        "second",
+        "last, without a trailing comma"
+    };
+
+    public static IEnumerable<object[]> Yielded()
+    {
+        yield return new object[] { 1 };
+        yield return new object[] { 2 };
+    }
+
+    public static IEnumerable<object[]> Looped()
+    {
+        foreach (var i in Enumerable.Range(0, 5)) yield return new object[] { i };
+    }
+
+    [Theory]
+    [MemberData(nameof(Pairs))]
+    public void UsesPairs(int n, string s) => Assert.NotNull(s);
+
+    [Theory]
+    [MemberData(nameof(Strings))]
+    public void UsesStrings(string s) => Assert.NotNull(s);
+
+    [Theory]
+    [MemberData(nameof(Yielded))]
+    [InlineData(9)]
+    public void UsesYielded(int n) => Assert.True(n > 0);
+
+    [Theory]
+    [MemberData(nameof(Looped))]
+    public void UsesLooped(int n) => Assert.True(n >= 0);
+
+    [Theory]
+    [MemberData(nameof(ElsewhereData.Rows), MemberType = typeof(ElsewhereData))]
+    public void UsesElsewhere(int n) => Assert.True(n >= 0);
+}
+'''
+
+
+class MemberDataRowTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        path = pathlib.Path(self.directory.name) / "RowsTests.cs"
+        path.write_text(MEMBER_DATA_TESTS, encoding="utf-8")
+        result = scanner.scan(str(path))
+        self.rows = {row["test"].rsplit(" ", 1)[1]: (row["rows"], row["rows_exact"]) for row in result["inventory"]}
+
+    def tearDown(self):
+        self.directory.cleanup()
+
+    def test_rows_of_a_theory_data_initializer_are_counted(self):
+        self.assertEqual((3, True), self.rows["UsesPairs"])
+
+    def test_a_last_string_row_without_a_trailing_comma_is_counted(self):
+        self.assertEqual((3, True), self.rows["UsesStrings"])
+
+    def test_yield_return_rows_add_to_inline_rows(self):
+        self.assertEqual((3, True), self.rows["UsesYielded"])
+
+    def test_rows_built_in_a_loop_are_marked_as_not_counted(self):
+        self.assertEqual((1, False), self.rows["UsesLooped"])
+
+    def test_member_data_defined_in_another_type_is_marked_as_not_counted(self):
+        self.assertEqual((1, False), self.rows["UsesElsewhere"])
+
+
 DUPLICATED_FOLDER = '''
 public class ATests
 {
