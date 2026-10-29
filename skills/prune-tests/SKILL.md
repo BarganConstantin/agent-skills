@@ -141,9 +141,12 @@ written. Measure it on a sample before spending the full amount.
 Follow "Mutation proof" in `references/dotnet.md`: run Stryker with bail disabled, then
 `python3 <skill-dir>/scripts/stryker_redundancy.py <mutation-report.json> --by-method > <work>/proof.md`.
 
-A test listed there either kills no mutant, or every mutant it kills is also killed by a named
-witness. That is strong evidence, but still not a verdict: a test can assert things no mutant
-touched (an exception message, a log entry, a header). The reviewers read both tests.
+If the Stryker report says **PROOF UNUSABLE** (zero killed mutants, suspected bail, or missing
+per-test attribution), do not justify any DELETE or MERGE from it. Investigate and rerun
+Stryker or proceed with static review alone, marking mutation proof unavailable.
+A usable report identifies tests that kill nothing or whose kills have a witness. This
+is candidate evidence, not a verdict: a test may assert something no mutant touched
+(an exception message, a log entry, a header). The reviewers read both tests.
 
 ### 5. Review in parallel
 
@@ -185,7 +188,10 @@ Write `report.md`:
 
 Show the summary and the DELETE and MERGE tables in chat, and give the path of `report.md`.
 Ask the user to approve by row number, for example "approve 1-14, 20; reject 15".
-Record each answer in `report.md`. Stop here when the run is unattended or nothing was approved.
+Record each answer in `report.md`. Record a SHA-256 content hash for every test file containing
+a proposed DELETE or MERGE, alongside its approval rows. Before applying, compare the current
+hash with the recorded value. Any mismatch invalidates approvals for that file, even if the
+commit SHA is unchanged. Stop here when unattended or nothing was approved.
 
 FIX rows are weak tests of a real contract. They are never deleted here; list them for a
 separate rewrite.
@@ -197,6 +203,9 @@ Run the scope's tests once and save the result as `<work>/baseline.trx` (command
 is not a pruning candidate, and pruning on a red baseline hides what the edit broke.
 
 ### 9. Apply the approved rows
+
+Recheck each affected test file against its SHA-256 from step 7. If a file has changed,
+stop and rerun review; never apply approval to stale source.
 
 - **DELETE**: remove the whole test method with its attributes and its doc comment. Remove a
   `using` or import only when nothing else in the file still needs it. For a `Method [row n]`
@@ -212,6 +221,9 @@ is not a pruning candidate, and pruning on a red baseline hides what the edit br
 Build and run the same scope again into `<work>/after.trx`, then run
 `python3 <skill-dir>/scripts/trx_summary.py compare <work>/baseline.trx <work>/after.trx`.
 
+- The baseline must include test results and every baseline result must be Passed. The TRX
+  helper rejects empty runs, catches non-passing baselines, and compares repeated display
+  names as distinct occurrences.
 - "Passed before, failing now" or "New and not passing" must be empty. Otherwise stop and show
   the failures. Do not revert or "fix" on your own; the user decides.
 - "Gone" must equal the approved deletions (methods and rows) plus the originals of each merge.
