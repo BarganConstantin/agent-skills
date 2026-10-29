@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 import pathlib
 import re
 import sys
@@ -57,7 +58,7 @@ def parse_args():
         "identical tests, tests with the same code but different data, and stub-then-verify of the same member. "
         "Every result is a candidate for a reviewer, never a verdict."
     )
-    parser.add_argument("scope", help="a test file or a folder")
+    parser.add_argument("scope", nargs="+", help="test files or folders, for example the test files a branch changed")
     output = parser.add_mutually_exclusive_group()
     output.add_argument("--json", action="store_true", help="print JSON instead of Markdown")
     output.add_argument("--list", action="store_true", help="print only the inventory: file:line, method, data rows")
@@ -454,9 +455,19 @@ def stub_then_verify(test):
     return sorted(moq | nsubstitute)
 
 
+def files_in(scopes):
+    found = set()
+    for scope in [scopes] if isinstance(scopes, str) else scopes:
+        root = pathlib.Path(scope)
+        if root.is_file():
+            found.add(root)
+        else:
+            found.update(p for p in root.rglob("*.cs") if not {"bin", "obj"} & set(p.parts))
+    return sorted(found)
+
+
 def scan(scope):
-    root = pathlib.Path(scope)
-    files = [root] if root.is_file() else sorted(p for p in root.rglob("*.cs") if not {"bin", "obj"} & set(p.parts))
+    files = files_in(scope)
     parsed = [tests_in_file(path) for path in files]
     tests = [test for file_tests, _ in parsed for test in file_tests]
     helpers = HelperIndex({str(path): masked for path, (_, masked) in zip(files, parsed)})
@@ -549,7 +560,8 @@ def folder_of(test_reference, root):
 
 
 def folder_summary(result, scope):
-    root = pathlib.Path(scope)
+    scopes = [scope] if isinstance(scope, str) else scope
+    root = pathlib.Path(scopes[0]) if len(scopes) == 1 else pathlib.Path(os.path.commonpath(scopes))
     flagged = flagged_tests(result)
     folders = defaultdict(lambda: {"tests": 0, "flagged": 0})
     for row in result["inventory"]:
@@ -588,8 +600,9 @@ def print_inventory(result):
 
 def main():
     args = parse_args()
-    if not pathlib.Path(args.scope).exists():
-        print(f"Scope not found: {args.scope}", file=sys.stderr)
+    missing = [scope for scope in args.scope if not pathlib.Path(scope).exists()]
+    if missing:
+        print(f"Scope not found: {', '.join(missing)}", file=sys.stderr)
         return 2
     result = scan(args.scope)
     if args.list:

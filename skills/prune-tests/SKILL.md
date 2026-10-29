@@ -1,6 +1,6 @@
 ---
 name: prune-tests
-description: "Find the tests an existing suite can lose — duplicates of a stronger test, tests that cannot fail, tests that restate the implementation or only check a mock, trivia, parameter copies that belong in one data-driven test — with evidence for every verdict, and delete or merge only the rows the user approves. Read-only report first; a large scope starts with a probe that measures tokens, time and yield and asks whether the full run is worth it; optional mutation-testing proof. Use when the user says 'prune tests', 'find redundant tests', 'too many tests', 'which tests can we delete', 'remove useless tests', 'test slop', 'clean up AI-written tests', 'dedupe the tests', 'curăță testele', 'teste inutile'. First-class for .NET (xUnit, NUnit, MSTest); the method works for any stack. Not for finding coverage gaps or writing new tests."
+description: "Find the tests an existing suite can lose — duplicates of a stronger test, tests that cannot fail, tests that restate the implementation or only check a mock, trivia, parameter copies that belong in one data-driven test — with evidence for every verdict, and delete or merge only the rows the user approves. Best on a branch's new tests (--changed). Read-only report first; a large scope starts with a probe that measures tokens, time and yield and asks whether the full run is worth it; optional mutation-testing proof. Use when the user says 'prune tests', 'find redundant tests', 'too many tests', 'which tests can we delete', 'remove useless tests', 'test slop', 'clean up AI-written tests', 'dedupe the tests', 'curăță testele', 'teste inutile'. First-class for .NET (xUnit, NUnit, MSTest); the method works for any stack. Not for finding coverage gaps or writing new tests."
 license: MIT
 compatibility: Any coding agent with repository access; parallel subagents recommended for the review step. Python 3.10+ (standard library only) for the helper scripts; the .NET SDK to run tests; Stryker.NET only for the optional mutation proof. No network or MCP required.
 ---
@@ -30,9 +30,14 @@ deletion count.
 
 ## Arguments
 
-- `<scope>`: one test project, folder, test class or test file. Required.
+- `<scope>`: one test project, folder, test class or test file, or a list of test files. Required.
   For a whole repository, list the test projects with their test counts, ask which to start
   with, and run one batch per project.
+- `--changed <base>`: only the test files the current branch adds or changes since `<base>`
+  (for example `origin/develop`), listed with
+  `git diff --name-only --diff-filter=AM <base>...HEAD -- '*Tests.cs'`. This is the cheapest and
+  most useful run: it prunes AI-written tests before they merge, at a few dozen tests a time,
+  instead of cleaning a large suite afterwards.
 - `--proof`: add the mutation-testing evidence step (step 4). Slow: plan hours per large
   project for .NET.
 - `apply`: continue an existing report at step 8, after the user approved rows.
@@ -79,11 +84,14 @@ List every test method in scope with its file, line, name and number of data row
 production subject it exercises (the class under test). Then list the sibling tests: tests
 elsewhere that reference the subject, **and tests of the subject's direct callers**, because the
 stronger twin of a unit test often sits one level up, for example in a handler's test or an
-integration project. `references/dotnet.md` has the search commands.
+integration project. Search the whole production source tree for subjects and callers, not only
+the usual layer folders: integrations often live in top-level projects of their own.
+`references/dotnet.md` has the search commands.
 
 Split the scope into slices of about 60 test methods (not data rows), or about 30 when the tests
 set up many mocks. Keep all tests of one production subject in the same slice, because duplicates
-live next to each other. Write `inventory.md`.
+live next to each other, even when that makes the slice larger than the target; split one
+subject's tests by test class only above about 90 methods. Write `inventory.md`.
 
 ### 2. Cheap pre-scan
 
@@ -121,17 +129,18 @@ written. Measure it on a sample before spending the full amount.
    | Test methods | n | N |
    | Tokens | t | t / n × N |
    | Time | m | m / n × N, divided by the reviewers running in parallel |
-   | DELETE + MERGE rows | k, that is k / n of the tests | k / n × N, given as a range from half to one and a half times |
+   | Test methods removed | k, that is k / n of the tests (a merge counts the methods it absorbs; a deleted data row counts zero) | k / n × N, given as a range from half to one and a half times |
+   | Data rows removed | r | r / n × N |
    | Lines removed | l | the same ratio as the rows |
 
    The yield estimate is rough: the share varies by area (on one suite, two areas gave 1% and
    6.5%). Give the cost in tokens; convert it to money only with the user's own price per token.
 5. **Recommend and ask.** Point to one of three roads and say why the numbers point there:
-   - **Continue on the whole scope**: the probe removed a real share, about 5% of its tests or
+   - **Continue on the whole scope**: the probe removed a real share, about 5% of its test methods or
      more.
    - **Probe one more area first**: the probe's share sits between the two thresholds, or the
      scope mixes areas written in very different styles. Name the area and its size.
-   - **Stop here**: the probe removed under about 2% of its tests. The suite is already lean, and
+   - **Stop here**: the probe removed under about 2% of its test methods. The suite is already lean, and
      a full run would cost more than it saves.
 
    The thresholds are a guide, not a rule. Show the probe's DELETE and MERGE tables as well, so
@@ -174,6 +183,9 @@ Read every `review-<n>.md` and apply these checks before anything reaches the us
 3. **Never-delete list.** Re-check every DELETE and MERGE against "Never delete" in
    `references/criteria.md`.
 4. **Cross-slice twins.** A test cited as a witness from another slice must be KEEP there.
+5. **Witnesses outside the scope.** List every witness that sits in a file outside this run under
+   "Witnesses to keep" in `report.md`. A later run whose scope holds that file reads the lists in
+   earlier `.work/prune-tests/*/report.md` files first and keeps those tests.
 
 ### 7. Report and ask
 
@@ -187,6 +199,7 @@ Write `report.md`:
   that ended as KEEP, and every row the reconcile step turned back, each with its reason, so the
   user sees why a flagged test stays;
 - "Known-defect pins": tests that record today's wrong behaviour of an open defect;
+- "Witnesses to keep": witnesses outside the scope that later runs must not delete;
 - orphans the deletions would leave (helpers, fixtures, test-only production seams);
 - the cost of the run: test methods reviewed, tokens and time used, and tokens per test method.
 
