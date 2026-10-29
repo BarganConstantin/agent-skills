@@ -65,6 +65,15 @@ python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --sample 180
 python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --folders
 ```
 
+The sample is deterministic for a given set of files: it takes every k-th file by path, starting
+in the middle of the first step.
+
+For `--changed <base>`, pass the branch's changed test files as the scope:
+
+```bash
+git diff --name-only --diff-filter=AM <base>...HEAD -- '*Tests.cs' | xargs python3 <skill-dir>/scripts/scan_cs_tests.py
+```
+
 The `xunit.analyzers` package (shipped with `xunit`) reports two more candidates during a build:
 `xUnit1025` (duplicate `InlineData` rows) and `xUnit1026` (a theory parameter the test never uses,
 so the rows differ in something the test does not check):

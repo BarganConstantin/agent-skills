@@ -40,7 +40,7 @@ candidate; then it names the candidate's class and says why it stays.
 | CF | Cannot fail | No assertion; asserts a value the same test just arranged; `Assert.True(true)`; asserts a constant against itself; asserts only that a non-nullable result is not null. | DELETE when the code the test runs has no contract; FIX when it does |
 | EC | Echo | The expected value is computed with the production formula or a helper that re-implements it; the test runs its own copy of the production code instead of the production code itself, so it cannot fail on a production bug; a snapshot that only mirrors the current output. | FIX; DELETE only when a correct test of the same behaviour exists (then it is also DU) |
 | MK | Mock-only oracle | Asserts what a stub was told to return; verifies a call the test itself stubbed, when the result already shows it; the mock implements the behaviour being asserted. | DELETE when the real behaviour is tested elsewhere or the subject is a pass-through; otherwise FIX |
-| DU | Duplicate | Same behaviour, same class of input, same or weaker assertions as a retained test. | DELETE the weaker one |
+| DU | Duplicate | Same behaviour, same class of input, same or weaker assertions as a retained test. A single data row can be DU of a row or a test elsewhere (`Method [row n]`). | DELETE the weaker one |
 | LR | Layer replay | Re-proves through a mocked collaborator a contract that a retained test already proves at a stronger boundary. | DELETE the weaker-layer test |
 | PD | Parameter copies | Several tests with the same code that differ only in input and expected values, **and** are examples of the same behaviour. One example per rule is not PD. | MERGE into one data-driven test |
 | DR | Duplicate data row | A data row that repeats the input class of another row of the same test, so it can only fail when that row fails too. | DELETE the row |
@@ -75,8 +75,10 @@ candidate; then it names the candidate's class and says why it stays.
 Unless the user names the test explicitly:
 
 - a failing or skipped test — report it instead;
-- the regression test of a fixed bug (its name or comment mentions a bug or ticket, or
-  `git log --follow` shows it arrived with a fix), unless the witness uses the same failing input;
+- the regression test of a fixed bug: a test that reproduces the bug a fix repaired, because it
+  uses the fix's failing input or would fail on the code before the fix (read the fix's diff via
+  `git log --follow`), unless the witness uses the same failing input. Arriving in a `fix(...)`
+  commit is not enough: fix commits often bring side tests that reproduce nothing;
 - a pin of a known open defect (its name or comment says it records today's wrong behaviour) —
   list it under "Known-defect pins"; it tells the team when the behaviour changes, and the user
   decides its fate when the defect is fixed;

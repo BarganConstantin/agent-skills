@@ -397,6 +397,19 @@ public class RootTests
 '''
 
 
+class SeveralScopesTests(unittest.TestCase):
+    def test_a_list_of_changed_files_is_scanned_as_one_scope(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            (root / "ATests.cs").write_text(DUPLICATED_FOLDER, encoding="utf-8")
+            (root / "BTests.cs").write_text(CLEAN_FOLDER, encoding="utf-8")
+            (root / "Untouched.cs").write_text(ROOT_FILE, encoding="utf-8")
+            result = scanner.scan([str(root / "ATests.cs"), str(root / "BTests.cs")])
+        self.assertEqual(5, result["tests"])
+        self.assertEqual(2, result["files"])
+        self.assertEqual(1, len(result["identical_tests"]))
+
+
 class SystematicSampleTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
