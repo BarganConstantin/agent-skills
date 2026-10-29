@@ -51,16 +51,18 @@ Potential client breaks: 3; coverage warnings: 0
 | **02 / [Handoff with Receipts](skills/handoff-with-receipts/SKILL.md)** | Continue work in a new session with verified Git state and open questions. | Git/Python optional |
 | **03 / [API Contract Drift](skills/api-contract-drift/SKILL.md)** | Spot potentially breaking OpenAPI changes before release. | Offline Python 3.10+ |
 | **04 / [Reference Library](skills/reference-library/SKILL.md)** | Search saved GitHub inspirations by task and bookmark new discoveries. | Offline Python 3.10+ |
+| **05 / [Prune Tests](skills/prune-tests/SKILL.md)** | Find redundant tests; delete only what you approve. | Python 3.10+ |
 
 ### One skill. One command.
 
-With Node.js 22.20+ and npm, **pick one** of these alternatives:
+With Node.js 22.20+ and npm, **pick one**:
 
 ```bash
 npx skills add BarganConstantin/agent-skills --skill first-user-audit
 npx skills add BarganConstantin/agent-skills --skill handoff-with-receipts
 npx skills add BarganConstantin/agent-skills --skill api-contract-drift
 npx skills add BarganConstantin/agent-skills --skill reference-library
+npx skills add BarganConstantin/agent-skills --skill prune-tests
 ```
 
 Installing a skill copies instructions; it doesn't run an agent or connect tools. To inspect without installing:
@@ -71,7 +73,7 @@ npx skills use BarganConstantin/agent-skills --skill reference-library
 
 ## The reference library
 
-**Find useful ideas when you need them.** Browse the [categorized library](docs/library.md) or open `docs/library-explorer.html` locally after cloning for **instant search and filters**. GitHub shows HTML source, not the interactive page. The original projects are always linked.
+**Find useful ideas when you need them.** Browse the [categorized library](docs/library.md) or open `docs/library-explorer.html` locally for **instant search and filters**. GitHub shows HTML source, not the interactive page.
 
 <a href="docs/library.md"><img src="assets/library-map.svg" alt="Animated category map of the reference library: UI/UX, Backend, Review, Testing and Agent Workflows." width="100%" /></a>
 
@@ -80,9 +82,9 @@ python skills/reference-library/scripts/library.py browse backend
 python skills/reference-library/scripts/library.py search "landing page design" --category ui-ux
 ```
 
-Or tell your agent: *“Use reference-library. What have I saved that can help this UI task? Show source links and reasons.”*
+Or tell your agent: *“Use reference-library. What have I saved that can help this UI task?”*
 
-[Catalog](skills/reference-library/references/catalog.json): source links, tags, use cases and review dates—**no third-party code**. Installs are local snapshots. [Curation rules](skills/reference-library/references/curation.md).
+[Catalog](skills/reference-library/references/catalog.json): source links, tags, use cases and review dates—**no third-party code**. [Curation rules](skills/reference-library/references/curation.md).
 
 ## Try browser-based first-user QA
 

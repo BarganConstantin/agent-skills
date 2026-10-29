@@ -5,7 +5,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 REMOTE = ROOT / "scripts" / "verify_public_install.sh"
 WORKFLOW = ROOT / ".github" / "workflows" / "public-install.yml"
-SKILL_NAMES = ("first-user-audit", "handoff-with-receipts", "api-contract-drift", "reference-library")
+SKILL_NAMES = ("first-user-audit", "handoff-with-receipts", "api-contract-drift", "reference-library", "prune-tests")
 
 
 class PublicInstallTests(unittest.TestCase):
