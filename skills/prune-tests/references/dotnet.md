@@ -1,0 +1,159 @@
+# .NET reference
+
+Commands assume a POSIX shell (macOS, Linux, Git Bash or WSL on Windows) and Python 3.8+.
+`<skill-dir>` is this skill's directory; `<work>` is the batch's working folder from `SKILL.md`.
+
+## Inventory
+
+List every test method in scope with its file, line, name and number of data-row attributes
+(`InlineData`, `TestCase`, `DataRow`, `MemberData`, …):
+
+```bash
+python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --list
+```
+
+Find the production subject of a test file: by convention `PricingTests.cs` tests `Pricing`. When
+the name does not say it, look for the `new <Type>(` the tests construct, or the system-under-test
+field. Then find the sibling tests, in two passes:
+
+```bash
+# tests elsewhere that reference the subject itself
+grep -rln '\b<SubjectType>\b' --include='*.cs' <tests-root> | grep -v '<scope>'
+
+# the subject's direct callers in production code, then the tests of those callers
+grep -rln '\b<SubjectType>\b' --include='*.cs' <production-root> | grep -v '<SubjectFile>'
+grep -rln -E '\b(<CallerType1>|<CallerType2>)\b' --include='*.cs' <tests-root>
+```
+
+Always pass a directory to `grep -r`; a search from the repository root can take minutes on a
+large repository.
+
+## Pre-scan
+
+```bash
+python3 <skill-dir>/scripts/scan_cs_tests.py <scope> > <work>/prescan.md
+```
+
+It lists, as candidates only:
+
+- **skipped tests** — report them, never prune them;
+- **no assertion found** — it follows helper methods in the scope up to three calls deep, so a
+  test that asserts through `ResultIs(...)` is not listed; a test that only checks "it does not
+  throw" is listed, and the never-delete rule usually keeps it;
+- **constant assertions** — `Assert.True(true)`, `Assert.Equal(x, x)`;
+- **identical tests** — the same data rows, parameter list and body after comments and whitespace
+  are removed; only the name differs;
+- **same code, different data** — the same parameter list and code, with different literals or
+  data rows (interpolation holes count as code). Merge candidates only when the members are
+  examples of one behaviour; one example per rule stays separate;
+- **stub and verify of the same member** (Moq `Setup` + `Verify`, NSubstitute `Returns` +
+  `Received`) — a possible mock-only oracle; often fine when the call is the behaviour (a command
+  that must be sent).
+
+The scanner reads text, not syntax trees. It can miss unusual layouts; it never decides.
+
+The `xunit.analyzers` package (shipped with `xunit`) reports two more candidates during a build:
+`xUnit1025` (duplicate `InlineData` rows) and `xUnit1026` (a theory parameter the test never uses,
+so the rows differ in something the test does not check):
+
+```bash
+dotnet build <Tests.csproj> 2>&1 | grep -E 'xUnit102[56]' | sort -u
+```
+
+## Run the scope and save results
+
+```bash
+dotnet test <Tests.csproj> \
+  --filter "FullyQualifiedName~<Namespace>.<TestClass>|FullyQualifiedName~<Namespace>.<OtherTestClass>" \
+  --logger "trx;LogFileName=baseline.trx" --results-directory <work>
+```
+
+Use `after.trx` for the run after the edits. Then:
+
+```bash
+python3 <skill-dir>/scripts/trx_summary.py summary <work>/baseline.trx --slowest 15
+python3 <skill-dir>/scripts/trx_summary.py compare <work>/baseline.trx <work>/after.trx
+```
+
+`compare` exits with 1 when a retained test stopped passing or a new test does not pass.
+
+If the repository tags tests by category (for example `[Trait("Category", "Unit")]`), keep the
+same filter the team uses for unit tests, and never start tests that reach shared or live systems.
+
+## Merging into a `[Theory]`
+
+Before:
+
+```csharp
+[Fact]
+public void Total_Should_AddTwentyPercent_When_RateIsStandard()
+{
+    Assert.Equal(120, Pricing.Total(100, VatRate.Standard));
+}
+
+[Fact]
+public void Total_Should_AddFivePercent_When_RateIsReduced()
+{
+    Assert.Equal(105, Pricing.Total(100, VatRate.Reduced));
+}
+```
+
+After:
+
+```csharp
+[Theory]
+[InlineData(VatRate.Standard, 120)]
+[InlineData(VatRate.Reduced, 105)]
+public void Total_Should_AddTheRatesVat(VatRate rate, int expected)
+{
+    Assert.Equal(expected, Pricing.Total(100, rate));
+}
+```
+
+- Every old case becomes one data row, with its inputs and expected values copied verbatim.
+- Values an attribute cannot hold (`decimal`, `DateTime`, objects) go into a `TheoryData<…>`
+  member with `[MemberData(nameof(…))]`. NUnit uses `[TestCase]`; MSTest uses `[DataRow]`.
+- Keep the attributes the originals shared, such as `[Trait]` categories.
+- Follow the repository's test naming convention for the merged name.
+
+## Mutation proof (`--proof`)
+
+Mutation testing changes the production code in small ways ("mutants") and runs the tests
+against each change. A test that fails on a mutant "kills" it. When every mutant a test kills is
+also killed by another test, that test adds no detection power for those mutants.
+
+1. Install Stryker.NET once: `dotnet tool install --global dotnet-stryker` (or add it to the
+   repository's local tool manifest).
+2. From the **production** project's folder, run:
+
+   ```bash
+   dotnet stryker \
+     --test-project <path/to/X.Tests.csproj> \
+     --disable-bail \
+     --mutate "**/<SubjectFolder>/**/*.cs" \
+     --reporter json --reporter html
+   ```
+
+   - `--disable-bail` is required. Without it Stryker stops at the first failing test, `killedBy`
+     names one test per mutant, and every redundancy result is wrong.
+   - `coverage-analysis` must stay at its default, `perTest`. Never set it to `off`.
+   - Add one `--test-project` for every unit-test project that exercises the subject, or a kill
+     made by another project will not count. Do not add projects whose tests reach live or shared
+     systems: Stryker runs the covering tests once per mutant.
+   - Keep `--mutate` narrow. A full run with bail disabled can take hours on a large project.
+3. Read the report at `StrykerOutput/<timestamp>/reports/mutation-report.json`:
+
+   ```bash
+   python3 <skill-dir>/scripts/stryker_redundancy.py <mutation-report.json> --by-method > <work>/proof.md
+   ```
+
+   `--by-method` folds the rows of one `[Theory]` into one entry. The output lists tests that
+   kill nothing, tests whose every kill a named witness also makes, and the size of the smallest
+   set of tests that still kills everything. Deleting every listed test keeps every kill, but each
+   row still needs a reviewer's evidence and the user's yes.
+4. After the edits, run the same command again and compare the killed mutants. A mutant killed
+   before and surviving now points at a deletion that lost protection.
+
+Known issue, as of 2026-10-29: [stryker-net#3920](https://github.com/stryker-mutator/stryker-net/issues/3920)
+— on .NET 10 with xUnit v3 and the VSTest runner, mutants are never activated and the report shows
+0 kills. If a run reports no kills at all, check this before trusting it.

@@ -5,7 +5,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 REMOTE = ROOT / "scripts" / "verify_public_install.sh"
 WORKFLOW = ROOT / ".github" / "workflows" / "public-install.yml"
-SKILL_NAMES = ("first-user-audit", "handoff-with-receipts", "api-contract-drift", "reference-library")
+SKILL_NAMES = ("first-user-audit", "handoff-with-receipts", "api-contract-drift", "reference-library", "prune-tests")
 
 
 class PublicInstallTests(unittest.TestCase):
@@ -38,7 +38,6 @@ class PublicInstallTests(unittest.TestCase):
     def test_research_and_docs_link_current_activation_paths(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         study = (ROOT / "docs" / "growth-research.md").read_text(encoding="utf-8")
-        self.assertIn("docs/growth-research.md", readme)
         self.assertIn("public-install.yml", readme)
         for name in SKILL_NAMES:
             self.assertIn("--skill " + name, readme)

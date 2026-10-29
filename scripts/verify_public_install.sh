@@ -14,13 +14,13 @@ cd "$TEMPDIR"
 
 echo "::group::Discover actual skills through public GitHub"
 npx --yes skills@latest add "$REPOSITORY" --list > discovered.txt
-for skill in first-user-audit handoff-with-receipts api-contract-drift reference-library; do
+for skill in first-user-audit handoff-with-receipts api-contract-drift reference-library prune-tests; do
   grep -Fq "$skill" discovered.txt
 done
 echo "::endgroup::"
 
 echo "::group::Install all three skills from GitHub"
-for skill in first-user-audit handoff-with-receipts api-contract-drift reference-library; do
+for skill in first-user-audit handoff-with-receipts api-contract-drift reference-library prune-tests; do
   npx --yes skills@latest add "$REPOSITORY" \
     --skill "$skill" --agent claude-code --agent codex --copy --yes
   for client in ".agents/skills" ".claude/skills"; do
@@ -39,7 +39,7 @@ echo "::endgroup::"
 echo "::group::No-install preview from public GitHub"
 mkdir -p "$TEMPDIR/preview"
 cd "$TEMPDIR/preview"
-for skill in first-user-audit handoff-with-receipts api-contract-drift reference-library; do
+for skill in first-user-audit handoff-with-receipts api-contract-drift reference-library prune-tests; do
   npx --yes skills@latest use "$REPOSITORY" --skill "$skill" > "$skill.txt"
   test -s "$skill.txt"
   grep -Fq "$skill" "$skill.txt"
