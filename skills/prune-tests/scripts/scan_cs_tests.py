@@ -8,7 +8,10 @@ import sys
 from collections import defaultdict
 
 TEST_ATTRIBUTE = re.compile(r"\[\s*(Fact|Theory|Test|TestCase|TestCaseSource|TestMethod|DataTestMethod)\b")
-SKIP_ATTRIBUTE = re.compile(r"\[\s*(?:Fact|Theory)\s*\([^\]]*\bSkip\s*=|\[\s*Ignore\b")
+SKIP_ATTRIBUTE = re.compile(
+    r"\[\s*(?:Fact|Theory|Test|TestCase|TestMethod|DataTestMethod)\s*"
+    r"\([^\]]*\b(?:Skip|Ignore)\s*=|\[\s*Ignore\b"
+)
 ASSERTION = re.compile(
     r"\b(Assert|Verify|Expect|Check|Ensure)\w*\s*[.(<]"
     r"|\.Should\w*\s*\("
@@ -365,7 +368,8 @@ def scan(scope):
     files = [root] if root.is_file() else sorted(p for p in root.rglob("*.cs") if not {"bin", "obj"} & set(p.parts))
     parsed = [tests_in_file(path) for path in files]
     tests = [test for file_tests, _ in parsed for test in file_tests]
-    helpers = HelperIndex([masked for _, masked in parsed])
+    # Same-named helpers in unrelated files must not mask missing assertions.
+    helpers_by_file = {str(path): HelperIndex([masked]) for path, (_, masked) in zip(files, parsed)}
     active = [test for test in tests if not test["skipped"]]
     exact_groups = groups_by(active, exact_shape)
     exact_members = {id(test) for group in exact_groups for test in group}
@@ -378,8 +382,8 @@ def scan(scope):
         "files": len({test["file"] for test in tests}),
         "inventory": [dict(where(t), rows=t["row_count"][0], rows_exact=t["row_count"][1]) for t in tests],
         "skipped": [where(t) for t in tests if t["skipped"]],
-        "no_assertion": [where(t) for t in active if not helpers.asserts(t["masked_body"])],
-        "constant_assertion": [where(t) for t in active if CONSTANT_ASSERTION.search(t["body"])],
+        "no_assertion": [where(t) for t in active if not helpers_by_file[t["file"]].asserts(t["masked_body"])],
+        "constant_assertion": [where(t) for t in active if CONSTANT_ASSERTION.search(t["masked_body"])],
         "identical_tests": [[where(t) for t in group] for group in exact_groups],
         "same_code_different_data": [[where(t) for t in group] for group in data_groups],
         "stub_then_verify": [dict(where(t), members=m) for t in active if (m := stub_then_verify(t))],
