@@ -3,6 +3,8 @@ import contextlib
 import importlib.util
 import io
 import pathlib
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -19,6 +21,7 @@ def load(module_name):
 stryker = load("stryker_redundancy")
 trx = load("trx_summary")
 scanner = load("scan_cs_tests")
+remover = load("remove_cs_tests")
 
 SAMPLE_TESTS = '''
 public class PricingTests
@@ -409,6 +412,78 @@ class SeveralScopesTests(unittest.TestCase):
         self.assertEqual(2, result["files"])
         self.assertEqual(1, len(result["identical_tests"]))
 
+BEFORE_BRANCH = """public class CartTests
+{
+    [Fact]
+    public void Adds() => Assert.Equal(2, Cart.Add(1, 1));
+
+    [Fact]
+    public void Empties() => Assert.Empty(Cart.Clear());
+
+    [Fact]
+    public void OldCopyA() => Assert.Equal(3, Cart.Add(1, 2));
+
+    [Fact]
+    public void OldCopyB() => Assert.Equal(3, Cart.Add(1, 2));
+}
+"""
+
+AFTER_BRANCH = """public class CartTests
+{
+    [Fact]
+    public void Adds() => Assert.Equal(2, Cart.Add(1, 1));
+
+    [Fact]
+    public void Empties() => Assert.Empty(Cart.Clear(true));
+
+    [Fact]
+    public void OldCopyA() => Assert.Equal(3, Cart.Add(1, 2));
+
+    [Fact]
+    public void OldCopyB() => Assert.Equal(3, Cart.Add(1, 2));
+
+    [Fact]
+    public void AddsAgain() => Assert.Equal(2, Cart.Add(1, 1));
+}
+"""
+
+
+class ChangedSinceTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.directory.name)
+        self.git("init", "-q", "-b", "main")
+        (self.root / "CartTests.cs").write_text(BEFORE_BRANCH, encoding="utf-8")
+        (self.root / "UntouchedTests.cs").write_text(ROOT_FILE, encoding="utf-8")
+        self.commit("base")
+        (self.root / "CartTests.cs").write_text(AFTER_BRANCH, encoding="utf-8")
+        self.commit("branch")
+        self.result = scanner.scan(str(self.root), "HEAD~1")
+
+    def tearDown(self):
+        self.directory.cleanup()
+
+    def git(self, *arguments):
+        subprocess.run(["git", "-C", str(self.root), *arguments], check=True, capture_output=True)
+
+    def commit(self, message):
+        self.git("add", "-A")
+        self.git("-c", "user.name=test", "-c", "user.email=test@example.com", "commit", "-q", "-m", message)
+
+    def names(self, rows):
+        return sorted(row["test"].rsplit(" ", 1)[1] for row in rows)
+
+    def test_only_the_tests_the_branch_added_or_changed_are_in_scope(self):
+        self.assertEqual(["AddsAgain", "Empties"], self.names(self.result["inventory"]))
+        self.assertEqual(3, self.result["context_tests"])
+
+    def test_a_new_copy_of_an_old_test_is_grouped_with_the_old_one(self):
+        self.assertEqual([["Adds", "AddsAgain"]], [self.names(group) for group in self.result["identical_tests"]])
+
+    def test_a_bad_base_is_an_error_not_an_empty_scope(self):
+        with self.assertRaisesRegex(ValueError, "git failed"):
+            scanner.scan(str(self.root), "no-such-ref")
+
 
 class SystematicSampleTests(unittest.TestCase):
     def setUp(self):
@@ -654,6 +729,294 @@ class TrxSummaryTests(unittest.TestCase):
             path = trx_file(directory, "empty.trx", [])
             with self.assertRaisesRegex(ValueError, "no test results"):
                 trx.read_results(path)
+
+PRICING_FILE = """public class PricingTests
+{
+    [Fact]
+    public void Keeps() => Assert.Equal(1, Pricing.Id(1));
+
+    /// <summary>Same as Keeps.</summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Duplicate()
+    {
+        Assert.Equal("}", Pricing.Brace());
+    }
+
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void Rounds(int value) => Assert.Equal(value, Pricing.Id(value));
+
+    [Fact]
+    public void Last() => Assert.True(Pricing.Ready);
+}
+"""
+
+DUPLICATE_METHOD = """    /// <summary>Same as Keeps.</summary>
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Duplicate()
+    {
+        Assert.Equal("}", Pricing.Brace());
+    }
+
+"""
+
+
+class RemoveCsTestsTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.path = pathlib.Path(self.directory.name) / "PricingTests.cs"
+
+    def tearDown(self):
+        self.directory.cleanup()
+
+    def write(self, text, newline="\n", bom=False):
+        data = text.replace("\n", newline).encode("utf-8")
+        self.path.write_bytes((b"\xef\xbb\xbf" if bom else b"") + data)
+        return remover.sha256_of(self.path)
+
+    def remove(self, sha256, *targets, dry_run=False):
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            remover.remove(self.path, sha256, list(targets), dry_run)
+        return output.getvalue()
+
+    def test_a_method_goes_with_its_attributes_and_doc_comment(self):
+        sha256 = self.write(PRICING_FILE)
+        self.remove(sha256, "Duplicate")
+        self.assertEqual(PRICING_FILE.replace(DUPLICATE_METHOD, ""), self.path.read_text(encoding="utf-8"))
+
+    def test_line_endings_and_the_byte_order_mark_are_kept(self):
+        sha256 = self.write(PRICING_FILE, newline="\r\n", bom=True)
+        self.remove(sha256, "Last")
+        data = self.path.read_bytes()
+        self.assertTrue(data.startswith(b"\xef\xbb\xbf"))
+        self.assertNotIn(b"Last", data)
+        self.assertEqual(data.count(b"\n"), data.count(b"\r\n"))
+        self.assertTrue(data.endswith(b"value));\r\n}\r\n"))
+
+    def test_a_row_goes_and_the_other_rows_stay(self):
+        sha256 = self.write(PRICING_FILE)
+        output = self.remove(sha256, "Rounds [row 2]")
+        self.assertIn("[InlineData(1)]\n    [InlineData(3)]\n", self.path.read_text(encoding="utf-8"))
+        self.assertIn("Rounds [row 2] (line 16): [InlineData(2)]", output)
+
+    def test_neighbouring_methods_go_together_without_a_blank_line_before_the_brace(self):
+        sha256 = self.write(PRICING_FILE)
+        self.remove(sha256, "Rounds", "Last")
+        self.assertTrue(self.path.read_text(encoding="utf-8").endswith("Pricing.Brace());\n    }\n}\n"))
+
+    def test_the_last_test_gone_says_to_delete_the_file(self):
+        sha256 = self.write(PRICING_FILE)
+        output = self.remove(sha256, "Keeps", "Duplicate", "Rounds", "Last")
+        self.assertIn("0 test methods are left", output)
+        self.assertIn("delete the file", output)
+        self.assertEqual("public class PricingTests\n{\n}\n", self.path.read_text(encoding="utf-8"))
+
+    def test_a_dry_run_changes_nothing(self):
+        sha256 = self.write(PRICING_FILE)
+        output = self.remove(sha256, "Duplicate", dry_run=True)
+        self.assertIn("would remove Duplicate", output)
+        self.assertEqual(PRICING_FILE, self.path.read_text(encoding="utf-8"))
+
+    def assertRefused(self, message, sha256, *targets):
+        before = self.path.read_bytes()
+        with self.assertRaisesRegex(remover.Refusal, message):
+            self.remove(sha256, *targets)
+        self.assertEqual(before, self.path.read_bytes())
+
+    def test_a_file_changed_since_the_approval_is_refused(self):
+        self.write(PRICING_FILE)
+        self.assertRefused("changed since the approval", "0" * 64, "Duplicate")
+
+    def test_removing_every_row_is_refused(self):
+        sha256 = self.write(PRICING_FILE)
+        self.assertRefused("delete the method instead", sha256, "Rounds [row 1]", "Rounds [row 2]", "Rounds [row 3]")
+
+    def test_a_method_given_whole_and_by_row_is_refused(self):
+        sha256 = self.write(PRICING_FILE)
+        self.assertRefused("whole and by row", sha256, "Rounds", "Rounds [row 1]")
+
+    def test_an_unknown_or_overloaded_name_is_refused(self):
+        sha256 = self.write(PRICING_FILE.replace("public void Last()", "public void Keeps(int unused)"))
+        self.assertRefused("2 test methods are named Keeps", sha256, "Keeps")
+        self.assertRefused("no test method named Missing", sha256, "Missing")
+
+    def test_rows_from_member_data_are_refused(self):
+        sha256 = self.write(PRICING_FILE.replace("[InlineData(3)]", "[MemberData(nameof(More))]"))
+        self.assertRefused("from a member", sha256, "Rounds [row 1]")
+
+def two_tests(first_test, second_test="    [Fact]\n    public void B() { Assert.True(Cart.Ready); }\n"):
+    return "public class T\n{\n" + first_test + "\n" + second_test + "}\n"
+
+
+B_ONLY = "public class T\n{\n    [Fact]\n    public void B() { Assert.True(Cart.Ready); }\n}\n"
+
+
+class RemoveCsTestsEdgeCaseTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.path = pathlib.Path(self.directory.name) / "T.cs"
+
+    def tearDown(self):
+        self.directory.cleanup()
+
+    def removed(self, text, *targets):
+        self.path.write_text(text, encoding="utf-8")
+        with contextlib.redirect_stdout(io.StringIO()) as output:
+            remover.remove(self.path, remover.sha256_of(self.path), list(targets), False)
+        self.output = output.getvalue()
+        return self.path.read_text(encoding="utf-8")
+
+    def assertRefused(self, message, text, *targets):
+        self.path.write_text(text, encoding="utf-8")
+        with self.assertRaisesRegex(remover.Refusal, message):
+            remover.remove(self.path, remover.sha256_of(self.path), list(targets), False)
+        self.assertEqual(text, self.path.read_text(encoding="utf-8"))
+
+    def test_a_nested_string_in_an_interpolation_hole_does_not_take_the_next_test(self):
+        text = two_tests('    [Fact]\n    public void A() { var s = $"{(open ? "{" : "")}"; Assert.Equal("", s); }\n')
+        self.assertEqual(B_ONLY, self.removed(text, "A"))
+
+    def test_a_closing_brace_in_a_hole_string_does_not_end_the_method(self):
+        text = two_tests('    [Fact]\n    public void A()\n    {\n        var s = $"{Wrap("}")}";\n        Assert.Equal("x", s);\n    }\n')
+        self.assertEqual(B_ONLY, self.removed(text, "A"))
+
+    def test_an_expression_bodied_test_with_a_block_lambda_goes_whole(self):
+        text = two_tests("    [Fact]\n    public void A() => Assert.Throws<ArgumentException>(() => { var x = new Foo(null); x.Run(); });\n")
+        self.assertEqual(B_ONLY, self.removed(text, "A"))
+
+    def test_an_attribute_after_the_previous_brace_leaves_that_brace(self):
+        text = "public class T\n{\n    [Fact]\n    public void A()\n    {\n    } [Fact]\n    public void B()\n    {\n    }\n}\n"
+        self.assertEqual("public class T\n{\n    [Fact]\n    public void A()\n    {\n    }\n}\n", self.removed(text, "B"))
+
+    def test_a_region_line_ending_in_a_bracket_stays(self):
+        for region in ("    #region Odd ]\n", "    #region Slow tests [integration]\n"):
+            text = two_tests("    [Fact]\n    public void A() { Assert.True(Cart.Open); }\n",
+                             region + "    [Fact]\n    public void B() { Assert.True(Cart.Ready); }\n    #endregion\n")
+            expected = "public class T\n{\n    [Fact]\n    public void A() { Assert.True(Cart.Open); }\n\n" + region + "    #endregion\n}\n"
+            self.assertEqual(expected, self.removed(text, "B"))
+
+    def test_a_quote_in_a_region_line_does_not_hide_the_test(self):
+        text = two_tests('    #region 12" screen\n    [Fact]\n    public void A() { Assert.True(Cart.Open); }\n    #endregion\n')
+        self.assertNotIn("public void A", self.removed(text, "A"))
+
+    def test_rows_are_counted_in_source_order_across_an_if_block(self):
+        text = two_tests("    [InlineData(1)]\n#if NET8_0_OR_GREATER\n    [InlineData(2)]\n#endif\n    [Theory]\n"
+                         "    [InlineData(3)]\n    [InlineData(4)]\n    public void A(int x) => Assert.True(x > 0);\n")
+        after = self.removed(text, "A [row 1]")
+        self.assertNotIn("[InlineData(1)]", after)
+        self.assertIn("[InlineData(3)]", after)
+
+    def test_a_directive_pair_split_by_the_span_is_refused(self):
+        pragma = two_tests('    #pragma warning disable xUnit1004\n    [Fact(Skip = "flaky")]\n    #pragma warning restore xUnit1004\n'
+                           "    public void A() { Assert.True(Cart.Open); }\n")
+        self.assertRefused("preprocessor", pragma, "A")
+
+    def test_the_doc_comment_goes_when_the_method_ends_in_a_comment(self):
+        for ending in ("    public void A()\n    {\n    } // end A\n", "    public void A() => Assert.True(Cart.Open); // quick\n"):
+            text = two_tests("    /// <summary>Old.</summary>\n    [Fact]\n" + ending)
+            self.assertEqual(B_ONLY, self.removed(text, "A"))
+
+    def test_a_doc_comment_separated_by_a_blank_line_goes_too(self):
+        text = two_tests("    /// <summary>Old.</summary>\n\n    [Fact]\n    public void A() { Assert.True(Cart.Open); }\n")
+        self.assertEqual(B_ONLY, self.removed(text, "A"))
+
+    def test_a_four_slash_comment_stays(self):
+        text = two_tests("    [Fact]\n    public void B() { Assert.True(Cart.Ready); }\n",
+                         "    //// Disabled: [Fact] public void Old() { }\n    [Fact]\n    public void A() { Assert.True(Cart.Open); }\n")
+        self.assertIn("    //// Disabled:", self.removed(text, "A"))
+
+    def test_the_last_row_on_a_shared_line_leaves_no_trailing_space(self):
+        text = two_tests("    [Theory]\n    [InlineData(1)] [InlineData(2)]\n    public void A(int x) => Assert.True(x > 0);\n")
+        self.assertIn("    [InlineData(1)]\n    public void A", self.removed(text, "A [row 2]"))
+
+    def test_a_huge_row_number_is_refused(self):
+        self.assertRefused("not a test name", B_ONLY, "B [row " + "1" * 5000 + "]")
+
+    def test_a_block_comment_that_runs_past_the_line_is_never_cut(self):
+        after_brace = two_tests("    [Fact]\n    public void A() { } /* see\n       issue 12 */\n")
+        self.assertRefused("comment or a string", after_brace, "A")
+        before_attributes = "public class T\n{\n    /* disabled for now\n    */ [Fact]\n    public void A() { }\n}\n"
+        self.assertRefused("comment or a string", before_attributes, "A")
+
+    def test_a_commented_out_test_and_its_doc_above_the_target_stay(self):
+        kept = "    /// <summary>Old behaviour.</summary>\n    // [Fact]\n    // public void Old() { }\n\n"
+        text = two_tests(kept + "    /// <summary>A</summary>\n    [Fact]\n    public void A() { Assert.True(Cart.Open); }\n")
+        self.assertEqual("public class T\n{\n" + kept + "    [Fact]\n    public void B() { Assert.True(Cart.Ready); }\n}\n",
+                         self.removed(text, "A"))
+
+    def test_doc_like_lines_inside_a_comment_or_a_string_stay(self):
+        for kept in ("    /*\n    /// x\n    // y */\n", '    const string H = @"\n    /// gen\n    //";\n'):
+            text = two_tests(kept + "    [Fact]\n    public void A() { Assert.True(Cart.Open); }\n")
+            self.assertEqual("public class T\n{\n" + kept + "\n    [Fact]\n    public void B() { Assert.True(Cart.Ready); }\n}\n",
+                             self.removed(text, "A"))
+
+    def test_a_symlinked_file_is_updated_through_the_link(self):
+        real = pathlib.Path(self.directory.name) / "real"
+        real.mkdir()
+        target = real / "T.cs"
+        target.write_text(two_tests("    [Fact]\n    public void A() { Assert.True(Cart.Open); }\n"), encoding="utf-8")
+        self.path.symlink_to(target)
+        with contextlib.redirect_stdout(io.StringIO()):
+            remover.remove(self.path, remover.sha256_of(self.path), ["A"], False)
+        self.assertTrue(self.path.is_symlink())
+        self.assertEqual(B_ONLY, target.read_text(encoding="utf-8"))
+
+    def test_balanced_directives_inside_the_removed_test_are_accepted(self):
+        pragma = ("    [Fact]\n    public void A()\n    {\n#pragma warning disable CS0618\n        Legacy.Run();\n"
+                  "#pragma warning restore CS0618\n    }\n")
+        self.assertEqual(B_ONLY, self.removed(two_tests(pragma), "A"))
+        guarded = ("    [Theory]\n    [InlineData(1)]\n#if NET8_0_OR_GREATER\n    [InlineData(2)]\n#else\n    [InlineData(3)]\n#endif\n"
+                   "    public void A(int x) => Assert.True(x > 0);\n")
+        self.assertEqual(B_ONLY, self.removed(two_tests(guarded), "A"))
+
+    def test_a_directive_that_changes_the_rest_of_the_file_is_refused(self):
+        self.assertRefused("preprocessor", two_tests("    [Fact]\n    public void A()\n    {\n#nullable enable\n        Run();\n    }\n"), "A")
+
+    def test_a_comment_line_that_starts_with_a_hash_is_not_a_directive(self):
+        text = two_tests("    [Fact]\n    public void A()\n    {\n        /*\n        #1 regression\n        */\n        Run();\n    }\n")
+        self.assertEqual(B_ONLY, self.removed(text, "A"))
+
+    def test_a_test_attribute_in_a_list_or_with_its_full_name_is_found(self):
+        for attribute in ('[Trait("Category", "Unit"), Fact]', "[Xunit.Fact]", "[FactAttribute]", "[SkippableFact]"):
+            text = two_tests(f"    {attribute}\n    public void A() {{ Assert.True(Cart.Open); }}\n")
+            self.assertEqual(B_ONLY, self.removed(text, "A"))
+
+    def test_a_region_on_the_first_line_after_a_byte_order_mark_is_a_directive(self):
+        text = '﻿#region Tests "big\n' + two_tests("    [Fact]\n    public void A() { Assert.True(Cart.Open); }\n") + "#endregion\n"
+        self.assertNotIn("public void A", self.removed(text, "A"))
+
+    def test_a_comment_inside_an_interpolation_hole_is_skipped(self):
+        text = two_tests('    [Fact]\n    public void A() { var s = $"{x /* { */}"; Assert.Equal("", s); }\n')
+        self.assertEqual(B_ONLY, self.removed(text, "A"))
+
+    def test_a_collection_expression_is_not_a_test_attribute(self):
+        text = two_tests("    [Fact]\n    public void A()\n    {\n        Run(filters: [new ReportDraftFact(\"Status\", \"Booked\")]);\n    }\n")
+        names = [name for _, _, name, _, _ in scanner.test_methods(scanner.code_mask(text))]
+        self.assertEqual(["A", "B"], names)
+
+    def run_script(self, *arguments):
+        script = SCRIPTS / "remove_cs_tests.py"
+        return subprocess.run([sys.executable, str(script), *arguments], capture_output=True, text=True)
+
+    def test_a_folder_or_an_unwritable_file_is_refused_without_a_traceback(self):
+        self.path.write_text(B_ONLY, encoding="utf-8")
+        sha256 = remover.sha256_of(self.path)
+        self.path.chmod(0o444)
+        try:
+            for arguments in (("hash", self.directory.name), ("remove", str(self.path), "--sha256", sha256, "B")):
+                run = self.run_script(*arguments)
+                self.assertEqual(1, run.returncode)
+                self.assertIn("Refused:", run.stderr)
+                self.assertNotIn("Traceback", run.stderr)
+                self.assertNotIn("removed", run.stdout)
+        finally:
+            self.path.chmod(0o644)
+        self.assertEqual(B_ONLY, self.path.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

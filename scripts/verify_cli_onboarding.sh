@@ -52,6 +52,7 @@ for target in ".agents/skills/prune-tests" ".claude/skills/prune-tests"; do
   cmp "$PRUNE/references/criteria.md" "$target/references/criteria.md"
   cmp "$PRUNE/scripts/scan_cs_tests.py" "$target/scripts/scan_cs_tests.py"
   cmp "$PRUNE/scripts/stryker_redundancy.py" "$target/scripts/stryker_redundancy.py"
+  cmp "$PRUNE/scripts/remove_cs_tests.py" "$target/scripts/remove_cs_tests.py"
 done
 echo "::endgroup::"
 

@@ -68,11 +68,17 @@ python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --folders
 The sample is deterministic for a given set of files: it takes every k-th file by path, starting
 in the middle of the first step.
 
-For `--changed <base>`, pass the branch's changed test files as the scope:
+For `--changed <base>`, give the test root as the scope and add the option to the inventory and
+pre-scan commands:
 
 ```bash
-git diff --name-only --diff-filter=AM <base>...HEAD -- '*Tests.cs' | xargs python3 <skill-dir>/scripts/scan_cs_tests.py
+python3 <skill-dir>/scripts/scan_cs_tests.py <test root> --changed <base> --list
+python3 <skill-dir>/scripts/scan_cs_tests.py <test root> --changed <base> > <work>/prescan.md
 ```
+
+The scan keeps the test methods whose lines `git diff <base>...HEAD` touches. The other tests of
+those files stay only inside the duplicate groups, so a new test that copies an old one is listed
+next to the old one. A bad `<base>` stops the scan with git's error, never with an empty scope.
 
 The `xunit.analyzers` package (shipped with `xunit`) reports two more candidates during a build:
 `xUnit1025` (duplicate `InlineData` rows) and `xUnit1026` (a theory parameter the test never uses,
@@ -103,6 +109,41 @@ or a baseline case is not passing. Empty TRX files are rejected. Repeated displa
 
 If the repository tags tests by category (for example `[Trait("Category", "Unit")]`), keep the
 same filter the team uses for unit tests, and never start tests that reach shared or live systems.
+
+## Removing approved tests
+
+In step 7, record the hash of each file that holds a DELETE or MERGE row, beside its approvals:
+
+```bash
+python3 <skill-dir>/scripts/remove_cs_tests.py hash <file> [<file> ...]
+```
+
+In step 9, remove the approved DELETE rows of one file in one call. Run it with `--dry-run`
+first, and check that the list it prints matches the approved rows:
+
+```bash
+python3 <skill-dir>/scripts/remove_cs_tests.py remove <file> --sha256 <recorded hash> --dry-run \
+  'Total_Should_AddTwentyPercent_When_RateIsStandard' 'Rounds [row 2]'
+```
+
+Then run the same command without `--dry-run`. The script:
+
+- removes each named method with its attributes and the `///` doc block above them, and each
+  named data row (`[InlineData]`, `[TestCase]`, `[DataRow]`), with rows counted from 1 in source
+  order;
+- keeps the line endings, the byte order mark and every other byte of the file, and writes
+  through a symbolic link to its target;
+- refuses, and changes nothing, when the file's hash differs from the recorded one, a name is
+  missing or overloaded, a row comes from `[MemberData]` or a combined attribute list, a test is
+  given both whole and by row, or every row of a test would go;
+- also refuses when the removal would cut a comment or a string, leave a preprocessor block
+  (`#if`, `#region`, `#pragma warning disable`) half open, or touch any other test. It re-reads
+  the result before it writes, so a case it cannot parse ends in a refusal, not a broken file;
+- says when no test is left in the file. Then delete the file, with the private helpers only
+  those tests used.
+
+It does not remove `using` directives, helpers or other comments. A MERGE stays a manual edit
+(next section).
 
 ## Merging into a `[Theory]`
 

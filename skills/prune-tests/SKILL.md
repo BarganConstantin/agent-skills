@@ -33,11 +33,13 @@ deletion count.
 - `<scope>`: one test project, folder, test class or test file, or a list of test files. Required.
   For a whole repository, list the test projects with their test counts, ask which to start
   with, and run one batch per project.
-- `--changed <base>`: only the test files the current branch adds or changes since `<base>`
-  (for example `origin/develop`), listed with
-  `git diff --name-only --diff-filter=AM <base>...HEAD -- '*Tests.cs'`. This is the cheapest and
-  most useful run: it prunes AI-written tests before they merge, at a few dozen tests a time,
-  instead of cleaning a large suite afterwards.
+- `--changed <base>`: only the test methods the current branch added or changed since `<base>`
+  (for example `origin/develop`), that is the tests whose lines `git diff <base>...HEAD` touches.
+  The other tests of the same files become sibling tests: the reviewers search them for twins
+  and give them no verdict. This is the cheapest and most useful run: it prunes AI-written tests
+  before they merge, at a few dozen tests a time, instead of cleaning a large suite afterwards.
+  Do not take whole changed files instead: on one suite, 17 merged branches touched 910 test
+  methods in files that held 3,005, so whole files cost about three times as much.
 - `--proof`: add the mutation-testing evidence step (step 4). Slow: plan hours per large
   project for .NET.
 - `apply`: continue an existing report at step 8, after the user approved rows.
@@ -80,7 +82,8 @@ The report steps (1 to 7) are read-only and may run on any branch with any worki
 ### 1. Inventory
 
 List every test method in scope with its file, line, name and number of data rows. For C#, run
-`python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --list`. For each test file, name the
+`python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --list`, with `--changed <base>` when the
+run has it. For other stacks, take the tests inside the diff's hunks. For each test file, name the
 production subject it exercises (the class under test). Then list the sibling tests: tests
 elsewhere that reference the subject, **and tests of the subject's direct callers**, because the
 stronger twin of a unit test often sits one level up, for example in a handler's test or an
@@ -95,7 +98,8 @@ subject's tests by test class only above about 90 methods. Write `inventory.md`.
 
 ### 2. Cheap pre-scan
 
-For C#, run `python3 <skill-dir>/scripts/scan_cs_tests.py <scope> > <work>/prescan.md`, then the
+For C#, run `python3 <skill-dir>/scripts/scan_cs_tests.py <scope> > <work>/prescan.md` (adding
+`--changed <base>` when the run has it), then the
 analyzer check in `references/dotnet.md`. The scan lists skipped tests, tests with no assertion
 (following helpers), constant assertions, identical tests, tests with the same code but different
 data, and stub-and-verify of the same member. For other stacks, do the same checks with search
@@ -115,7 +119,9 @@ written. Measure it on a sample before spending the full amount.
    methods in all. A sample spread over the whole scope predicts the rest; the densest folder
    does not, because the pre-scan's candidates rarely become deletions (on one suite, none of 16
    confirmed deletions was a pre-scan candidate). When the user names an area to try first,
-   sample that area instead. Say which files and why.
+   sample that area instead. Say which files and why, and what the probe will cost before it
+   starts: on one C# suite, three probes of 164 to 187 test methods each used 313k to 347k tokens
+   (about 1.7k to 2.1k per test method) and 13 to 19 minutes with four reviewers in parallel.
 2. **Run steps 5 to 7 on the probe only** (step 4 as well when `--proof` is on).
 3. **Measure.** Record the tokens and wall-clock time each reviewer used, from the usage the
    runtime reports for subagents. When it reports none, record the lines of test and production
@@ -133,8 +139,8 @@ written. Measure it on a sample before spending the full amount.
    | Data rows removed | r | r / n × N |
    | Lines removed | l | the same ratio as the rows |
 
-   The yield estimate is rough: the share varies by area (on one suite, two areas gave 1% and
-   6.5%). Give the cost in tokens; convert it to money only with the user's own price per token.
+   The yield estimate is rough: the share varies by area (on one suite, three areas gave 1%,
+   1.8% and 6.5% of their test methods). Give the cost in tokens; convert it to money only with the user's own price per token.
 5. **Recommend and ask.** Point to one of three roads and say why the numbers point there:
    - **Continue on the whole scope**: the probe removed a real share, about 5% of its test methods or
      more.
@@ -206,7 +212,8 @@ Write `report.md`:
 Show the summary and the DELETE and MERGE tables in chat, and give the path of `report.md`.
 Ask the user to approve by row number, for example "approve 1-14, 20; reject 15".
 Record each answer in `report.md`. Record a SHA-256 content hash for every test file containing
-a proposed DELETE or MERGE, alongside its approval rows. Before applying, compare the current
+a proposed DELETE or MERGE, alongside its approval rows (for C#,
+`python3 <skill-dir>/scripts/remove_cs_tests.py hash <files>`). Before applying, compare the current
 hash with the recorded value. Any mismatch invalidates approvals for that file, even if the
 commit SHA is unchanged. Stop here when unattended or nothing was approved.
 
@@ -226,7 +233,9 @@ stop and rerun review; never apply approval to stale source.
 
 - **DELETE**: remove the whole test method with its attributes and its doc comment. Remove a
   `using` or import only when nothing else in the file still needs it. For a `Method [row n]`
-  row, remove only that data-row attribute.
+  row, remove only that data-row attribute. For C#, use `scripts/remove_cs_tests.py` ("Removing
+  approved tests" in `references/dotnet.md`): it checks the file's hash and removes all of the
+  file's approved rows in one step, or refuses and changes nothing.
 - **MERGE**: turn the approved group into one data-driven test (`[Theory]` with one data row per
   old case, or the framework's equivalent). Copy every old case's inputs and expected values
   verbatim; a merge never drops or changes a case. Name the merged test after the behaviour.
@@ -263,8 +272,8 @@ they are the place to look when the goal is a faster suite. Stop. The user commi
 
 - `references/criteria.md` — keep bar, the verdict classes, evidence rules, never-delete list, sources.
 - `references/reviewer-brief.md` — the brief for the step 5 subagents.
-- `references/dotnet.md` — commands for .NET: inventory, pre-scan, running a scope, merging into
-  `[Theory]`, mutation proof.
-- `scripts/scan_cs_tests.py`, `scripts/stryker_redundancy.py`, `scripts/trx_summary.py` —
-  deterministic helpers, standard library only. Their tests live in the source repository at
+- `references/dotnet.md` — commands for .NET: inventory, pre-scan, running a scope, removing
+  approved tests, merging into `[Theory]`, mutation proof.
+- `scripts/scan_cs_tests.py`, `scripts/remove_cs_tests.py`, `scripts/stryker_redundancy.py`,
+  `scripts/trx_summary.py` — deterministic helpers, standard library only. Their tests live in the source repository at
   `tests/test_prune_tests.py`.
