@@ -62,6 +62,12 @@ def parse_args():
     output.add_argument("--json", action="store_true", help="print JSON instead of Markdown")
     output.add_argument("--list", action="store_true", help="print only the inventory: file:line, method, data rows")
     output.add_argument(
+        "--sample",
+        type=int,
+        metavar="N",
+        help="print a systematic sample of the scope: every k-th test file by path, about N test methods in all",
+    )
+    output.add_argument(
         "--folders",
         action="store_true",
         help="print one row per subfolder: tests, tests flagged by the pre-scan, and that share (to pick a probe)",
@@ -506,6 +512,30 @@ def print_markdown(result):
 ROOT_FILES = "(files in the scope root)"
 
 
+def file_of(test_reference):
+    return test_reference.rsplit(" ", 1)[0].rsplit(":", 1)[0]
+
+
+def systematic_sample(result, target):
+    tests_per_file = defaultdict(int)
+    for row in result["inventory"]:
+        tests_per_file[file_of(row["test"])] += 1
+    files = sorted(tests_per_file)
+    if not files or target < 1:
+        return 1, []
+    step = max(1, round(sum(tests_per_file.values()) / target))
+    return step, [(path, tests_per_file[path]) for path in files[step // 2::step]]
+
+
+def print_sample(result, target):
+    step, sample = systematic_sample(result, target)
+    total_files = len({file_of(row["test"]) for row in result["inventory"]})
+    print(f"Systematic sample: 1 in every {step} of {total_files} test files, {len(sample)} files, "
+          f"{sum(count for _, count in sample)} test methods (target {target}).\n")
+    for path, count in sample:
+        print(f"- `{path}` ({count} tests)")
+
+
 def flagged_tests(result):
     rows = result["no_assertion"] + result["constant_assertion"] + result["stub_then_verify"]
     groups = result["identical_tests"] + result["same_code_different_data"]
@@ -564,6 +594,8 @@ def main():
     result = scan(args.scope)
     if args.list:
         print_inventory(result)
+    elif args.sample is not None:
+        print_sample(result, args.sample)
     elif args.folders:
         print_folders(folder_summary(result, args.scope))
     elif args.json:

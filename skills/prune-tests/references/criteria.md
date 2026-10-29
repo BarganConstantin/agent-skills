@@ -37,8 +37,8 @@ candidate; then it names the candidate's class and says why it stays.
 
 | Code | Class | What it looks like | Usual verdict |
 |---|---|---|---|
-| CF | Cannot fail | No assertion; asserts a value the same test just arranged; `Assert.True(true)`; asserts a constant against itself; asserts only that a non-nullable result is not null. | DELETE when the subject has no contract; FIX when it does |
-| EC | Echo | The expected value is computed with the production formula or a helper that re-implements it; a snapshot that only mirrors the current output. | FIX; DELETE only when a correct test of the same behaviour exists (then it is also DU) |
+| CF | Cannot fail | No assertion; asserts a value the same test just arranged; `Assert.True(true)`; asserts a constant against itself; asserts only that a non-nullable result is not null. | DELETE when the code the test runs has no contract; FIX when it does |
+| EC | Echo | The expected value is computed with the production formula or a helper that re-implements it; the test runs its own copy of the production code instead of the production code itself, so it cannot fail on a production bug; a snapshot that only mirrors the current output. | FIX; DELETE only when a correct test of the same behaviour exists (then it is also DU) |
 | MK | Mock-only oracle | Asserts what a stub was told to return; verifies a call the test itself stubbed, when the result already shows it; the mock implements the behaviour being asserted. | DELETE when the real behaviour is tested elsewhere or the subject is a pass-through; otherwise FIX |
 | DU | Duplicate | Same behaviour, same class of input, same or weaker assertions as a retained test. | DELETE the weaker one |
 | LR | Layer replay | Re-proves through a mocked collaborator a contract that a retained test already proves at a stronger boundary. | DELETE the weaker-layer test |

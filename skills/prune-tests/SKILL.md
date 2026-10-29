@@ -102,10 +102,12 @@ Skip this step when the scope holds 150 test methods or fewer, and review it who
 A large scope can cost many tokens for little gain, and the gain depends on how the tests were
 written. Measure it on a sample before spending the full amount.
 
-1. **Pick the probe.** Run `python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --folders`. It
-   lists each subfolder with its test count and its density: the share of its tests the pre-scan
-   flagged. Pick the densest folder with 100 to 250 test methods; if none fits, the densest one.
-   Say which folder and why.
+1. **Pick the probe.** Run `python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --sample 180`.
+   It lists a systematic sample of the scope: every k-th test file by path, about 180 test
+   methods in all. A sample spread over the whole scope predicts the rest; the densest folder
+   does not, because the pre-scan's candidates rarely become deletions (on one suite, none of 16
+   confirmed deletions was a pre-scan candidate). When the user names an area to try first,
+   sample that area instead. Say which files and why.
 2. **Run steps 5 to 7 on the probe only** (step 4 as well when `--proof` is on).
 3. **Measure.** Record the tokens and wall-clock time each reviewer used, from the usage the
    runtime reports for subagents. When it reports none, record the lines of test and production
@@ -119,22 +121,22 @@ written. Measure it on a sample before spending the full amount.
    | Test methods | n | N |
    | Tokens | t | t / n × N |
    | Time | m | m / n × N, divided by the reviewers running in parallel |
-   | DELETE + MERGE rows | k, that is k / n of the tests | k / n × N × (rest density / probe density) |
+   | DELETE + MERGE rows | k, that is k / n of the tests | k / n × N, given as a range from half to one and a half times |
    | Lines removed | l | the same ratio as the rows |
 
-   The yield estimate is rough. The probe was the densest folder, so the rest usually yields less.
-   Give the cost in tokens; convert it to money only with the user's own price per token.
+   The yield estimate is rough: the share varies by area (on one suite, two areas gave 1% and
+   6.5%). Give the cost in tokens; convert it to money only with the user's own price per token.
 5. **Recommend and ask.** Point to one of three roads and say why the numbers point there:
    - **Continue on the whole scope**: the probe removed a real share, about 5% of its tests or
-     more, and the rest is about as dense.
-   - **Continue only on the denser folders**: list the folders at least as dense as the probe,
-     each with its estimated tokens.
-   - **Stop here**: the probe removed under about 2% of its tests and no folder is denser. The
-     suite is already lean, and a full run would cost more than it saves.
+     more.
+   - **Probe one more area first**: the probe's share sits between the two thresholds, or the
+     scope mixes areas written in very different styles. Name the area and its size.
+   - **Stop here**: the probe removed under about 2% of its tests. The suite is already lean, and
+     a full run would cost more than it saves.
 
    The thresholds are a guide, not a rule. Show the probe's DELETE and MERGE tables as well, so
    the user can approve those rows now. Continue only on the user's yes; an unattended run stops
-   here. Later batches skip the probe folder and add their rows to the same `report.md`.
+   here. Later batches skip the probe's files and add their rows to the same `report.md`.
 
 ### 4. Mutation proof (only with `--proof`)
 
@@ -156,7 +158,9 @@ their production subjects, the sibling test projects from step 1, and the matchi
 `prescan.md` and `proof.md`.
 Run at most four at a time. Use the strongest model available for this step, because it is the
 step that decides deletions and a wrong deletion costs more than the tokens, unless the user or
-the project's instructions name another model. Write each answer to `review-<n>.md`.
+the project's instructions name another model. Each reviewer returns its table in its answer;
+the session that runs this skill writes `review-<n>.md` and, later, `report.md`. Some runtimes do
+not let a subagent write report files, so never leave that to a reviewer.
 
 ### 6. Reconcile
 
@@ -214,7 +218,9 @@ stop and rerun review; never apply approval to stale source.
   old case, or the framework's equivalent). Copy every old case's inputs and expected values
   verbatim; a merge never drops or changes a case. Name the merged test after the behaviour.
 - Keep each file's line endings and encoding.
-- Do not delete helpers, fixtures or production code. Add them to the orphan list.
+- Do not delete helpers, fixtures or production code. Add them to the orphan list. One
+  exception: when every test in a file is deleted, delete the file, together with the private
+  helpers only those tests used.
 
 ### 10. Verify
 
