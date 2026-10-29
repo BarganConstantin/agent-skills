@@ -14,7 +14,7 @@ MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
 class LandingPageTests(unittest.TestCase):
     def test_readme_is_short_and_shows_a_runnable_example(self):
         content = README.read_text(encoding="utf-8")
-        self.assertLess(len(content), 5000)
+        self.assertLess(len(content), 3000)
         self.assertIn("compare_openapi.py", content)
         self.assertIn("examples/api-contract-drift/before.json", content)
         self.assertIn("examples/api-contract-drift/after.json", content)
