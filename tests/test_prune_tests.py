@@ -190,6 +190,50 @@ class ScanCsTestsTests(unittest.TestCase):
         self.assertEqual([("Stub_then_verify", ["Load"])], [(r["test"].rsplit(" ", 1)[1], r["members"]) for r in rows])
 
 
+    def test_string_containing_an_assertion_is_not_flagged_as_constant(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "StringTests.cs"
+            path.write_text('''
+public class StringTests {
+    [Fact]
+    public void A() { var message = "Assert.True(true)"; Assert.NotNull(message); }
+}
+''', encoding="utf-8")
+            result = scanner.scan(str(path))
+        self.assertEqual([], result["constant_assertion"])
+
+    def test_same_named_helper_in_another_file_does_not_hide_missing_assertion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            (root / "Tests.cs").write_text('''
+public class FirstTests {
+    [Fact]
+    public void Has_no_assertion() { ValidateOutcome(); }
+    private void ValidateOutcome() { }
+}
+''', encoding="utf-8")
+            (root / "Other.cs").write_text('''
+public class Other {
+    private void ValidateOutcome() { Assert.True(true); }
+}
+''', encoding="utf-8")
+            result = scanner.scan(str(root))
+        self.assertEqual(["Has_no_assertion"], self.names(result["no_assertion"]))
+
+    def test_nunit_ignore_attribute_is_skipped(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "Ignored.cs"
+            path.write_text('''
+public class IgnoredTests {
+    [Test(Ignore = "temporarily disabled")]
+    public void Should_not_be_pruned() { }
+}
+''', encoding="utf-8")
+            result = scanner.scan(str(path))
+        self.assertEqual(["Should_not_be_pruned"], self.names(result["skipped"]))
+        self.assertEqual([], result["no_assertion"])
+
+
 MEMBER_DATA_TESTS = '''
 public class RowsTests
 {
@@ -416,6 +460,32 @@ class StrykerRedundancyTests(unittest.TestCase):
         self.assertEqual({"1", "2", "3", "4"}, still_killed)
 
 
+    def test_zero_kills_makes_proof_unusable(self):
+        result = stryker.analyse(report([mutant("1", "Survived", ["a"], [])], TESTS), by_method=False)
+        self.assertFalse(result["proof_usable"])
+        self.assertEqual([], result["kill_nothing"])
+        self.assertEqual([], result["subsumed"])
+        self.assertIsNone(result["greedy_keep_set"])
+
+    def test_bail_suspicion_blocks_prune_candidates(self):
+        bailed = [mutant(str(i), "Killed", ["a", "b"], ["a"]) for i in range(20)]
+        result = stryker.analyse(report(bailed, TESTS), by_method=False)
+        self.assertTrue(result["bail_suspected"])
+        self.assertFalse(result["proof_usable"])
+        self.assertEqual([], result["subsumed"])
+        self.assertEqual([], result["kill_nothing"])
+
+    def test_killed_mutant_without_killer_metadata_blocks_proof(self):
+        result = stryker.analyse(report([mutant("1", "Killed", ["a", "b"], [])], TESTS), by_method=False)
+        self.assertEqual(["src/Pricing.cs#1"], result["incomplete_kills"])
+        self.assertFalse(result["proof_usable"])
+        self.assertEqual([], result["kill_nothing"])
+
+    def test_killer_not_in_coverage_blocks_proof(self):
+        result = stryker.analyse(report([mutant("1", "Killed", ["a"], ["b"])], TESTS), by_method=False)
+        self.assertFalse(result["proof_usable"])
+
+
 TRX_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
 <TestRun xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Results>{rows}</Results>
@@ -468,6 +538,25 @@ class TrxSummaryTests(unittest.TestCase):
             [("A", "Passed", "00:00:00.1")],
         )
         self.assertEqual(0, exit_code)
+
+
+    def test_duplicate_display_names_do_not_hide_a_failing_theory_row(self):
+        self.assertEqual(1, self.compare(
+            [("T.Same", "Passed", "00:00:00.1"), ("T.Same", "Passed", "00:00:00.1")],
+            [("T.Same", "Passed", "00:00:00.1"), ("T.Same", "Failed", "00:00:00.1")],
+        ))
+
+    def test_non_passing_baseline_blocks_pruning(self):
+        self.assertEqual(1, self.compare(
+            [("A", "NotExecuted", "00:00:00.0")],
+            [("A", "Passed", "00:00:00.1")],
+        ))
+
+    def test_empty_trx_is_not_treated_as_success(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = trx_file(directory, "empty.trx", [])
+            with self.assertRaisesRegex(ValueError, "no test results"):
+                trx.read_results(path)
 
 
 if __name__ == "__main__":
