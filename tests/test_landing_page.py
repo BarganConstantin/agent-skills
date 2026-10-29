@@ -7,7 +7,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
 DETAIL = ROOT / "docs" / "first-user-audit.md"
-SKILLS = ("first-user-audit", "handoff-with-receipts", "api-contract-drift", "reference-library", "prune-tests")
+SKILLS = ("first-user-audit", "reference-library", "prune-tests")
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
 
 
@@ -15,10 +15,7 @@ class LandingPageTests(unittest.TestCase):
     def test_readme_is_short_and_shows_a_runnable_example(self):
         content = README.read_text(encoding="utf-8")
         self.assertLess(len(content), 3000)
-        self.assertIn("compare_openapi.py", content)
-        self.assertIn("examples/api-contract-drift/before.json", content)
-        self.assertIn("examples/api-contract-drift/after.json", content)
-        self.assertIn("does not prove compatibility", content)
+        self.assertIn("skills/reference-library/scripts/library.py search", content)
 
     def test_each_skill_has_separate_install_command(self):
         text = README.read_text(encoding="utf-8")
@@ -47,10 +44,9 @@ class LandingPageTests(unittest.TestCase):
     def test_original_details_not_falsely_claimed_as_agent_efficacy(self):
         landing = README.read_text(encoding="utf-8")
         detail = DETAIL.read_text(encoding="utf-8")
-        self.assertIn("not", landing.lower())
         self.assertIn("not", detail.lower())
         self.assertIn("not a product screenshot", detail)
-        self.assertIn("synthetic, not a real-API benchmark", landing)
+        self.assertNotIn("benchmark", landing.lower())
 
 
 if __name__ == "__main__":

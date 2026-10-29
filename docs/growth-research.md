@@ -21,7 +21,7 @@ The [Infrasity MemClaw case study](https://www.infrasity.com/case-studies/github
 
 As measured using GitHub's repository API on 28 Oct 2026: **4 stars, 0 forks, 4 Agent Skills**. These are a snapshot, not a live counter. The maintainer profile, ccdeck and other repositories are out of scope.
 
-Our skill catalog is [First User Audit](../skills/first-user-audit/SKILL.md), [Handoff with Receipts](../skills/handoff-with-receipts/SKILL.md), [API Contract Drift](../skills/api-contract-drift/SKILL.md) and [Reference Library](../skills/reference-library/SKILL.md).
+At the time of this study the catalog was First User Audit, Handoff with Receipts, API Contract Drift and Reference Library. Handoff with Receipts and API Contract Drift were removed on 29 Oct 2026; the current catalog is [First User Audit](../skills/first-user-audit/SKILL.md), [Reference Library](../skills/reference-library/SKILL.md) and [Prune Tests](../skills/prune-tests/SKILL.md).
 
 **Focus: help a stranger discover, install, obtain a useful result, and give specific feedback.** Next best change is not automatically a fourth skill.
 
@@ -64,6 +64,8 @@ No external posts, submissions or messages without separate explicit authorizati
 **What we will measure:** Github stars/forks and independent first-run feedback after publication. Github does not expose traffic views through the connected read-only API available here, so **do not claim view-to-star conversion or impressions**. If actual users report confusion, revisit layout based on specifics rather than repeated copywriting guesses. Do not manufacture visits through bots.
 
 ## First-result evidence checkpoint — 2026-10-28
+
+**Closed on 29 Oct 2026:** API Contract Drift and its feedback form were removed from the collection, so this hypothesis will not be measured.
 
 **Observed from this repository, not inferred:** GitHub's public repository API reports **4 stars, 0 forks**, **three open issues** (#4, #5, #7), **no open PRs**, and no comments on growth issue #7. All 22 visible historical PRs were authored by the maintainer; no independent issue, PR, or reproducible first-run report is currently confirmed in the inspected public surface. This **does not mean zero real users**: private usage, downloads, GitHub traffic and unreported installs were not available. The connected GitHub API rejected traffic/clones and traffic/views queries. The main-branch SHA `f70375a095260c74aeaac3f14085826787369dca` passed [Python validation](https://github.com/BarganConstantin/agent-skills/actions/runs/40482845862), [Skills CLI + offline browser UI smoke](https://github.com/BarganConstantin/agent-skills/actions/runs/40482845886), and [public-GitHub installation smoke](https://github.com/BarganConstantin/agent-skills/actions/runs/40482845825) on 27 October. These are **synthetic CI checks with `DISABLE_TELEMETRY=1`**, not independent user installs.
 

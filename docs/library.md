@@ -111,4 +111,4 @@ Add `--write` only when intentionally saving into a *local* catalog. To keep it 
 - **Use with intent:** compare the task with the original upstream README, check prerequisites and safety, and choose whether to learn from an idea or adopt a dependency.
 - **Do not invent usage evidence:** GitHub stars are not stored in the catalog and a saved project is not automatically recommended or loaded by every agent client.
 
-[Back to the four custom skills](../README.md) · [See catalog JSON](../skills/reference-library/references/catalog.json) · [Read curation rules](../skills/reference-library/references/curation.md)
+[Back to the skills](../README.md) · [See catalog JSON](../skills/reference-library/references/catalog.json) · [Read curation rules](../skills/reference-library/references/curation.md)
