@@ -54,8 +54,8 @@ class ApiFirstResultFeedbackTests(unittest.TestCase):
             "https://github.com/BarganConstantin/agent-skills/issues/new"
             "?template=api-contract-drift-feedback.yml",
             readme)
-        demo_start = readme.index("### api-contract-drift")
-        demo_end = readme.index("### reference-library")
+        demo_start = readme.index("## Try")
+        demo_end = readme.index("## Develop")
         demo = readme[demo_start:demo_end]
         self.assertIn("compare_openapi.py", demo)
         self.assertIn("Report your first result or blocker", demo)
