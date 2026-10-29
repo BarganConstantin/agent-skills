@@ -57,9 +57,11 @@ Assertion helpers are looked up where C# would resolve them: the test's own file
 parts and base classes, and the declaring file of a type called by name (`Sweep.Check(...)`).
 A same-named helper in an unrelated file is not proof that the test asserts anything.
 
-To pick the probe for a large scope (step 3), list the subfolders by pre-scan density:
+To pick the probe for a large scope (step 3), take a systematic sample of about 180 test
+methods; `--folders` shows where the scope's tests live:
 
 ```bash
+python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --sample 180
 python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --folders
 ```
 

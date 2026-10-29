@@ -397,6 +397,34 @@ public class RootTests
 '''
 
 
+class SystematicSampleTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.directory.name)
+        for number in range(20):
+            tests = "".join(
+                f"    [Fact] public void Case{case}() {{ Assert.Equal({case}, Calculator.Id({case})); }}\n" for case in range(3)
+            )
+            (self.root / f"File{number:02d}Tests.cs").write_text(f"public class File{number:02d}Tests {{\n{tests}}}\n", encoding="utf-8")
+        self.result = scanner.scan(str(self.root))
+
+    def tearDown(self):
+        self.directory.cleanup()
+
+    def test_every_kth_file_is_taken_until_the_target(self):
+        step, sample = scanner.systematic_sample(self.result, 15)
+        self.assertEqual(4, step)
+        self.assertEqual(["File02Tests.cs", "File06Tests.cs", "File10Tests.cs", "File14Tests.cs", "File18Tests.cs"],
+                         [pathlib.Path(path).name for path, _ in sample])
+        self.assertEqual(15, sum(count for _, count in sample))
+
+    def test_the_sample_spans_the_whole_scope_not_only_its_start(self):
+        _, sample = scanner.systematic_sample(self.result, 30)
+        names = [pathlib.Path(path).name for path, _ in sample]
+        self.assertIn("File19Tests.cs", names)
+        self.assertEqual(10, len(names))
+
+
 class FolderSummaryTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
