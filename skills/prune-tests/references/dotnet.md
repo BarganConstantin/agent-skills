@@ -5,8 +5,10 @@ Commands assume a POSIX shell (macOS, Linux, Git Bash or WSL on Windows) and Pyt
 
 ## Inventory
 
-List every test method in scope with its file, line, name and number of data-row attributes
-(`InlineData`, `TestCase`, `DataRow`, `MemberData`, …):
+List every test method in scope with its file, line, name and number of data rows. Inline rows
+(`InlineData`, `TestCase`, `DataRow`) count one each; a `MemberData` member defined in the same file
+counts its initializer entries or `yield return` lines; a `+` marks rows it could not count
+(built in a loop, or defined in another type):
 
 ```bash
 python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --list
