@@ -203,7 +203,6 @@
       ],
       "cautions": [
         "Use trusted local specs; hosted side-by-side features may upload or share contract details.",
-        "Our api-contract-drift skill is intentionally a much narrower independent comparator.",
         "License is Apache-2.0, not MIT; retain applicable notices if importing material."
       ]
     },

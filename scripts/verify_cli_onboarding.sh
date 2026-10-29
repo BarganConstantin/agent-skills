@@ -12,9 +12,8 @@ cd "$WORKDIR"
 echo "::group::CLI skill discovery without installing"
 npx --yes skills@latest add "$GITHUB_WORKSPACE" --list | tee discovery.txt
 grep -Fq "first-user-audit" discovery.txt
-grep -Fq "handoff-with-receipts" discovery.txt
-grep -Fq "api-contract-drift" discovery.txt
 grep -Fq "reference-library" discovery.txt
+grep -Fq "prune-tests" discovery.txt
 echo "::endgroup::"
 
 echo "::group::Real project-local installation to Claude Code and Codex"
@@ -29,30 +28,6 @@ for target in ".agents/skills/first-user-audit" ".claude/skills/first-user-audit
 done
 echo "::endgroup::"
 
-echo "::group::Install the evidence-backed handoff skill for both clients"
-npx --yes skills@latest add "$GITHUB_WORKSPACE" \
-  --skill handoff-with-receipts --agent claude-code --agent codex --copy --yes
-HANDOFF="$GITHUB_WORKSPACE/skills/handoff-with-receipts"
-for target in ".agents/skills/handoff-with-receipts" ".claude/skills/handoff-with-receipts"; do
-  test -f "$target/SKILL.md"
-  cmp "$HANDOFF/SKILL.md" "$target/SKILL.md"
-  cmp "$HANDOFF/scripts/git_snapshot.py" "$target/scripts/git_snapshot.py"
-  cmp "$HANDOFF/assets/handoff-template.md" "$target/assets/handoff-template.md"
-  cmp "$HANDOFF/references/evidence-boundaries.md" "$target/references/evidence-boundaries.md"
-done
-echo "::endgroup::"
-
-echo "::group::Install API Contract Drift for both clients"
-npx --yes skills@latest add "$GITHUB_WORKSPACE" \
-  --skill api-contract-drift --agent claude-code --agent codex --copy --yes
-API="$GITHUB_WORKSPACE/skills/api-contract-drift"
-for target in ".agents/skills/api-contract-drift" ".claude/skills/api-contract-drift"; do
-  test -f "$target/SKILL.md"
-  cmp "$API/SKILL.md" "$target/SKILL.md"
-  cmp "$API/scripts/compare_openapi.py" "$target/scripts/compare_openapi.py"
-  cmp "$API/references/limitations.md" "$target/references/limitations.md"
-done
-echo "::endgroup::"
 
 echo "::group::Install the saved reference library for both clients"
 npx --yes skills@latest add "$GITHUB_WORKSPACE" \
@@ -67,6 +42,19 @@ for target in ".agents/skills/reference-library" ".claude/skills/reference-libra
 done
 echo "::endgroup::"
 
+echo "::group::Install Prune Tests for both clients"
+npx --yes skills@latest add "$GITHUB_WORKSPACE" \
+  --skill prune-tests --agent claude-code --agent codex --copy --yes
+PRUNE="$GITHUB_WORKSPACE/skills/prune-tests"
+for target in ".agents/skills/prune-tests" ".claude/skills/prune-tests"; do
+  test -f "$target/SKILL.md"
+  cmp "$PRUNE/SKILL.md" "$target/SKILL.md"
+  cmp "$PRUNE/references/criteria.md" "$target/references/criteria.md"
+  cmp "$PRUNE/scripts/scan_cs_tests.py" "$target/scripts/scan_cs_tests.py"
+  cmp "$PRUNE/scripts/stryker_redundancy.py" "$target/scripts/stryker_redundancy.py"
+done
+echo "::endgroup::"
+
 echo "::group::Generate usable prompt without installing or running an agent"
 mkdir -p "$WORKDIR/try-without-install"
 cd "$WORKDIR/try-without-install"
@@ -75,14 +63,11 @@ npx --yes skills@latest use "$GITHUB_WORKSPACE" \
 grep -Fq "First User Audit" skill-prompt.txt
 grep -Fq "Quick Check" skill-prompt.txt
 npx --yes skills@latest use "$GITHUB_WORKSPACE" \
-  --skill handoff-with-receipts > handoff-prompt.txt
-grep -Fq "Handoff with Receipts" handoff-prompt.txt
-npx --yes skills@latest use "$GITHUB_WORKSPACE" \
-  --skill api-contract-drift > api-prompt.txt
-grep -Fq "API Contract Drift" api-prompt.txt
-npx --yes skills@latest use "$GITHUB_WORKSPACE" \
   --skill reference-library > library-prompt.txt
 grep -Fq "Reference Library" library-prompt.txt
+npx --yes skills@latest use "$GITHUB_WORKSPACE" \
+  --skill prune-tests > prune-prompt.txt
+grep -Fq "Prune tests" prune-prompt.txt
 test ! -d .agents
 test ! -d .claude
 echo "::endgroup::"
