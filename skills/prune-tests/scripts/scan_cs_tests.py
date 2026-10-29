@@ -49,6 +49,11 @@ def parse_args():
     output = parser.add_mutually_exclusive_group()
     output.add_argument("--json", action="store_true", help="print JSON instead of Markdown")
     output.add_argument("--list", action="store_true", help="print only the inventory: file:line, method, data rows")
+    output.add_argument(
+        "--folders",
+        action="store_true",
+        help="print one row per subfolder: tests, tests flagged by the pre-scan, and that share (to pick a probe)",
+    )
     return parser.parse_args()
 
 
@@ -343,6 +348,47 @@ def print_markdown(result):
         print()
 
 
+ROOT_FILES = "(files in the scope root)"
+
+
+def flagged_tests(result):
+    rows = result["no_assertion"] + result["constant_assertion"] + result["stub_then_verify"]
+    groups = result["identical_tests"] + result["same_code_different_data"]
+    return {row["test"] for row in rows} | {row["test"] for group in groups for row in group}
+
+
+def folder_of(test_reference, root):
+    path = pathlib.Path(test_reference.rsplit(" ", 1)[0].rsplit(":", 1)[0])
+    parts = path.relative_to(root).parts if root.is_dir() else ()
+    return parts[0] if len(parts) > 1 else ROOT_FILES
+
+
+def folder_summary(result, scope):
+    root = pathlib.Path(scope)
+    flagged = flagged_tests(result)
+    folders = defaultdict(lambda: {"tests": 0, "flagged": 0})
+    for row in result["inventory"]:
+        folder = folders[folder_of(row["test"], root)]
+        folder["tests"] += 1
+        folder["flagged"] += row["test"] in flagged
+    summary = [
+        {"folder": name, "tests": f["tests"], "flagged": f["flagged"], "density": f["flagged"] / f["tests"]}
+        for name, f in folders.items()
+    ]
+    return sorted(summary, key=lambda row: (-row["density"], -row["tests"], row["folder"]))
+
+
+def print_folders(summary):
+    print("| folder | tests | flagged by pre-scan | density |")
+    print("|---|---|---|---|")
+    for row in summary:
+        print(f"| {row['folder']} | {row['tests']} | {row['flagged']} | {row['density']:.0%} |")
+    total_tests = sum(row["tests"] for row in summary)
+    total_flagged = sum(row["flagged"] for row in summary)
+    density = total_flagged / total_tests if total_tests else 0
+    print(f"| **total** | {total_tests} | {total_flagged} | {density:.0%} |")
+
+
 def print_inventory(result):
     for row in result["inventory"]:
         rows = f" ({row['rows']} data rows)" if row["rows"] else ""
@@ -358,6 +404,8 @@ def main():
     result = scan(args.scope)
     if args.list:
         print_inventory(result)
+    elif args.folders:
+        print_folders(folder_summary(result, args.scope))
     elif args.json:
         json.dump(result, sys.stdout, indent=2)
         print()

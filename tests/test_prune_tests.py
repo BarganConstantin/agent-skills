@@ -190,6 +190,68 @@ class ScanCsTestsTests(unittest.TestCase):
         self.assertEqual([("Stub_then_verify", ["Load"])], [(r["test"].rsplit(" ", 1)[1], r["members"]) for r in rows])
 
 
+DUPLICATED_FOLDER = '''
+public class ATests
+{
+    [Fact]
+    public void First() { Assert.Equal(2, Calculator.Add(1, 1)); }
+
+    [Fact]
+    public void Second() { Assert.Equal(2, Calculator.Add(1, 1)); }
+
+    [Fact]
+    public void Third() { Assert.Equal(0, Calculator.Subtract(1, 1)); }
+}
+'''
+
+CLEAN_FOLDER = '''
+public class BTests
+{
+    [Fact]
+    public void Sums() { Assert.Equal(3, Calculator.Sum(new[] { 1, 2 })); }
+
+    [Fact]
+    public void Throws() { Assert.Throws<DivideByZeroException>(() => Calculator.Divide(1, 0)); }
+}
+'''
+
+ROOT_FILE = '''
+public class RootTests
+{
+    [Fact]
+    public void Multiplies() { Assert.Equal(6, Calculator.Multiply(2, 3)); }
+}
+'''
+
+
+class FolderSummaryTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.directory.name)
+        for relative, source in (("A/ATests.cs", DUPLICATED_FOLDER), ("B/BTests.cs", CLEAN_FOLDER), ("RootTests.cs", ROOT_FILE)):
+            path = self.root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(source, encoding="utf-8")
+
+    def tearDown(self):
+        self.directory.cleanup()
+
+    def summary(self):
+        return scanner.folder_summary(scanner.scan(str(self.root)), str(self.root))
+
+    def test_each_subfolder_gets_its_tests_and_the_share_the_pre_scan_flagged(self):
+        rows = {row["folder"]: (row["tests"], row["flagged"]) for row in self.summary()}
+        self.assertEqual({"A": (3, 2), "B": (2, 0), scanner.ROOT_FILES: (1, 0)}, rows)
+
+    def test_the_densest_folder_comes_first(self):
+        self.assertEqual(["A", "B", scanner.ROOT_FILES], [row["folder"] for row in self.summary()])
+
+    def test_the_printed_table_ends_with_the_totals(self):
+        with contextlib.redirect_stdout(io.StringIO()) as output:
+            scanner.print_folders(self.summary())
+        self.assertEqual("| **total** | 6 | 2 | 33% |", output.getvalue().strip().splitlines()[-1])
+
+
 def mutant(mutant_id, status, covered_by, killed_by):
     return {"id": mutant_id, "status": status, "coveredBy": covered_by, "killedBy": killed_by}
 

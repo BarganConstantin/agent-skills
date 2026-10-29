@@ -52,6 +52,12 @@ It lists, as candidates only:
 
 The scanner reads text, not syntax trees. It can miss unusual layouts; it never decides.
 
+To pick the probe for a large scope (step 3), list the subfolders by pre-scan density:
+
+```bash
+python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --folders
+```
+
 The `xunit.analyzers` package (shipped with `xunit`) reports two more candidates during a build:
 `xUnit1025` (duplicate `InlineData` rows) and `xUnit1026` (a theory parameter the test never uses,
 so the rows differ in something the test does not check):
