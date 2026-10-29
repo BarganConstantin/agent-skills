@@ -358,6 +358,44 @@
         "An entire process toolkit may be excessive for simple one-line tasks.",
         "Verify tool and project integration requirements before introducing it."
       ]
+    },
+    {
+      "id": "heroui-react-skill",
+      "name": "HeroUI React skill",
+      "url": "https://github.com/heroui-inc/heroui/tree/v3/skills/heroui-react",
+      "owner": "heroui-inc",
+      "type": "ui-component-agent-skill",
+      "license": "Apache-2.0",
+      "license_source": "https://github.com/heroui-inc/heroui/blob/v3/skills/heroui-react/LICENSE.txt",
+      "reviewed_at": "2026-10-29",
+      "status": "reference-only",
+      "tags": [
+        "ui",
+        "react",
+        "components",
+        "component-library",
+        "tailwind",
+        "theming",
+        "dark-mode",
+        "accessibility",
+        "frontend",
+        "heroui"
+      ],
+      "use_when": "Building React interfaces with HeroUI v3: choosing components, reading their props and examples, and setting up themes and dark mode.",
+      "look_for": [
+        "Component catalogue with props, examples and usage patterns for HeroUI v3",
+        "Scripts that list components and fetch their docs, source, styles and theme",
+        "Install scope: home directory by default, one project with HEROUI_SKILL_SCOPE=project"
+      ],
+      "cautions": [
+        "Targets HeroUI v3 only; v2 patterns such as HeroUIProvider and framer-motion do not apply.",
+        "Install with npx skills add heroui-inc/heroui or the vendor's curl script; read a script before piping it to bash.",
+        "License is Apache-2.0, not MIT; retain applicable notices if importing material."
+      ],
+      "categories": [
+        "ui-ux"
+      ],
+      "summary": "Agent skill for building React UIs with HeroUI v3 components, theming and component docs lookup."
     }
   ],
   "categories": [

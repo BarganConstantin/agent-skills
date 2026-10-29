@@ -37,6 +37,18 @@ python -m unittest discover -s tests
 python -m unittest discover -s skills/first-user-audit/tests
 ```
 
+## Skills library
+
+Skills by other authors worth reusing. The full catalog, with tools and MCP servers, is in
+[docs/library.md](docs/library.md).
+
+| Skill | What it does | Author |
+|---|---|---|
+| [HeroUI React](https://heroui.com/en/docs/react/getting-started/agent-skills) | Builds React UIs with HeroUI v3 components, theming and docs lookup. | heroui-inc |
+| [Hallmark](https://github.com/Nutlope/hallmark) | Distinctive interface design, themes and responsive audits. | Nutlope |
+| [AI Design Skills](https://github.com/elayadesign/ai-design-skills) | Landing-page copy, visual systems and motion showcases. | elayadesign |
+| [Superpowers](https://github.com/obra/superpowers) | Planning, test-driven work, debugging and verification workflows. | obra |
+
 [Install check](.github/workflows/public-install.yml) ·
 [Practice app](docs/practice-lab.md) ·
 [First run](docs/first-five-testers.md) ·

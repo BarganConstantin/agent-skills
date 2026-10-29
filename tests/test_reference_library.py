@@ -3,6 +3,7 @@ import contextlib
 import importlib.util
 import io
 import json
+from datetime import date
 from pathlib import Path
 import tempfile
 import unittest
@@ -26,10 +27,13 @@ class ReferenceLibraryTests(unittest.TestCase):
         self.assertTrue({"hallmark", "ai-design-skills", "microsoft-aspire", "microsoft-agent-framework", "oasdiff", "playwright-mcp", "playwright-cli", "superpowers", "spec-kit"}.issubset(set(entries)))
         self.assertEqual(entries["hallmark"]["url"], "https://github.com/Nutlope/hallmark")
         self.assertEqual(entries["ai-design-skills"]["url"], "https://github.com/elayadesign/ai-design-skills")
+        first_batch = {"hallmark", "ai-design-skills", "microsoft-aspire", "microsoft-agent-framework", "oasdiff", "playwright-mcp", "playwright-cli", "superpowers", "spec-kit"}
         for item in entries.values():
             self.assertIn(item["license"], ("MIT", "Apache-2.0"))
             self.assertEqual(item["status"], "reference-only")
-            self.assertEqual(item["reviewed_at"], "2026-10-27")
+            reviewed = date.fromisoformat(item["reviewed_at"])
+            if item["id"] in first_batch:
+                self.assertEqual(date(2026, 10, 27), reviewed)
             self.assertGreater(len(item["look_for"]), 0)
             self.assertIn("github.com", item["license_source"])
             self.assertGreaterEqual(len(item["categories"]), 1)
