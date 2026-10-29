@@ -428,7 +428,7 @@ class StrykerRedundancyTests(unittest.TestCase):
     def test_a_test_no_mutant_reached_gets_no_verdict(self):
         self.assertEqual(["OtherTests.Never_reaches_pricing"], self.result["not_reached"])
 
-    def test_greedy_keep_set_is_the_smallest_set_that_kills_everything(self):
+    def test_greedy_keep_set_covers_all_kills_in_fixture(self):
         self.assertEqual(2, self.result["greedy_keep_set"])
         self.assertEqual(4, self.result["killed_mutants"])
 
