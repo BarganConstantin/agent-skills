@@ -12,10 +12,9 @@ MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
 
 
 class LandingPageTests(unittest.TestCase):
-    def test_readme_is_short_and_shows_a_runnable_example(self):
+    def test_readme_is_short(self):
         content = README.read_text(encoding="utf-8")
         self.assertLess(len(content), 3000)
-        self.assertIn("skills/reference-library/scripts/library.py search", content)
 
     def test_each_skill_has_separate_install_command(self):
         text = README.read_text(encoding="utf-8")

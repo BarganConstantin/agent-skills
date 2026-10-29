@@ -20,23 +20,6 @@ npx skills add BarganConstantin/agent-skills --skill prune-tests
 
 Or copy `skills/<name>/` into `~/.claude/skills/` or `.agents/skills/`.
 
-## Try
-
-Search the reference library offline:
-
-```bash
-python skills/reference-library/scripts/library.py search "landing page" --category ui-ux
-```
-
-## Develop
-
-```bash
-python -m pip install -r requirements-dev.txt
-python scripts/validate_skills.py
-python -m unittest discover -s tests
-python -m unittest discover -s skills/first-user-audit/tests
-```
-
 ## Skills library
 
 Skills by other authors worth reusing. The full catalog, with tools and MCP servers, is in
