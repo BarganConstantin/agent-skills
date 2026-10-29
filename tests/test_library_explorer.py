@@ -45,7 +45,7 @@ class OfflineExplorerTests(unittest.TestCase):
         begin = '<script id="library-data" type="application/json">'
         serialized = html.split(begin, 1)[1].split("</script>", 1)[0]
         self.assertEqual(json.loads(serialized), self.data)
-        self.assertEqual(len(self.data["entries"]), 9)
+        self.assertEqual(len(self.data["entries"]), 10)
         self.assertTrue(all(x["url"] in html for x in self.data["entries"]))
 
     def test_page_is_usable_and_accessible_with_keyboard_controls(self):

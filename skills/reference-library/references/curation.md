@@ -12,6 +12,7 @@ The library is a **bookmarks + task-context index**, not an automatically update
 - **Playwright MCP** and **Playwright CLI** — [MCP](https://github.com/microsoft/playwright-mcp) / [CLI](https://github.com/microsoft/playwright-cli), Apache-2.0. Browser tools for different testing workflows.
 - **Superpowers** — [obra/superpowers](https://github.com/obra/superpowers), MIT. Code review, TDD, agent workflow methodology.
 - **Spec Kit** — [github/spec-kit](https://github.com/github/spec-kit), MIT. Structured specification, assessment, feature and bugfix processes.
+- **HeroUI React skill** (reviewed 2026-10-29) — [HeroUI Agent Skills](https://heroui.com/en/docs/react/getting-started/agent-skills), source in [heroui-inc/heroui](https://github.com/heroui-inc/heroui/tree/v3/skills/heroui-react), [Apache-2.0](https://github.com/heroui-inc/heroui/blob/v3/skills/heroui-react/LICENSE.txt). HeroUI v3 components, theming and docs lookup for React UIs.
 
 See [the readable categorized shelf](../../../docs/library.md) for what to use when and links to individual license notices.
 
