@@ -67,8 +67,9 @@ def collect_sets(report, key_of):
                 continue
             killers = {key_of(t) for t in mutant.get("killedBy") or []}
             killers_by_mutant[mutant_key] = killers
-            # Missing or inconsistent attribution cannot support pruning.
-            if not killers or not killers.issubset(coverers):
+            # Stryker writes an empty coveredBy for a mutant every test covers (static code).
+            covered_by_every_test = not coverers
+            if not killers or not (covered_by_every_test or killers.issubset(coverers)):
                 incomplete_kills.append(mutant_key)
             for test in killers:
                 kills[test].add(mutant_key)

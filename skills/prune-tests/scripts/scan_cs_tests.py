@@ -29,6 +29,7 @@ MOQ_VERIFY = re.compile(r"\.Verify\w*\s*\(\s*\w+\s*=>\s*\w+\.(\w+)")
 NSUBSTITUTE_RETURNS = re.compile(r"\b\w+\.(\w+)\s*\([^;]*?\)\s*\.Returns\w*\s*\(")
 NSUBSTITUTE_RECEIVED = re.compile(r"\.Received\s*\(\s*\d*\s*\)\s*\.(\w+)")
 RAW_STRING_START = re.compile(r'\$*("{3,})')
+MASK_CANDIDATE = re.compile(r"""[/"'$@]""")
 RAW_STRING = re.compile(r'(\$*)("{3,})(.*?)\2', re.DOTALL)
 PLAIN_STRING = re.compile(r'(\$@|@\$|\$|@)?"((?:[^"\\]|\\.|"")*)"')
 RAW_HOLE = re.compile(r"(?<!\{)\{+([^{}]+)\}+")
@@ -41,7 +42,12 @@ CHAR_LITERAL = re.compile(r"'(?:[^'\\]|\\.)'")
 NUMBER_LITERAL = re.compile(r"\b\d[\d_]*(?:\.\d+)?[mMdDfFlLuU]?\b")
 BOOLEAN_LITERAL = re.compile(r"\b(?:true|false)\b")
 NAME_BEFORE_PARAMETERS = re.compile(r"(\w+)\s*(?:<[^>]*>)?\s*\($")
-CALLED_NAME = re.compile(r"\b([A-Z_]\w*)\s*(?:<[^>]*>)?\s*\(")
+QUALIFIED_CALL = re.compile(r"\b(?:([A-Z]\w*)\s*\.\s*)?([A-Z_]\w*)\s*(?:<[^>]*>)?\s*\(")
+TYPE_DECLARATION = re.compile(
+    r"\b(partial\s+)?(?:class|record|struct|interface)\s+(\w+)(?:\s*<[^>{]*>)?(?:\s*\([^)]*\))?\s*(?::\s*([^{;]+))?"
+)
+WHERE_CLAUSE = re.compile(r"\bwhere\b")
+METHOD_DEFINITION = re.compile(r"(?m)^[ \t]*(?:[\w<>\[\],.?]+[ \t]+)+(\w+)[ \t]*(?:<[^>]*>)?[ \t]*\(")
 HELPER_DEPTH = 3
 
 
@@ -74,6 +80,13 @@ def code_mask(text, mask_strings=True):
     masked = []
     i, length = 0, len(text)
     while i < length:
+        special = MASK_CANDIDATE.search(text, i)
+        if special is None:
+            masked.append(text[i:])
+            break
+        if special.start() > i:
+            masked.append(text[i:special.start()])
+            i = special.start()
         if text.startswith("//", i):
             end = text.find("\n", i)
             end = length if end == -1 else end
@@ -180,30 +193,96 @@ def line_of(text, offset):
     return text.count("\n", 0, offset) + 1
 
 
+def base_types(base_list):
+    names = set()
+    depth = 0
+    part = []
+    for char in WHERE_CLAUSE.split(base_list, maxsplit=1)[0] + ",":
+        if char == "<":
+            depth += 1
+        elif char == ">":
+            depth -= 1
+        elif char == "," and depth == 0:
+            leading = re.match(r"\s*([\w.]+)", "".join(part))
+            if leading:
+                names.add(leading.group(1).rsplit(".", 1)[-1])
+            part = []
+            continue
+        part.append(char)
+    return names
+
+
 class HelperIndex:
-    def __init__(self, masked_sources):
-        self.source = "\n;\n".join(masked_sources)
+    def __init__(self, masked_by_file):
+        self.masked_by_file = masked_by_file
+        self.files_by_type = defaultdict(set)
+        self.bases_by_file = defaultdict(set)
+        self.partial_types_by_file = defaultdict(set)
+        for path, masked in masked_by_file.items():
+            for declaration in TYPE_DECLARATION.finditer(masked):
+                partial, name, bases = declaration.groups()
+                self.files_by_type[name].add(path)
+                self.bases_by_file[path] |= base_types(bases or "")
+                if partial:
+                    self.partial_types_by_file[path].add(name)
+        self.scopes = {}
+        self.methods_by_file = {}
         self.cache = {}
 
-    def asserts(self, body, depth=HELPER_DEPTH):
+    def scope_of(self, path):
+        if path not in self.scopes:
+            scope, pending = {path}, [path]
+            while pending:
+                current = pending.pop()
+                for name in self.bases_by_file[current] | self.partial_types_by_file[current]:
+                    for other in self.files_by_type.get(name, ()):
+                        if other not in scope:
+                            scope.add(other)
+                            pending.append(other)
+            self.scopes[path] = frozenset(scope)
+        return self.scopes[path]
+
+    def type_scope(self, type_name):
+        return frozenset().union(*(self.scope_of(path) for path in self.files_by_type[type_name]))
+
+    def asserts(self, body, path, depth=HELPER_DEPTH):
         if ASSERTION.search(body):
             return True
         if depth == 0:
             return False
-        return any(self.helper_asserts(name, depth) for name in set(CALLED_NAME.findall(body)))
+        for qualifier, name in set(QUALIFIED_CALL.findall(body)):
+            scope = self.type_scope(qualifier) if qualifier in self.files_by_type else self.scope_of(path)
+            if self.helper_asserts(name, scope, depth):
+                return True
+        return False
 
-    def helper_asserts(self, name, depth):
-        key = (name, depth)
-        if key in self.cache:
-            return self.cache[key]
-        self.cache[key] = False
-        definition = re.compile(rf"(?m)^[ \t]*(?:[\w<>\[\],.?]+[ \t]+)+{re.escape(name)}[ \t]*(?:<[^>]*>)?[ \t]*\(")
-        for match in definition.finditer(self.source):
-            method = method_at(self.source, match.start())
-            if method and self.asserts(self.source[method[2]:method[3]], depth - 1):
-                self.cache[key] = True
-                break
+    def helper_asserts(self, name, scope, depth):
+        return any(self.defined_asserts(path, name, depth) for path in sorted(scope))
+
+    def defined_asserts(self, path, name, depth):
+        key = (path, name, depth)
+        if key not in self.cache:
+            self.cache[key] = False
+            masked = self.masked_by_file[path]
+            self.cache[key] = any(
+                self.asserts(masked[start:end], path, depth - 1) for start, end in self.methods_in(path).get(name, ())
+            )
         return self.cache[key]
+
+    def methods_in(self, path):
+        if path not in self.methods_by_file:
+            masked = self.masked_by_file[path]
+            methods = defaultdict(list)
+            for definition in METHOD_DEFINITION.finditer(masked):
+                method = method_at(masked, definition.start())
+                if method and method[1] == definition.group(1):
+                    methods[method[1]].append((method[2], method[3]))
+            self.methods_by_file[path] = methods
+        return self.methods_by_file[path]
+
+
+def has_constant_assertion(test):
+    return any(test["masked_body"][m.start()] != " " for m in CONSTANT_ASSERTION.finditer(test["body"]))
 
 
 def tests_in_file(path):
@@ -229,11 +308,17 @@ def tests_in_file(path):
             "skipped": bool(SKIP_ATTRIBUTE.search(attributes_text)),
             "data_rows": data_rows(masked, without_comments, attributes_start, header_start),
             "row_count": row_count(masked, without_comments, attributes_start, header_start),
-            "signature": re.sub(rf"\b{re.escape(name)}\b", "M", without_comments[header_start:body_start], count=1),
+            "signature": anonymous_signature(without_comments[header_start:body_start], name),
             "body": without_comments[body_start:body_end],
             "masked_body": masked[body_start:body_end],
         })
     return tests, masked
+
+
+def anonymous_signature(header, name):
+    parameters = header.find("(")
+    position = header.rfind(name, 0, parameters if parameters != -1 else len(header))
+    return header if position == -1 else header[:position] + "M" + header[position + len(name):]
 
 
 def data_rows(masked, without_comments, start, end):
@@ -368,8 +453,7 @@ def scan(scope):
     files = [root] if root.is_file() else sorted(p for p in root.rglob("*.cs") if not {"bin", "obj"} & set(p.parts))
     parsed = [tests_in_file(path) for path in files]
     tests = [test for file_tests, _ in parsed for test in file_tests]
-    # Same-named helpers in unrelated files must not mask missing assertions.
-    helpers_by_file = {str(path): HelperIndex([masked]) for path, (_, masked) in zip(files, parsed)}
+    helpers = HelperIndex({str(path): masked for path, (_, masked) in zip(files, parsed)})
     active = [test for test in tests if not test["skipped"]]
     exact_groups = groups_by(active, exact_shape)
     exact_members = {id(test) for group in exact_groups for test in group}
@@ -382,8 +466,8 @@ def scan(scope):
         "files": len({test["file"] for test in tests}),
         "inventory": [dict(where(t), rows=t["row_count"][0], rows_exact=t["row_count"][1]) for t in tests],
         "skipped": [where(t) for t in tests if t["skipped"]],
-        "no_assertion": [where(t) for t in active if not helpers_by_file[t["file"]].asserts(t["masked_body"])],
-        "constant_assertion": [where(t) for t in active if CONSTANT_ASSERTION.search(t["masked_body"])],
+        "no_assertion": [where(t) for t in active if not helpers.asserts(t["masked_body"], t["file"])],
+        "constant_assertion": [where(t) for t in active if has_constant_assertion(t)],
         "identical_tests": [[where(t) for t in group] for group in exact_groups],
         "same_code_different_data": [[where(t) for t in group] for group in data_groups],
         "stub_then_verify": [dict(where(t), members=m) for t in active if (m := stub_then_verify(t))],

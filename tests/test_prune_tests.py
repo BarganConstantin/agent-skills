@@ -189,7 +189,6 @@ class ScanCsTestsTests(unittest.TestCase):
         rows = self.result["stub_then_verify"]
         self.assertEqual([("Stub_then_verify", ["Load"])], [(r["test"].rsplit(" ", 1)[1], r["members"]) for r in rows])
 
-
     def test_string_containing_an_assertion_is_not_flagged_as_constant(self):
         with tempfile.TemporaryDirectory() as directory:
             path = pathlib.Path(directory) / "StringTests.cs"
@@ -219,6 +218,57 @@ public class Other {
 ''', encoding="utf-8")
             result = scanner.scan(str(root))
         self.assertEqual(["Has_no_assertion"], self.names(result["no_assertion"]))
+
+    def test_identical_string_literals_are_a_constant_assertion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "LiteralTests.cs"
+            path.write_text('''
+public class LiteralTests {
+    [Fact]
+    public void Same() { Assert.Equal("ready", "ready"); }
+}
+''', encoding="utf-8")
+            result = scanner.scan(str(path))
+        self.assertEqual(["Same"], self.names(result["constant_assertion"]))
+
+    def scan_files(self, files):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            for name, source in files.items():
+                (root / name).write_text(source, encoding="utf-8")
+            return scanner.scan(str(root))
+
+    def test_a_helper_called_through_its_type_name_counts_as_an_assertion(self):
+        result = self.scan_files({
+            "WebWriteSweep.cs": '''
+public static class WebWriteSweep {
+    public static void NoWriteWasSent(Mock<IMediator> mediator) => mediator.Verify(m => m.Send(It.IsAny<object>(), default), Times.Never);
+}
+''',
+            "SweepTests.cs": '''
+public class SweepTests {
+    [Fact]
+    public void Passes_When_OnlyAQueryWasSent() { var mediator = new Mock<IMediator>(); WebWriteSweep.NoWriteWasSent(mediator); }
+}
+''',
+        })
+        self.assertEqual([], result["no_assertion"])
+
+    def test_a_helper_in_a_base_class_counts_as_an_assertion(self):
+        result = self.scan_files({
+            "BaseTests.cs": '''
+public abstract class BaseTests {
+    protected static void ResultIs(int expected, int actual) => Assert.Equal(expected, actual);
+}
+''',
+            "CalculatorTests.cs": '''
+public class CalculatorTests : BaseTests {
+    [Fact]
+    public void Adds() { ResultIs(2, Calculator.Add(1, 1)); }
+}
+''',
+        })
+        self.assertEqual([], result["no_assertion"])
 
     def test_nunit_ignore_attribute_is_skipped(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -480,6 +530,12 @@ class StrykerRedundancyTests(unittest.TestCase):
         self.assertEqual(["src/Pricing.cs#1"], result["incomplete_kills"])
         self.assertFalse(result["proof_usable"])
         self.assertEqual([], result["kill_nothing"])
+
+    def test_a_static_mutant_covered_by_every_test_keeps_the_proof_usable(self):
+        static = dict(mutant("1", "Killed", [], ["a"]), static=True)
+        result = stryker.analyse(report([static, mutant("2", "Killed", ["a", "b"], ["a", "b"])], TESTS), by_method=False)
+        self.assertTrue(result["proof_usable"], result["warnings"])
+        self.assertEqual([], result["incomplete_kills"])
 
     def test_killer_not_in_coverage_blocks_proof(self):
         result = stryker.analyse(report([mutant("1", "Killed", ["a"], ["b"])], TESTS), by_method=False)

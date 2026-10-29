@@ -53,8 +53,9 @@ It lists, as candidates only:
   that must be sent).
 
 The scanner reads text, not syntax trees. It can miss unusual layouts; it never decides.
-Assertion helper lookups stay within the same file; a same-named helper from an
-unrelated file is not proof that the test asserts anything.
+Assertion helpers are looked up where C# would resolve them: the test's own file, its partial
+parts and base classes, and the declaring file of a type called by name (`Sweep.Check(...)`).
+A same-named helper in an unrelated file is not proof that the test asserts anything.
 
 To pick the probe for a large scope (step 3), list the subfolders by pre-scan density:
 
@@ -163,7 +164,9 @@ also killed by another test, that test adds no detection power for those mutants
    output lists tests that kill nothing, tests whose kills have a witness, and a **greedy
    upper-bound keep-set size**, not necessarily the smallest set. Zero recorded kills,
    suspected bail, or missing/inconsistent per-test killer and coverage attribution make
-   the report **PROOF UNUSABLE**: no deletion candidates are emitted. Even on usable proof
+   the report **PROOF UNUSABLE**: no deletion candidates are emitted. An empty `coveredBy` on a
+   killed mutant is not missing data: Stryker writes it for a mutant every test covers
+   (static code), so it does not block the proof. Even on usable proof
    every candidate requires a reviewer's behavioral evidence and the user's approval.
 4. After the edits, run the same command again and compare the killed mutants. A mutant killed
    before and surviving now points at a deletion that lost protection.
