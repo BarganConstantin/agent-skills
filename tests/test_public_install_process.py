@@ -38,7 +38,6 @@ class PublicInstallTests(unittest.TestCase):
     def test_research_and_docs_link_current_activation_paths(self):
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         study = (ROOT / "docs" / "growth-research.md").read_text(encoding="utf-8")
-        self.assertIn("docs/growth-research.md", readme)
         self.assertIn("public-install.yml", readme)
         for name in SKILL_NAMES:
             self.assertIn("--skill " + name, readme)

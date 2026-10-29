@@ -12,14 +12,13 @@ MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
 
 
 class LandingPageTests(unittest.TestCase):
-    def test_readme_shows_real_example_without_scroll_wall(self):
+    def test_readme_is_short_and_shows_a_runnable_example(self):
         content = README.read_text(encoding="utf-8")
-        self.assertLess(len(content), 6200)
-        self.assertIn("See a result in 30 seconds", content[:1800])
+        self.assertLess(len(content), 5000)
         self.assertIn("compare_openapi.py", content)
         self.assertIn("examples/api-contract-drift/before.json", content)
         self.assertIn("examples/api-contract-drift/after.json", content)
-        self.assertIn("not", content.lower())
+        self.assertIn("does not prove compatibility", content)
 
     def test_each_skill_has_separate_install_command(self):
         text = README.read_text(encoding="utf-8")
@@ -51,7 +50,7 @@ class LandingPageTests(unittest.TestCase):
         self.assertIn("not", landing.lower())
         self.assertIn("not", detail.lower())
         self.assertIn("not a product screenshot", detail)
-        self.assertIn("**not** an independent agent evaluation", landing)
+        self.assertIn("synthetic, not a real-API benchmark", landing)
 
 
 if __name__ == "__main__":

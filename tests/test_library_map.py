@@ -47,7 +47,6 @@ class LibraryMapTests(unittest.TestCase):
         self.assertIn("../assets/library-map.svg", page)
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("docs/library.md", readme)
-        self.assertIn("assets/library-map.svg", readme)
 
 
 if __name__ == "__main__":

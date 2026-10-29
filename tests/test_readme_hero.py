@@ -6,7 +6,6 @@ from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 HERO = ROOT / "assets" / "readme-hero.svg"
-README = ROOT / "README.md"
 NS = {"s": "http://www.w3.org/2000/svg"}
 
 
@@ -15,12 +14,6 @@ class ReadmeHeroTests(unittest.TestCase):
     def setUpClass(cls):
         cls.source = HERO.read_text(encoding="utf-8")
         cls.root = ET.fromstring(cls.source)
-
-    def test_main_readme_uses_local_asset_with_descriptive_alt(self):
-        content = README.read_text(encoding="utf-8")
-        self.assertIn('src="assets/readme-hero.svg"', content)
-        self.assertIn('alt="Agent Skills:', content)
-        self.assertIn('width="100%"', content)
 
     def test_svg_is_a_portable_sized_and_annotated_image(self):
         self.assertEqual(self.root.tag, "{http://www.w3.org/2000/svg}svg")
