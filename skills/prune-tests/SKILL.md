@@ -1,6 +1,6 @@
 ---
 name: prune-tests
-description: "Find the tests an existing suite can lose — duplicates of a stronger test, tests that cannot fail, tests that restate the implementation or only check a mock, trivia, parameter copies that belong in one data-driven test — with evidence for every verdict, and delete or merge only the rows the user approves. Read-only report first; optional mutation-testing proof. Use when the user says 'prune tests', 'find redundant tests', 'too many tests', 'which tests can we delete', 'remove useless tests', 'test slop', 'clean up AI-written tests', 'dedupe the tests', 'curăță testele', 'teste inutile'. First-class for .NET (xUnit, NUnit, MSTest); the method works for any stack. Not for finding coverage gaps or writing new tests."
+description: "Find the tests an existing suite can lose — duplicates of a stronger test, tests that cannot fail, tests that restate the implementation or only check a mock, trivia, parameter copies that belong in one data-driven test — with evidence for every verdict, and delete or merge only the rows the user approves. Read-only report first; a large scope starts with a probe that measures tokens, time and yield and asks whether the full run is worth it; optional mutation-testing proof. Use when the user says 'prune tests', 'find redundant tests', 'too many tests', 'which tests can we delete', 'remove useless tests', 'test slop', 'clean up AI-written tests', 'dedupe the tests', 'curăță testele', 'teste inutile'. First-class for .NET (xUnit, NUnit, MSTest); the method works for any stack. Not for finding coverage gaps or writing new tests."
 license: MIT
 compatibility: Any coding agent with repository access; parallel subagents recommended for the review step. Python 3.10+ (standard library only) for the helper scripts; the .NET SDK to run tests; Stryker.NET only for the optional mutation proof. No network or MCP required.
 ---
@@ -33,9 +33,9 @@ deletion count.
 - `<scope>`: one test project, folder, test class or test file. Required.
   For a whole repository, list the test projects with their test counts, ask which to start
   with, and run one batch per project.
-- `--proof`: add the mutation-testing evidence step (step 3). Slow: plan hours per large
+- `--proof`: add the mutation-testing evidence step (step 4). Slow: plan hours per large
   project for .NET.
-- `apply`: continue an existing report at step 7, after the user approved rows.
+- `apply`: continue an existing report at step 8, after the user approved rows.
 
 ## Working files
 
@@ -53,10 +53,11 @@ resumed session continues where the files say it stopped:
 |---|---|
 | `inventory.md` | step 1 |
 | `prescan.md` | step 2 |
-| `proof.md` | step 3 (only with `--proof`) |
-| `review-<n>.md` | step 4, one per slice |
-| `report.md` | step 5 and 6, the numbered decision table and each row's approval state |
-| `baseline.trx`, `after.trx` | steps 7 and 9 |
+| `estimate.md` | step 3 (only for scopes above 150 test methods) |
+| `proof.md` | step 4 (only with `--proof`) |
+| `review-<n>.md` | step 5, one per slice |
+| `report.md` | steps 6 and 7, the numbered decision table and each row's approval state |
+| `baseline.trx`, `after.trx` | steps 8 and 10 |
 
 ## Steps
 
@@ -69,7 +70,7 @@ Stop and name the remedy when:
   be reviewable on its own);
 - `apply` is requested on the default branch.
 
-The report steps (1 to 6) are read-only and may run on any branch with any working tree.
+The report steps (1 to 7) are read-only and may run on any branch with any working tree.
 
 ### 1. Inventory
 
@@ -94,7 +95,48 @@ commands. These results are **candidates for the reviewers, not verdicts**. Shar
 proves nothing: a file of examples for a pure function will show many "same code" groups whose
 members each pin a different rule.
 
-### 3. Mutation proof (only with `--proof`)
+### 3. Probe and estimate
+
+Skip this step when the scope holds 150 test methods or fewer, and review it whole.
+
+A large scope can cost many tokens for little gain, and the gain depends on how the tests were
+written. Measure it on a sample before spending the full amount.
+
+1. **Pick the probe.** Run `python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --folders`. It
+   lists each subfolder with its test count and its density: the share of its tests the pre-scan
+   flagged. Pick the densest folder with 100 to 250 test methods; if none fits, the densest one.
+   Say which folder and why.
+2. **Run steps 5 to 7 on the probe only** (step 4 as well when `--proof` is on).
+3. **Measure.** Record the tokens and wall-clock time each reviewer used, from the usage the
+   runtime reports for subagents. When it reports none, record the lines of test and production
+   code the reviewers read instead, and say that the estimate is rougher. Record the test methods
+   reviewed, the DELETE and MERGE rows, and the lines they remove.
+4. **Estimate the rest** in `<work>/estimate.md`, with `n` the probe's test methods and `N` the
+   rest of the scope's:
+
+   | | Probe | Rest of the scope (estimate) |
+   |---|---|---|
+   | Test methods | n | N |
+   | Tokens | t | t / n × N |
+   | Time | m | m / n × N, divided by the reviewers running in parallel |
+   | DELETE + MERGE rows | k, that is k / n of the tests | k / n × N × (rest density / probe density) |
+   | Lines removed | l | the same ratio as the rows |
+
+   The yield estimate is rough. The probe was the densest folder, so the rest usually yields less.
+   Give the cost in tokens; convert it to money only with the user's own price per token.
+5. **Recommend and ask.** Point to one of three roads and say why the numbers point there:
+   - **Continue on the whole scope**: the probe removed a real share, about 5% of its tests or
+     more, and the rest is about as dense.
+   - **Continue only on the denser folders**: list the folders at least as dense as the probe,
+     each with its estimated tokens.
+   - **Stop here**: the probe removed under about 2% of its tests and no folder is denser. The
+     suite is already lean, and a full run would cost more than it saves.
+
+   The thresholds are a guide, not a rule. Show the probe's DELETE and MERGE tables as well, so
+   the user can approve those rows now. Continue only on the user's yes; an unattended run stops
+   here. Later batches skip the probe folder and add their rows to the same `report.md`.
+
+### 4. Mutation proof (only with `--proof`)
 
 Follow "Mutation proof" in `references/dotnet.md`: run Stryker with bail disabled, then
 `python3 <skill-dir>/scripts/stryker_redundancy.py <mutation-report.json> --by-method > <work>/proof.md`.
@@ -103,7 +145,7 @@ A test listed there either kills no mutant, or every mutant it kills is also kil
 witness. That is strong evidence, but still not a verdict: a test can assert things no mutant
 touched (an exception message, a log entry, a header). The reviewers read both tests.
 
-### 4. Review in parallel
+### 5. Review in parallel
 
 For each slice, start one fresh-context subagent with the brief in
 `references/reviewer-brief.md`, filled with the repository root, `<skill-dir>`, the slice's tests,
@@ -113,7 +155,7 @@ Run at most four at a time. Use the strongest model available for this step, bec
 step that decides deletions and a wrong deletion costs more than the tokens, unless the user or
 the project's instructions name another model. Write each answer to `review-<n>.md`.
 
-### 5. Reconcile
+### 6. Reconcile
 
 Read every `review-<n>.md` and apply these checks before anything reaches the user:
 
@@ -126,7 +168,7 @@ Read every `review-<n>.md` and apply these checks before anything reaches the us
    `references/criteria.md`.
 4. **Cross-slice twins.** A test cited as a witness from another slice must be KEEP there.
 
-### 6. Report and ask
+### 7. Report and ask
 
 Write `report.md`:
 
@@ -138,7 +180,8 @@ Write `report.md`:
   that ended as KEEP, and every row the reconcile step turned back, each with its reason, so the
   user sees why a flagged test stays;
 - "Known-defect pins": tests that record today's wrong behaviour of an open defect;
-- orphans the deletions would leave (helpers, fixtures, test-only production seams).
+- orphans the deletions would leave (helpers, fixtures, test-only production seams);
+- the cost of the run: test methods reviewed, tokens and time used, and tokens per test method.
 
 Show the summary and the DELETE and MERGE tables in chat, and give the path of `report.md`.
 Ask the user to approve by row number, for example "approve 1-14, 20; reject 15".
@@ -147,13 +190,13 @@ Record each answer in `report.md`. Stop here when the run is unattended or nothi
 FIX rows are weak tests of a real contract. They are never deleted here; list them for a
 separate rewrite.
 
-### 7. Baseline
+### 8. Baseline
 
 Run the scope's tests once and save the result as `<work>/baseline.trx` (command in
 `references/dotnet.md`). If any test fails, stop and list the failures. A pre-existing failure
 is not a pruning candidate, and pruning on a red baseline hides what the edit broke.
 
-### 8. Apply the approved rows
+### 9. Apply the approved rows
 
 - **DELETE**: remove the whole test method with its attributes and its doc comment. Remove a
   `using` or import only when nothing else in the file still needs it. For a `Method [row n]`
@@ -164,7 +207,7 @@ is not a pruning candidate, and pruning on a red baseline hides what the edit br
 - Keep each file's line endings and encoding.
 - Do not delete helpers, fixtures or production code. Add them to the orphan list.
 
-### 9. Verify
+### 10. Verify
 
 Build and run the same scope again into `<work>/after.trx`, then run
 `python3 <skill-dir>/scripts/trx_summary.py compare <work>/baseline.trx <work>/after.trx`.
@@ -178,7 +221,7 @@ Build and run the same scope again into `<work>/after.trx`, then run
 - Optional: compare coverage under the same settings. Investigate a drop of more than 2 points,
   but stable coverage does not prove that protection was kept.
 
-### 10. Finish
+### 11. Finish
 
 Show `git diff --stat`, the counts removed, the orphan list and the FIX list. Then show where the
 time goes: `python3 <skill-dir>/scripts/trx_summary.py summary <work>/baseline.trx --slowest 15`.
@@ -188,7 +231,7 @@ they are the place to look when the goal is a faster suite. Stop. The user commi
 ## References
 
 - `references/criteria.md` — keep bar, the verdict classes, evidence rules, never-delete list, sources.
-- `references/reviewer-brief.md` — the brief for the step 4 subagents.
+- `references/reviewer-brief.md` — the brief for the step 5 subagents.
 - `references/dotnet.md` — commands for .NET: inventory, pre-scan, running a scope, merging into
   `[Theory]`, mutation proof.
 - `scripts/scan_cs_tests.py`, `scripts/stryker_redundancy.py`, `scripts/trx_summary.py` —
