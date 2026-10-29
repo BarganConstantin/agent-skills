@@ -33,10 +33,22 @@ def read_results(path):
     root = ElementTree.parse(path).getroot()
     results = {}
     for result in root.iterfind(".//t:Results/t:UnitTestResult", TRX_NAMESPACE):
-        results[result.get("testName")] = {
-            "outcome": result.get("outcome"),
+        name = result.get("testName")
+        outcome = result.get("outcome")
+        if not name or not outcome:
+            raise ValueError(f"TRX result missing test name or outcome: {path}")
+        # Parameterized rows can have identical display names: preserve every result.
+        key = name
+        occurrence = 2
+        while key in results:
+            key = f"{name} [occurrence {occurrence}]"
+            occurrence += 1
+        results[key] = {
+            "outcome": outcome,
             "seconds": duration_seconds(result.get("duration")),
         }
+    if not results:
+        raise ValueError(f"TRX contains no test results: {path}")
     return results
 
 
@@ -74,12 +86,16 @@ def print_comparison(before_path, after_path):
         if before[name]["outcome"] == PASSED and after[name]["outcome"] != PASSED
     )
     new_failures = [name for name in added if after[name]["outcome"] != PASSED]
+    baseline_not_passing = sorted(name for name in before if before[name]["outcome"] != PASSED)
     before_seconds = sum(r["seconds"] for r in before.values())
     after_seconds = sum(r["seconds"] for r in after.values())
 
     print("# Before / after\n")
     print(f"Tests: {len(before)} -> {len(after)} | summed test time: {before_seconds:.2f} s -> {after_seconds:.2f} s\n")
-    print(f"## Passed before, failing now ({len(regressed)})\n")
+    print(f"## Baseline not passing: stop before pruning ({len(baseline_not_passing)})\n")
+    for name in baseline_not_passing:
+        print(f"- `{name}` ({before[name]['outcome']})")
+    print(f"\n## Passed before, failing now ({len(regressed)})\n")
     for name in regressed:
         print(f"- `{name}` ({after[name]['outcome']})")
     print(f"\n## New and not passing ({len(new_failures)})\n")
@@ -91,7 +107,7 @@ def print_comparison(before_path, after_path):
     print(f"\n## New: must match the merged [Theory] rows ({len(added)})\n")
     for name in added:
         print(f"- `{name}`")
-    return 1 if regressed or new_failures else 0
+    return 1 if baseline_not_passing or regressed or new_failures else 0
 
 
 def main():
