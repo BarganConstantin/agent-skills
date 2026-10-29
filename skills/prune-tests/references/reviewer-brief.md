@@ -33,7 +33,8 @@ For each test in the slice:
    turns down. If you cannot produce the evidence, the verdict is KEEP and the row says what was
    missing.
 6. For a data-driven test, also check its rows. A redundant row (class DR) gets its own line in
-   the table, written `Method [row n]`.
+   the table, written `Method [row n]`, with n counting the method's data rows from 1 in source
+   order.
 
 Every pre-scan or mutation candidate in your slice must end in a row that says what you decided
 and why, including the ones you keep.
