@@ -189,6 +189,100 @@ class ScanCsTestsTests(unittest.TestCase):
         rows = self.result["stub_then_verify"]
         self.assertEqual([("Stub_then_verify", ["Load"])], [(r["test"].rsplit(" ", 1)[1], r["members"]) for r in rows])
 
+    def test_string_containing_an_assertion_is_not_flagged_as_constant(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "StringTests.cs"
+            path.write_text('''
+public class StringTests {
+    [Fact]
+    public void A() { var message = "Assert.True(true)"; Assert.NotNull(message); }
+}
+''', encoding="utf-8")
+            result = scanner.scan(str(path))
+        self.assertEqual([], result["constant_assertion"])
+
+    def test_same_named_helper_in_another_file_does_not_hide_missing_assertion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            (root / "Tests.cs").write_text('''
+public class FirstTests {
+    [Fact]
+    public void Has_no_assertion() { ValidateOutcome(); }
+    private void ValidateOutcome() { }
+}
+''', encoding="utf-8")
+            (root / "Other.cs").write_text('''
+public class Other {
+    private void ValidateOutcome() { Assert.True(true); }
+}
+''', encoding="utf-8")
+            result = scanner.scan(str(root))
+        self.assertEqual(["Has_no_assertion"], self.names(result["no_assertion"]))
+
+    def test_identical_string_literals_are_a_constant_assertion(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "LiteralTests.cs"
+            path.write_text('''
+public class LiteralTests {
+    [Fact]
+    public void Same() { Assert.Equal("ready", "ready"); }
+}
+''', encoding="utf-8")
+            result = scanner.scan(str(path))
+        self.assertEqual(["Same"], self.names(result["constant_assertion"]))
+
+    def scan_files(self, files):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            for name, source in files.items():
+                (root / name).write_text(source, encoding="utf-8")
+            return scanner.scan(str(root))
+
+    def test_a_helper_called_through_its_type_name_counts_as_an_assertion(self):
+        result = self.scan_files({
+            "WebWriteSweep.cs": '''
+public static class WebWriteSweep {
+    public static void NoWriteWasSent(Mock<IMediator> mediator) => mediator.Verify(m => m.Send(It.IsAny<object>(), default), Times.Never);
+}
+''',
+            "SweepTests.cs": '''
+public class SweepTests {
+    [Fact]
+    public void Passes_When_OnlyAQueryWasSent() { var mediator = new Mock<IMediator>(); WebWriteSweep.NoWriteWasSent(mediator); }
+}
+''',
+        })
+        self.assertEqual([], result["no_assertion"])
+
+    def test_a_helper_in_a_base_class_counts_as_an_assertion(self):
+        result = self.scan_files({
+            "BaseTests.cs": '''
+public abstract class BaseTests {
+    protected static void ResultIs(int expected, int actual) => Assert.Equal(expected, actual);
+}
+''',
+            "CalculatorTests.cs": '''
+public class CalculatorTests : BaseTests {
+    [Fact]
+    public void Adds() { ResultIs(2, Calculator.Add(1, 1)); }
+}
+''',
+        })
+        self.assertEqual([], result["no_assertion"])
+
+    def test_nunit_ignore_attribute_is_skipped(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "Ignored.cs"
+            path.write_text('''
+public class IgnoredTests {
+    [Test(Ignore = "temporarily disabled")]
+    public void Should_not_be_pruned() { }
+}
+''', encoding="utf-8")
+            result = scanner.scan(str(path))
+        self.assertEqual(["Should_not_be_pruned"], self.names(result["skipped"]))
+        self.assertEqual([], result["no_assertion"])
+
 
 MEMBER_DATA_TESTS = '''
 public class RowsTests
@@ -384,7 +478,7 @@ class StrykerRedundancyTests(unittest.TestCase):
     def test_a_test_no_mutant_reached_gets_no_verdict(self):
         self.assertEqual(["OtherTests.Never_reaches_pricing"], self.result["not_reached"])
 
-    def test_greedy_keep_set_is_the_smallest_set_that_kills_everything(self):
+    def test_greedy_keep_set_covers_all_kills_in_fixture(self):
         self.assertEqual(2, self.result["greedy_keep_set"])
         self.assertEqual(4, self.result["killed_mutants"])
 
@@ -414,6 +508,38 @@ class StrykerRedundancyTests(unittest.TestCase):
             if m["status"] == "Killed" and any(TESTS[t] not in listed for t in m["killedBy"])
         }
         self.assertEqual({"1", "2", "3", "4"}, still_killed)
+
+
+    def test_zero_kills_makes_proof_unusable(self):
+        result = stryker.analyse(report([mutant("1", "Survived", ["a"], [])], TESTS), by_method=False)
+        self.assertFalse(result["proof_usable"])
+        self.assertEqual([], result["kill_nothing"])
+        self.assertEqual([], result["subsumed"])
+        self.assertIsNone(result["greedy_keep_set"])
+
+    def test_bail_suspicion_blocks_prune_candidates(self):
+        bailed = [mutant(str(i), "Killed", ["a", "b"], ["a"]) for i in range(20)]
+        result = stryker.analyse(report(bailed, TESTS), by_method=False)
+        self.assertTrue(result["bail_suspected"])
+        self.assertFalse(result["proof_usable"])
+        self.assertEqual([], result["subsumed"])
+        self.assertEqual([], result["kill_nothing"])
+
+    def test_killed_mutant_without_killer_metadata_blocks_proof(self):
+        result = stryker.analyse(report([mutant("1", "Killed", ["a", "b"], [])], TESTS), by_method=False)
+        self.assertEqual(["src/Pricing.cs#1"], result["incomplete_kills"])
+        self.assertFalse(result["proof_usable"])
+        self.assertEqual([], result["kill_nothing"])
+
+    def test_a_static_mutant_covered_by_every_test_keeps_the_proof_usable(self):
+        static = dict(mutant("1", "Killed", [], ["a"]), static=True)
+        result = stryker.analyse(report([static, mutant("2", "Killed", ["a", "b"], ["a", "b"])], TESTS), by_method=False)
+        self.assertTrue(result["proof_usable"], result["warnings"])
+        self.assertEqual([], result["incomplete_kills"])
+
+    def test_killer_not_in_coverage_blocks_proof(self):
+        result = stryker.analyse(report([mutant("1", "Killed", ["a"], ["b"])], TESTS), by_method=False)
+        self.assertFalse(result["proof_usable"])
 
 
 TRX_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
@@ -468,6 +594,25 @@ class TrxSummaryTests(unittest.TestCase):
             [("A", "Passed", "00:00:00.1")],
         )
         self.assertEqual(0, exit_code)
+
+
+    def test_duplicate_display_names_do_not_hide_a_failing_theory_row(self):
+        self.assertEqual(1, self.compare(
+            [("T.Same", "Passed", "00:00:00.1"), ("T.Same", "Passed", "00:00:00.1")],
+            [("T.Same", "Passed", "00:00:00.1"), ("T.Same", "Failed", "00:00:00.1")],
+        ))
+
+    def test_non_passing_baseline_blocks_pruning(self):
+        self.assertEqual(1, self.compare(
+            [("A", "NotExecuted", "00:00:00.0")],
+            [("A", "Passed", "00:00:00.1")],
+        ))
+
+    def test_empty_trx_is_not_treated_as_success(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = trx_file(directory, "empty.trx", [])
+            with self.assertRaisesRegex(ValueError, "no test results"):
+                trx.read_results(path)
 
 
 if __name__ == "__main__":

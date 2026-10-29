@@ -55,6 +55,7 @@ def collect_sets(report, key_of):
     killers_by_mutant = {}
     killed_with_several_coverers = 0
     killed_by_exactly_one_of_several = 0
+    incomplete_kills = []
 
     for path, source_file in (report.get("files") or {}).items():
         for mutant in source_file.get("mutants") or []:
@@ -66,6 +67,10 @@ def collect_sets(report, key_of):
                 continue
             killers = {key_of(t) for t in mutant.get("killedBy") or []}
             killers_by_mutant[mutant_key] = killers
+            # Stryker writes an empty coveredBy for a mutant every test covers (static code).
+            covered_by_every_test = not coverers
+            if not killers or not (covered_by_every_test or killers.issubset(coverers)):
+                incomplete_kills.append(mutant_key)
             for test in killers:
                 kills[test].add(mutant_key)
             if len(coverers) > 1:
@@ -77,7 +82,7 @@ def collect_sets(report, key_of):
         killed_with_several_coverers > 0
         and killed_by_exactly_one_of_several / killed_with_several_coverers >= BAIL_SUSPECT_RATIO
     )
-    return kills, covers, killers_by_mutant, bail_suspected
+    return kills, covers, killers_by_mutant, bail_suspected, sorted(incomplete_kills)
 
 
 def find_subsumed(kills, killers_by_mutant):
@@ -116,18 +121,30 @@ def greedy_keep_set(kills, killers_by_mutant):
 def analyse(report, by_method):
     names = test_names_by_id(report)
     key_of = make_key_function(names, by_method)
-    kills, covers, killers_by_mutant, bail_suspected = collect_sets(report, key_of)
+    kills, covers, killers_by_mutant, bail_suspected, incomplete_kills = collect_sets(report, key_of)
     all_tests = {key_of(t) for t in names} | set(covers) | set(kills)
+    warnings = []
+    if not killers_by_mutant:
+        warnings.append("No killed mutants recorded; cannot justify pruning.")
+    if bail_suspected:
+        warnings.append("Bail may be enabled; rerun with bail disabled.")
+    if incomplete_kills:
+        warnings.append(f"{len(incomplete_kills)} killed mutant(s) have incomplete killer/coverage attribution.")
+    usable = not warnings
     return {
         "tests": len(all_tests),
         "killed_mutants": len(killers_by_mutant),
         "bail_suspected": bail_suspected,
-        "greedy_keep_set": len(greedy_keep_set(kills, killers_by_mutant)),
+        "incomplete_kills": incomplete_kills,
+        "proof_usable": usable,
+        "warnings": warnings,
+        # Greedy minimization gives an upper bound, not a guaranteed minimum.
+        "greedy_keep_set": len(greedy_keep_set(kills, killers_by_mutant)) if usable else None,
         "kill_nothing": sorted(
             ({"test": t, "covers": len(covers[t])} for t in covers if not kills.get(t)),
             key=lambda row: row["test"],
-        ),
-        "subsumed": find_subsumed(kills, killers_by_mutant),
+        ) if usable else [],
+        "subsumed": find_subsumed(kills, killers_by_mutant) if usable else [],
         "not_reached": sorted(t for t in all_tests if t not in covers),
     }
 
@@ -135,15 +152,17 @@ def analyse(report, by_method):
 def print_markdown(result, report_path):
     print("# Stryker redundancy candidates\n")
     print(f"Report: `{report_path}`  ")
-    print(
-        f"Tests: {result['tests']} | killed mutants: {result['killed_mutants']} | "
-        f"{result['greedy_keep_set']} tests are enough to kill all of them\n"
+    keep = result["greedy_keep_set"]
+    estimate = (
+        f"greedy upper bound: {keep} tests cover recorded kills"
+        if keep is not None else "no safe keep-set estimate"
     )
-    if result["bail_suspected"]:
-        print(
-            "> WARNING: almost every killed mutant names exactly one killer although several tests cover it. "
-            "The run probably had bail ON. Re-run with bail disabled before trusting the lists below.\n"
-        )
+    print(f"Tests: {result['tests']} | killed mutants: {result['killed_mutants']} | {estimate}\n")
+    if not result["proof_usable"]:
+        print("> PROOF UNUSABLE — do not use this report to justify deletions.")
+        for warning in result["warnings"]:
+            print(f"> - {warning}")
+        print()
     print("These are candidates, not verdicts. A test can assert something no mutant touched "
           "(an exception message, a log line, a header). Read both tests before any deletion.\n")
 
