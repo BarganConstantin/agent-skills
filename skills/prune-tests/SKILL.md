@@ -23,8 +23,8 @@ deletion count.
 - **Nothing changes without the user's yes on that row.** Unattended runs stop after the report.
 - **Never delete, skip or loosen a failing test.** Pre-existing failures are reported, not pruned.
 - **Never merge across levels.** A unit test never merges with an integration or end-to-end test.
-- **Never edit production code.** Test-only seams and helpers left orphaned are listed for a
-  separate change.
+- **Never edit production code without the user's yes on that change.** A deletion can leave
+  production members with no reader; they go into a separate commit that the user approves.
 - **Never commit or push.** The user reviews the diff and commits.
 - **Slow is not redundant.** Report slow tests separately; do not delete a test because it is slow.
 
@@ -244,9 +244,18 @@ stop and rerun review; never apply approval to stale source.
   old case, or the framework's equivalent). Copy every old case's inputs and expected values
   verbatim; a merge never drops or changes a case. Name the merged test after the behaviour.
 - Keep each file's line endings and encoding.
-- Do not delete helpers, fixtures or production code. Add them to the orphan list. One
-  exception: when every test in a file is deleted, delete the file, together with the private
-  helpers only those tests used.
+- **Clean the test file.** Read what the removal left without a reader in the same file: helpers,
+  fields, constants, harness switches. For C#, `remove_cs_tests.py` lists them. Check each one and
+  delete it in the same edit, because a helper that nothing calls tells the next reader that
+  something still depends on it. Removing one can orphan the next (a field only the deleted helper
+  set), so read the file again after each removal. When every test in a file goes, delete the file
+  together with its private helpers.
+- **Production members are a separate commit.** The script also lists the production members
+  (`Type.Member`) that only the removed tests named. Confirm that nothing uses them unqualified
+  inside their own type, then propose deleting them in a separate commit, verified by a build, and
+  apply it only on the user's yes. Uniqueness or other checks that a deleted test made may still
+  hold elsewhere (for example a `ToDictionary` that throws on a duplicate key); say so in the
+  commit body.
 
 ### 10. Verify
 
@@ -267,7 +276,10 @@ Build and run the same scope again into `<work>/after.trx`, then run
 
 ### 11. Finish
 
-Show `git diff --stat`, the counts removed, the orphan list and the FIX list. Then show where the
+Show `git diff --stat`, the counts removed, the orphan list and the FIX list. Put the production
+orphans you did not delete, the FIX list and the known-defect pins into the pull or merge request
+description too: reviewers read the request, not `<work>`, and a list that stays in `report.md` is
+a list nobody acts on. Then show where the
 time goes: `python3 <skill-dir>/scripts/trx_summary.py summary <work>/baseline.trx --slowest 15`.
 Deleting fast unit tests rarely shortens a test run; a few slow tests usually dominate it, and
 they are the place to look when the goal is a faster suite. Stop. The user commits.

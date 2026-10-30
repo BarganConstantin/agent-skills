@@ -1018,6 +1018,60 @@ class RemoveCsTestsEdgeCaseTests(unittest.TestCase):
             self.path.chmod(0o644)
         self.assertEqual(B_ONLY, self.path.read_text(encoding="utf-8"))
 
+HELPER_FILE = """public class T
+{
+    private static readonly int[] Known = [2];
+
+    [Fact]
+    public void A() => Assert.Equal(4, Twice(2) + Catalogue.Keys.Length + (Known.Contains(2) ? 0 : 1));
+
+    [Fact]
+    public void B() => Assert.True(Catalogue.All.Length > Known.Length);
+
+    private static int Twice(int x) => x * 2;
+}
+"""
+
+
+class OrphanReportTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.directory.name)
+        self.path = self.root / "T.cs"
+
+    def tearDown(self):
+        self.directory.cleanup()
+
+    def remove(self, *targets):
+        self.path.write_text(HELPER_FILE, encoding="utf-8")
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            remover.remove(self.path, remover.sha256_of(self.path), list(targets), False)
+        return output.getvalue()
+
+    def test_a_private_helper_only_the_removed_test_called_is_reported(self):
+        output = self.remove("A")
+        self.assertIn("Left without a reader in this file", output)
+        self.assertIn("- Twice (line 8)", output)
+
+    def test_a_helper_a_kept_test_still_calls_is_not_reported(self):
+        output = self.remove("B")
+        self.assertNotIn("Twice", output)
+        self.assertNotIn("Left without a reader", output)
+
+    def test_a_production_member_only_the_removed_test_named_is_reported(self):
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        (self.root / "Catalogue.cs").write_text(
+            "public static class Catalogue\n{\n    public static int[] Keys => [];\n    public static int[] All => [1];\n}\n",
+            encoding="utf-8")
+        (self.root / "Report.cs").write_text("public static class Report { public static int Count => Catalogue.All.Length; }\n",
+                                              encoding="utf-8")
+        output = self.remove("A")
+        self.assertIn("Production members only the removed tests named", output)
+        self.assertIn("- Catalogue.Keys", output)
+        self.assertNotIn("Catalogue.All", output)
+        self.assertNotIn("Known.Contains", output)
+
 
 if __name__ == "__main__":
     unittest.main()
