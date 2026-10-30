@@ -193,7 +193,9 @@ Read every `review-<n>.md` and apply these checks before anything reaches the us
    with the reason.
 2. **Witness must survive.** A row whose witness is itself DELETE gets the witness's witness, if
    that one survives and still covers the claim. Otherwise the row becomes KEEP. Two tests can
-   never be each other's only reason to go.
+   never be each other's only reason to go: when reviewers propose each as the other's witness,
+   keep the one the never-delete list protects or whose purpose is wider (a list of production
+   inputs, a regression suite, a catalogue sweep), and delete only the other.
 3. **Never-delete list.** Re-check every DELETE and MERGE against "Never delete" in
    `references/criteria.md`.
 4. **Cross-slice twins.** A test cited as a witness from another slice must be KEEP there.

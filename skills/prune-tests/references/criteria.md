@@ -122,6 +122,10 @@ Unless the user names the test explicitly:
   test in this file" that another test checks against the declared inputs: deleting it leaves the
   guard asserting something that is no longer true. Change the list in the same edit or keep the
   test.
+- a row of a test that pins real production inputs: the hosts, accounts, documents or messages that
+  live customers use, collected on purpose (its name, comment or commit says so). The list is the
+  contract: a person who edits another test does not know that a customer depends on that row.
+  When such a row and a test elsewhere are each other's witness, delete the other test's copy.
 
 ## Why these rules
 
