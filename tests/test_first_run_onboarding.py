@@ -60,7 +60,7 @@ class FirstRunIntakeTests(unittest.TestCase):
         into literal punctuation instead of fenced code snippets.
         """
         guide = GUIDE.read_text(encoding="utf-8")
-        self.assertNotIn("\\\`", guide, "Backticks must not be escaped in guide")
+        self.assertNotIn(chr(92) + chr(96), guide, "Backticks must not be escaped in guide")
         fences = [line for line in guide.splitlines() if line.startswith("```")]
         self.assertEqual(len(fences), 10, "Five complete fenced snippets expected")
         self.assertEqual(sum(line == "```" for line in fences), 5)
@@ -68,7 +68,7 @@ class FirstRunIntakeTests(unittest.TestCase):
         self.assertEqual(sum(line == "```text" for line in fences), 1)
 
         import re
-        blocks = re.findall(r"(?ms)^```(?:bash|text)\\n(.*?)^```$", guide)
+        blocks = re.findall(r"(?ms)^```(?:bash|text)\n(.*?)^```$", guide)
         self.assertEqual(len(blocks), 5, "All five snippets must be rendered")
         self.assertIn(
             "npx skills add BarganConstantin/agent-skills --skill first-user-audit",
@@ -78,7 +78,7 @@ class FirstRunIntakeTests(unittest.TestCase):
         self.assertIn("codex mcp add playwright", blocks[2])
         self.assertIn("Use first-user-audit in QUICK CHECK mode", blocks[3])
         self.assertIn("summarize.py --root qa/first-users --baseline-only", blocks[4])
-        self.assertIn("Never on production", guide.replace("Do not test production", "Never on production"))
+        self.assertIn("Do not test production", guide)
         self.assertIn("redact", guide.lower())
 
     def test_readme_reaches_guide_and_feedback(self):
