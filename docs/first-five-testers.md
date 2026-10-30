@@ -8,11 +8,11 @@ You only need an Agent Skills-compatible coding agent and a working browser MCP.
 
 Node.js 22.20+ and npm are recommended for the current skills CLI workflow:
 
-\`\`\`bash
+```bash
 npx skills add BarganConstantin/agent-skills --skill first-user-audit
-\`\`\`
+```
 
-This installs the instructions; it does not connect a browser or run an audit. If you would rather confirm that the repository can be discovered *without installing*, use \`npx skills add BarganConstantin/agent-skills --list\`.
+This installs the instructions; it does not connect a browser or run an audit. If you would rather confirm that the repository can be discovered *without installing*, use `npx skills add BarganConstantin/agent-skills --list`.
 
 ## 2. Connect Playwright MCP to your coding agent
 
@@ -20,18 +20,18 @@ Choose **one** client, not both. These commands register a browser MCP connectio
 
 **Claude Code**
 
-\`\`\`bash
+```bash
 claude mcp add playwright npx @playwright/mcp@latest
-\`\`\`
+```
 
-Restart/open your coding-agent session and confirm that it exposes actual browser tools. For a browser profile that is discarded on close, configure the server with \`--isolated\` using your MCP client's documented configuration mechanism, as described in [browser setup](../skills/first-user-audit/references/browser-setup.md). Do not assume that a default persistent browser has clean storage.
+Restart/open your coding-agent session and confirm that it exposes actual browser tools. For a browser profile that is discarded on close, configure the server with `--isolated` using your MCP client's documented configuration mechanism, as described in [browser setup](../skills/first-user-audit/references/browser-setup.md). Do not assume that a default persistent browser has clean storage.
 
 **Codex CLI**
 
-\`\`\`bash
+```bash
 codex mcp add playwright -- npx @playwright/mcp@latest --isolated
 codex mcp list
-\`\`\`
+```
 
 The second command only lists configured servers; **still test actual browser navigation** in the agent session. For other clients, refer to [Playwright MCP official setup](https://playwright.dev/mcp/clients) and our [capability checks](../skills/first-user-audit/references/browser-setup.md).
 
@@ -41,13 +41,13 @@ These are *documented setup commands*, not a claim that every OS/client installa
 
 Run your own app on localhost or an isolated preview with synthetic data. Use test accounts; disable or sandbox external notifications, billing and email sending. Confirm the initial URL **and any redirects** remain within permitted test infrastructure. A production URL or an app with unsafe integrations is a valid reason to stop.
 
-Ensure the project ignores \`qa/first-users/\` (including screenshots, account traces, JSON and HTML reports).
+Ensure the project ignores `qa/first-users/` (including screenshots, account traces, JSON and HTML reports).
 
 ## 4. Ask your agent to do one Quick Check
 
 Copy this into an agent session where the skill is installed:
 
-\`\`\`text
+```text
 Use first-user-audit in QUICK CHECK mode on this web app.
 
 Read its SKILL.md and quick-check protocol. Before browsing, verify
@@ -63,13 +63,13 @@ steps for any friction. Never modify the app or business copy.
 Write only the impatient baseline JSON and optionally render the
 baseline Markdown/HTML summary. Report the actual outcome, 1/4
 coverage, and all missing capabilities. Do not invent other personas.
-\`\`\`
+```
 
-The expected deliverable is a single \`qa/first-users/baseline/impatient.json\`, not a full four-persona evaluation. If Python 3.10+ is available, generate a summary with:
+The expected deliverable is a single `qa/first-users/baseline/impatient.json`, not a full four-persona evaluation. If Python 3.10+ is available, generate a summary with:
 
-\`\`\`bash
+```bash
 python /path/to/installed/first-user-audit/scripts/summarize.py --root qa/first-users --baseline-only
-\`\`\`
+```
 
 Replace the script location with the actual installed skill path. The reporter validates JSON but **does not verify screenshots or agent behavior**.
 
