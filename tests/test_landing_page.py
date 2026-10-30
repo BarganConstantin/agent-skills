@@ -7,7 +7,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
 DETAIL = ROOT / "docs" / "first-user-audit.md"
-SKILLS = ("first-user-audit", "reference-library", "prune-tests")
+SKILLS = ("first-user-audit", "reference-library", "prune-tests", "compass")
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
 
 
