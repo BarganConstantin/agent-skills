@@ -5,6 +5,7 @@ import os
 import pathlib
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 
@@ -18,6 +19,9 @@ ROW_NAME = re.compile(r"\b(?:InlineData|TestCase|DataRow)\b")
 DOC_LINE = re.compile(r"[ \t]*///(?!/)")
 PAIRED_DIRECTIVES = {"if": "endif", "region": "endregion"}
 BRACKET_DEPTH = {"(": 1, "[": 1, "{": 1, ")": -1, "]": -1, "}": -1}
+NAME = re.compile(r"\b[A-Za-z_]\w{2,}\b")
+QUALIFIED_MEMBER = re.compile(r"\b[A-Z]\w*\.[A-Z]\w*\b")
+MODIFIERS = r"(?:public|private|protected|internal|static|readonly|const|sealed|override|async|virtual|partial|new|required)"
 
 
 class Refusal(Exception):
@@ -259,6 +263,61 @@ def check_result(before, after, groups, whole, rows_removed):
             raise Refusal(f"the result would change the attributes of {name}; edit by hand")
 
 
+def removed_code(masked, groups):
+    return "\n".join(masked[start:end] for start, end, _ in groups)
+
+
+def declares(code, name):
+    return re.search(rf"^\s*(?:{MODIFIERS}\s+)+[^=;(\n]*\b{re.escape(name)}\s*(?:[(=;{{<:]|$)", code, re.M) is not None
+
+
+def file_orphans(removed, result):
+    masked = scanner.code_mask(result)
+    orphans = []
+    for name in sorted(set(NAME.findall(removed))):
+        uses = [match.start() for match in re.finditer(rf"\b{re.escape(name)}\b", masked)]
+        if len(uses) == 1 and declares(masked[line_start(masked, uses[0]):line_end(masked, uses[0])], name):
+            orphans.append(f"{name} (line {scanner.line_of(result, uses[0])})")
+    return orphans
+
+
+def production_orphans(path, masked, removed, result):
+    members = sorted(member for member in set(QUALIFIED_MEMBER.findall(removed))
+                     if not declares(masked, member.split(".")[0]))
+    if not members:
+        return []
+    top = subprocess.run(["git", "-C", str(path.resolve().parent), "rev-parse", "--show-toplevel"],
+                         capture_output=True, text=True)
+    if top.returncode != 0:
+        return []
+    root = pathlib.Path(top.stdout.strip())
+    patterns = [argument for member in members for argument in ("-e", member)]
+    found = subprocess.run(
+        ["git", "-C", str(root), "grep", "--untracked", "-h", "-o", "-w", "-F", *patterns,
+         "--", "*.cs", f":!{path.resolve().relative_to(root)}"],
+        capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if found.returncode > 1:
+        return []
+    still_named = set(found.stdout.split()) | set(QUALIFIED_MEMBER.findall(scanner.code_mask(result)))
+    return [member for member in members if member not in still_named]
+
+
+def report_orphans(path, text, groups, result):
+    masked = scanner.code_mask(text)
+    removed = removed_code(masked, groups)
+    in_file = file_orphans(removed, result)
+    if in_file:
+        print("Left without a reader in this file — check each one, then delete it in the same edit:")
+        for orphan in in_file:
+            print(f"- {orphan}")
+    in_production = production_orphans(path, masked, removed, result)
+    if in_production:
+        print("Production members only the removed tests named — check for unqualified uses inside their own "
+              "type, then propose deleting them in a separate commit:")
+        for member in in_production:
+            print(f"- {member}")
+
+
 def write_atomically(path, data):
     path = path.resolve()
     if not os.access(path, os.W_OK):
@@ -291,6 +350,7 @@ def remove(path, expected_sha256, targets, dry_run):
     print(f"{left} test methods {'would be' if dry_run else 'are'} left in {path}")
     if left == 0:
         print("No test is left: delete the file, with the private helpers only those tests used.")
+    report_orphans(path, text, groups, result)
 
 
 def main():

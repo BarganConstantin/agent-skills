@@ -140,9 +140,16 @@ Then run the same command without `--dry-run`. The script:
   (`#if`, `#region`, `#pragma warning disable`) half open, or touch any other test. It re-reads
   the result before it writes, so a case it cannot parse ends in a refusal, not a broken file;
 - says when no test is left in the file. Then delete the file, with the private helpers only
-  those tests used.
+  those tests used;
+- lists what the removal left without a reader. "In this file" are names the file declares that
+  no remaining code uses. "Production members" are qualified names (`Type.Member`) that only the
+  removed tests named: the script searches every tracked and untracked `.cs` file of the
+  repository with `git grep`, outside the file it edited, and skips types the test file declares
+  itself. Both lists are candidates, not verdicts: a production member can still be used
+  unqualified inside its own type, so read it before proposing the deletion.
 
-It does not remove `using` directives, helpers or other comments. A MERGE stays a manual edit
+It does not remove `using` directives, helpers or other comments; it lists the orphaned helpers
+for you to delete (step 9). A MERGE stays a manual edit
 (next section).
 
 ## Merging into a `[Theory]`
