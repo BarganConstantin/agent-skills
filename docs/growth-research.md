@@ -21,7 +21,7 @@ The [Infrasity MemClaw case study](https://www.infrasity.com/case-studies/github
 
 As measured using GitHub's repository API on 28 Oct 2026: **4 stars, 0 forks, 4 Agent Skills**. These are a snapshot, not a live counter. The maintainer profile, ccdeck and other repositories are out of scope.
 
-At the time of this study the catalog was First User Audit, Handoff with Receipts, API Contract Drift and Reference Library. Handoff with Receipts and API Contract Drift were removed on 29 Oct 2026; the current catalog is [First User Audit](../skills/first-user-audit/SKILL.md), [Reference Library](../skills/reference-library/SKILL.md) and [Prune Tests](../skills/prune-tests/SKILL.md).
+At the time of this study the catalog was First User Audit, Handoff with Receipts, API Contract Drift and Reference Library. Handoff with Receipts and API Contract Drift were removed on 29 Oct 2026; the current catalog is [First User Audit](../skills/first-user-audit/SKILL.md), [Reference Library](../skills/reference-library/SKILL.md), [Prune Tests](../skills/prune-tests/SKILL.md) and [Compass](../skills/compass/SKILL.md).
 
 **Focus: help a stranger discover, install, obtain a useful result, and give specific feedback.** Next best change is not automatically a fourth skill.
 

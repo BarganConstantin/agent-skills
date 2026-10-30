@@ -7,6 +7,7 @@ Agent Skills for Claude Code, Codex and other agents that read `SKILL.md`.
 | [first-user-audit](skills/first-user-audit/SKILL.md) | Walks a local web app to a first success in a real browser and records reproducible problems. Never on production. | browser MCP, Python 3.10+ |
 | [reference-library](skills/reference-library/SKILL.md) | Offline catalog of saved projects and references. [Browse](docs/library.md). | Python 3.10+ |
 | [prune-tests](skills/prune-tests/SKILL.md) | Finds redundant tests and removes only the ones you approve. .NET first. | Python 3.10+, .NET SDK |
+| [compass](skills/compass/SKILL.md) | Says in about 150 words where a session stands and what comes next, from the chat, git, the merge request and Jira. Read-only. | Python 3.10+, git |
 
 ## Install
 
@@ -16,6 +17,7 @@ Node.js 22.20+:
 npx skills add BarganConstantin/agent-skills --skill first-user-audit
 npx skills add BarganConstantin/agent-skills --skill reference-library
 npx skills add BarganConstantin/agent-skills --skill prune-tests
+npx skills add BarganConstantin/agent-skills --skill compass
 ```
 
 Or copy `skills/<name>/` into `~/.claude/skills/` or `.agents/skills/`.
