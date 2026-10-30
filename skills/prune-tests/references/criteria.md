@@ -52,10 +52,20 @@ candidate; then it names the candidate's class and says why it stays.
 
 - **DU, LR**: cite the witness test as `file:line` and say what makes it at least as strong: the
   same class of input, the same or a stronger assertion, the same or a stronger boundary.
-  The witness must be KEEP after reconcile.
+  The witness must be KEEP after reconcile. Three limits:
+  - **One witness.** Coverage spread over several tests ("A pins the name, B the surface, C the
+    scope") is not a witness. Such a row is KEEP, or medium confidence at most.
+  - **The same entry point.** A test that calls a feature through one entry (an API surface, a
+    tool on one channel, one handler) also pins how that entry reads its arguments. A witness
+    that enters elsewhere and shares only the core covers the core, not this entry: an argument
+    the entry fails to declare or forward passes the witness and fails only this test.
+  - **A snapshot is a weak witness.** Snapshot and approval tests get regenerated when they go
+    red, often without reading the change. DU on a snapshot witness is medium confidence at most.
 - **PD**: cite every member of the group, confirm their code differs only in data, and name the
   one behaviour they all exemplify.
-- **DR**: cite the twin row and name the input class both rows share.
+- **DR**: cite the twin row and name the input class both rows share. Rows that vary the part a
+  narrower implementation would hard-code are separate classes, even when today's rule treats
+  them alike: for a rule `^CC\d*_`, a row with `CC2_` catches a regex that hard-codes `CC1`.
 - **IC**: quote the assertion and name a behaviour-preserving refactor that would break it.
 - **CF, TV, SC**: write a positive statement of why no contract exists, for example "the subject is
   an auto-property with no logic". A missing citation is not evidence.
@@ -91,7 +101,11 @@ Unless the user names the test explicitly:
   reason — the throw is the oracle;
 - the negative or edge-case twin of a positive test — the edge case is the distinct failure mode —
   unless a retained witness asserts the same negative or edge input at least as strictly; then it
-  is DU like any other test.
+  is DU like any other test;
+- a test that a completeness guard names, for example a list of "inputs that have a pass-through
+  test in this file" that another test checks against the declared inputs: deleting it leaves the
+  guard asserting something that is no longer true. Change the list in the same edit or keep the
+  test.
 
 ## Why these rules
 

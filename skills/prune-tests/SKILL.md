@@ -120,8 +120,9 @@ written. Measure it on a sample before spending the full amount.
    does not, because the pre-scan's candidates rarely become deletions (on one suite, none of 16
    confirmed deletions was a pre-scan candidate). When the user names an area to try first,
    sample that area instead. Say which files and why, and what the probe will cost before it
-   starts: on one C# suite, three probes of 164 to 187 test methods each used 313k to 347k tokens
-   (about 1.7k to 2.1k per test method) and 13 to 19 minutes with four reviewers in parallel.
+   starts: on one C# suite, six probes cost 1.7k to 6.6k tokens per test method, and 5 to 16
+   minutes per reviewer. The cost rises with the number of places a behaviour can be tested from:
+   code reached from several surfaces sends the reviewers through every surface's tests.
 2. **Run steps 5 to 7 on the probe only** (step 4 as well when `--proof` is on).
 3. **Measure.** Record the tokens and wall-clock time each reviewer used, from the usage the
    runtime reports for subagents. When it reports none, record the lines of test and production
@@ -139,8 +140,8 @@ written. Measure it on a sample before spending the full amount.
    | Data rows removed | r | r / n × N |
    | Lines removed | l | the same ratio as the rows |
 
-   The yield estimate is rough: the share varies by area (on one suite, three areas gave 1%,
-   1.8% and 6.5% of their test methods). Give the cost in tokens; convert it to money only with the user's own price per token.
+   The yield estimate is rough: the share varies by area (on one suite, six areas gave from 0.5%
+   to 6.5% of their test methods at high confidence). Give the cost in tokens; convert it to money only with the user's own price per token.
 5. **Recommend and ask.** Point to one of three roads and say why the numbers point there:
    - **Continue on the whole scope**: the probe removed a real share, about 5% of its test methods or
      more.
@@ -210,7 +211,10 @@ Write `report.md`:
 - the cost of the run: test methods reviewed, tokens and time used, and tokens per test method.
 
 Show the summary and the DELETE and MERGE tables in chat, and give the path of `report.md`.
-Ask the user to approve by row number, for example "approve 1-14, 20; reject 15".
+Ask the user to approve by row number, for example "approve 1-14, 20; reject 15". When the user
+approves in advance ("apply what you find"), that covers only the DELETE rows of high confidence
+whose witness the session running this skill has read in the code itself; list every other row
+for a decision.
 Record each answer in `report.md`. Record a SHA-256 content hash for every test file containing
 a proposed DELETE or MERGE, alongside its approval rows (for C#,
 `python3 <skill-dir>/scripts/remove_cs_tests.py hash <files>`). Before applying, compare the current
