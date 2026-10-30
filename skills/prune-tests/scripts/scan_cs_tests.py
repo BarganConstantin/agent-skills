@@ -50,6 +50,7 @@ TYPE_DECLARATION = re.compile(
 )
 WHERE_CLAUSE = re.compile(r"\bwhere\b")
 HUNK = re.compile(r"^@@ -\S+ \+(\d+)(?:,(\d+))? @@")
+BLAME_HEADER = re.compile(r"^[0-9a-f]{40,64} \d+ (\d+)")
 METHOD_DEFINITION = re.compile(r"(?m)^[ \t]*(?:[\w<>\[\],.?]+[ \t]+)+(\w+)[ \t]*(?:<[^>]*>)?[ \t]*\(")
 HELPER_DEPTH = 3
 
@@ -80,6 +81,12 @@ def parse_args():
         metavar="BASE",
         help="keep only the tests whose lines the current branch added or changed since BASE (git diff BASE...HEAD); "
         "the other tests of those files stay in the duplicate groups as context",
+    )
+    parser.add_argument(
+        "--author",
+        metavar="PATTERN",
+        help="keep only the tests whose declaration line git blame gives to an author whose 'name <email>' matches "
+        "PATTERN (a regular expression, case-insensitive); the other tests of those files stay as context",
     )
     return parser.parse_args()
 
@@ -586,16 +593,56 @@ def touches(test, ranges):
     return any(start <= test["end_line"] and end >= test["start_line"] for start, end in ranges)
 
 
-def scan(scope, changed_since=None):
+def authors_by_line(path):
+    resolved = pathlib.Path(path).resolve()
+    try:
+        blame = git("-C", str(resolved.parent), "blame", "--line-porcelain", "-w", "--", resolved.name)
+    except ValueError:
+        return {}
+    authors, line, name = {}, None, ""
+    for row in blame.splitlines():
+        if header := BLAME_HEADER.match(row):
+            line = int(header.group(1))
+        elif row.startswith("author "):
+            name = row[len("author "):]
+        elif row.startswith("author-mail "):
+            authors[line] = f"{name} {row[len('author-mail '):]}"
+    return authors
+
+
+def written_by(pattern):
+    try:
+        wanted = re.compile(pattern, re.IGNORECASE)
+    except re.error as error:
+        raise ValueError(f"--author is not a valid regular expression: {error}") from error
+    blamed = {}
+
+    def wrote(test):
+        if test["file"] not in blamed:
+            blamed[test["file"]] = authors_by_line(test["file"])
+        return bool(wanted.search(blamed[test["file"]].get(test["line"], "")))
+
+    return wrote
+
+
+def scan(scope, changed_since=None, author=None):
     files = files_in(scope)
     ranges = None
     if changed_since is not None:
         added = added_lines(changed_since, [scope] if isinstance(scope, str) else scope)
         ranges = {str(path): added[str(path.resolve())] for path in files if str(path.resolve()) in added}
         files = [path for path in files if str(path) in ranges]
+    wrote = None if author is None else written_by(author)
+
+    def selected(test):
+        return (ranges is None or touches(test, ranges[test["file"]])) and (wrote is None or wrote(test))
+
     parsed = [tests_in_file(path) for path in files]
+    if wrote is not None:
+        kept = [(path, file) for path, file in zip(files, parsed) if any(selected(test) for test in file[0])]
+        files, parsed = [path for path, _ in kept], [file for _, file in kept]
     every_test = [test for file_tests, _ in parsed for test in file_tests]
-    tests = every_test if ranges is None else [t for t in every_test if touches(t, ranges[t["file"]])]
+    tests = [test for test in every_test if selected(test)]
     in_scope = {id(test) for test in tests}
     helpers = HelperIndex({str(path): masked for path, (_, masked) in zip(files, parsed)})
     every_active = [test for test in every_test if not test["skipped"]]
@@ -614,6 +661,7 @@ def scan(scope, changed_since=None):
         "tests": len(tests),
         "files": len({test["file"] for test in tests}),
         "changed_since": changed_since,
+        "author": author,
         "context_tests": len(every_test) - len(tests),
         "inventory": [dict(where(t), rows=t["row_count"][0], rows_exact=t["row_count"][1]) for t in tests],
         "skipped": [where(t) for t in tests if t["skipped"]],
@@ -626,13 +674,19 @@ def scan(scope, changed_since=None):
 
 
 def scope_line(result):
-    if result["changed_since"] and not result["tests"]:
-        return f"No test method was added or changed since {result['changed_since']}"
+    narrowed = result["changed_since"] or result.get("author")
+    filters = []
+    if result["changed_since"]:
+        filters.append(f"added or changed since {result['changed_since']}")
+    if result.get("author"):
+        filters.append(f"written by authors matching '{result['author']}'")
+    if narrowed and not result["tests"]:
+        return f"No test method was {' and '.join(filters)}"
     line = f"{result['tests']} test methods"
-    if result["changed_since"]:
-        line += f" added or changed since {result['changed_since']}"
+    if filters:
+        line += " " + " and ".join(filters)
     line += f" in {result['files']} files"
-    if result["changed_since"]:
+    if narrowed:
         line += f"; the other {result['context_tests']} tests of those files are context, not scope"
     return line
 
@@ -751,7 +805,7 @@ def main():
         print(f"Scope not found: {', '.join(missing)}", file=sys.stderr)
         return 2
     try:
-        result = scan(args.scope, args.changed)
+        result = scan(args.scope, args.changed, args.author)
     except ValueError as error:
         print(error, file=sys.stderr)
         return 2

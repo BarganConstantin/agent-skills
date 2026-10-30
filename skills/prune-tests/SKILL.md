@@ -1,6 +1,6 @@
 ---
 name: prune-tests
-description: "Find the tests an existing suite can lose — duplicates of a stronger test, tests that cannot fail, tests that restate the implementation or only check a mock, trivia, parameter copies that belong in one data-driven test — with evidence for every verdict, and delete or merge only the rows the user approves. Best on a branch's new tests (--changed). Read-only report first; a large scope starts with a probe that measures tokens, time and yield and asks whether the full run is worth it; optional mutation-testing proof. Use when the user says 'prune tests', 'find redundant tests', 'too many tests', 'which tests can we delete', 'remove useless tests', 'test slop', 'clean up AI-written tests', 'dedupe the tests', 'curăță testele', 'teste inutile'. First-class for .NET (xUnit, NUnit, MSTest); the method works for any stack. Not for finding coverage gaps or writing new tests."
+description: "Find the tests an existing suite can lose — duplicates of a stronger test, tests that cannot fail, tests that restate the implementation or only check a mock, trivia, parameter copies that belong in one data-driven test — with evidence for every verdict, and delete or merge only the rows the user approves. Best on a branch's new tests (--changed) or on one author's tests (--author). Read-only report first; a large scope starts with a probe that measures tokens, time and yield and asks whether the full run is worth it; optional mutation-testing proof. Use when the user says 'prune tests', 'find redundant tests', 'too many tests', 'which tests can we delete', 'remove useless tests', 'test slop', 'clean up AI-written tests', 'dedupe the tests', 'curăță testele', 'teste inutile'. First-class for .NET (xUnit, NUnit, MSTest); the method works for any stack. Not for finding coverage gaps or writing new tests."
 license: MIT
 compatibility: Any coding agent with repository access; parallel subagents recommended for the review step. Python 3.10+ (standard library only) for the helper scripts; the .NET SDK to run tests; Stryker.NET only for the optional mutation proof. No network or MCP required.
 ---
@@ -40,6 +40,12 @@ deletion count.
   before they merge, at a few dozen tests a time, instead of cleaning a large suite afterwards.
   Do not take whole changed files instead: on one suite, 17 merged branches touched 910 test
   methods in files that held 3,005, so whole files cost about three times as much.
+- `--author <pattern>`: only the test methods whose declaration line `git blame` gives to an
+  author whose `name <email>` matches the pattern (a case-insensitive regular expression), for
+  example "the tests I wrote" or the account an AI agent commits under. The other tests of the
+  same files become sibling tests, as with `--changed`, and the two options combine. It reads
+  who declared the test, not who last touched it: an edit to the body does not move the test to
+  another author. Use it when the user names an author instead of a branch.
 - `--proof`: add the mutation-testing evidence step (step 4). Slow: plan hours per large
   project for .NET.
 - `apply`: continue an existing report at step 8, after the user approved rows.
@@ -82,8 +88,9 @@ The report steps (1 to 7) are read-only and may run on any branch with any worki
 ### 1. Inventory
 
 List every test method in scope with its file, line, name and number of data rows. For C#, run
-`python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --list`, with `--changed <base>` when the
-run has it. For other stacks, take the tests inside the diff's hunks. For each test file, name the
+`python3 <skill-dir>/scripts/scan_cs_tests.py <scope> --list`, with `--changed <base>` or
+`--author <pattern>` when the run has them. For other stacks, take the tests inside the diff's
+hunks, or the tests whose declaration `git blame` gives to the author. For each test file, name the
 production subject it exercises (the class under test). Then list the sibling tests: tests
 elsewhere that reference the subject, **and tests of the subject's direct callers**, because the
 stronger twin of a unit test often sits one level up, for example in a handler's test or an
@@ -99,7 +106,7 @@ subject's tests by test class only above about 90 methods. Write `inventory.md`.
 ### 2. Cheap pre-scan
 
 For C#, run `python3 <skill-dir>/scripts/scan_cs_tests.py <scope> > <work>/prescan.md` (adding
-`--changed <base>` when the run has it), then the
+`--changed <base>` or `--author <pattern>` when the run has them), then the
 analyzer check in `references/dotnet.md`. The scan lists skipped tests, tests with no assertion
 (following helpers), constant assertions, identical tests, tests with the same code but different
 data, and stub-and-verify of the same member. For other stacks, do the same checks with search

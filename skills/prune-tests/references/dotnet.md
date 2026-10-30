@@ -80,6 +80,18 @@ The scan keeps the test methods whose lines `git diff <base>...HEAD` touches. Th
 those files stay only inside the duplicate groups, so a new test that copies an old one is listed
 next to the old one. A bad `<base>` stops the scan with git's error, never with an empty scope.
 
+For `--author <pattern>`, give the test root as the scope in the same way:
+
+```bash
+python3 <skill-dir>/scripts/scan_cs_tests.py <test root> --author '<name or email>' --folders
+python3 <skill-dir>/scripts/scan_cs_tests.py <test root> --author '<name or email>' --list
+```
+
+The scan runs `git blame` on every test file in scope and keeps the test methods whose declaration
+line comes from a matching author; lines nobody has committed yet match no author. Blame costs
+about a second per ten files, so start with `--folders` to choose a probe. A bad pattern stops the
+scan with an error, never with an empty scope.
+
 The `xunit.analyzers` package (shipped with `xunit`) reports two more candidates during a build:
 `xUnit1025` (duplicate `InlineData` rows) and `xUnit1026` (a theory parameter the test never uses,
 so the rows differ in something the test does not check):

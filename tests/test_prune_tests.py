@@ -485,6 +485,101 @@ class ChangedSinceTests(unittest.TestCase):
             scanner.scan(str(self.root), "no-such-ref")
 
 
+ANA_WROTE = """public class CartTests
+{
+    [Fact]
+    public void Adds()
+    {
+        Assert.Equal(2, Cart.Add(1, 1));
+    }
+
+    [Fact]
+    public void Empties() => Assert.Empty(Cart.Clear());
+}
+"""
+
+BOB_EDITED = """public class CartTests
+{
+    [Fact]
+    public void Adds()
+    {
+        Assert.Equal(2, Cart.Add(1, 1, rounding: true));
+    }
+
+    [Fact]
+    public void Empties() => Assert.Empty(Cart.Clear());
+
+    [Fact]
+    public void AddsAgain() => Assert.Equal(2, Cart.Add(1, 1));
+}
+"""
+
+BOB_FILE = """public class BobTests
+{
+    [Fact]
+    public void Multiplies() => Assert.Equal(6, Calculator.Multiply(2, 3));
+}
+"""
+
+
+class AuthorScopeTests(unittest.TestCase):
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.root = pathlib.Path(self.directory.name)
+        self.git("init", "-q", "-b", "main")
+        (self.root / "CartTests.cs").write_text(ANA_WROTE, encoding="utf-8")
+        self.commit("Ana", "ana@example.com")
+        (self.root / "CartTests.cs").write_text(BOB_EDITED, encoding="utf-8")
+        (self.root / "BobTests.cs").write_text(BOB_FILE, encoding="utf-8")
+        self.commit("Bob", "bob@example.com")
+
+    def tearDown(self):
+        self.directory.cleanup()
+
+    def git(self, *arguments):
+        subprocess.run(["git", "-C", str(self.root), *arguments], check=True, capture_output=True)
+
+    def commit(self, name, email):
+        self.git("add", "-A")
+        self.git("-c", f"user.name={name}", "-c", f"user.email={email}", "commit", "-q", "-m", name)
+
+    def names(self, result):
+        return sorted(row["test"].rsplit(" ", 1)[1] for row in result["inventory"])
+
+    def test_only_the_tests_the_author_declared_are_in_scope(self):
+        result = scanner.scan(str(self.root), author="ana")
+        self.assertEqual(["Adds", "Empties"], self.names(result))
+        self.assertEqual(1, result["files"])
+        self.assertEqual(1, result["context_tests"])
+
+    def test_an_edit_to_the_body_does_not_change_who_wrote_the_test(self):
+        result = scanner.scan(str(self.root), author="bob")
+        self.assertEqual(["AddsAgain", "Multiplies"], self.names(result))
+
+    def test_the_pattern_matches_the_email_too(self):
+        result = scanner.scan(str(self.root), author="bob@example")
+        self.assertEqual(["AddsAgain", "Multiplies"], self.names(result))
+
+    def test_the_author_and_the_changed_filters_both_apply(self):
+        result = scanner.scan(str(self.root), "HEAD~1", author="ana")
+        self.assertEqual(["Adds"], self.names(result))
+
+    def test_a_test_nobody_committed_yet_is_not_in_scope(self):
+        (self.root / "CartTests.cs").write_text(
+            BOB_EDITED.replace("}\n}\n", "}\n\n    [Fact]\n    public void Drafted() => Assert.True(Cart.Ready());\n}\n"),
+            encoding="utf-8")
+        result = scanner.scan(str(self.root), author="bob")
+        self.assertEqual(["AddsAgain", "Multiplies"], self.names(result))
+
+    def test_the_scope_line_names_the_author(self):
+        result = scanner.scan(str(self.root), author="ana")
+        self.assertIn("written by authors matching 'ana'", scanner.scope_line(result))
+
+    def test_a_bad_pattern_is_an_error_not_an_empty_scope(self):
+        with self.assertRaisesRegex(ValueError, "--author"):
+            scanner.scan(str(self.root), author="(")
+
+
 class SystematicSampleTests(unittest.TestCase):
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
