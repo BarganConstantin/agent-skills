@@ -120,7 +120,7 @@ written. Measure it on a sample before spending the full amount.
    does not, because the pre-scan's candidates rarely become deletions (on one suite, none of 16
    confirmed deletions was a pre-scan candidate). When the user names an area to try first,
    sample that area instead. Say which files and why, and what the probe will cost before it
-   starts: on one C# suite, six probes cost 1.7k to 6.6k tokens per test method, and 5 to 16
+   starts: on one C# suite, ten probes cost 1.7k to 6.6k tokens per test method, and 5 to 16
    minutes per reviewer. The cost rises with the number of places a behaviour can be tested from:
    code reached from several surfaces sends the reviewers through every surface's tests.
 2. **Run steps 5 to 7 on the probe only** (step 4 as well when `--proof` is on).
@@ -140,7 +140,7 @@ written. Measure it on a sample before spending the full amount.
    | Data rows removed | r | r / n × N |
    | Lines removed | l | the same ratio as the rows |
 
-   The yield estimate is rough: the share varies by area (on one suite, six areas gave from 0.5%
+   The yield estimate is rough: the share varies by area (on one suite, ten areas gave from 0.5%
    to 6.5% of their test methods at high confidence). Give the cost in tokens; convert it to money only with the user's own price per token.
 5. **Recommend and ask.** Point to one of three roads and say why the numbers point there:
    - **Continue on the whole scope**: the probe removed a real share, about 5% of its test methods or

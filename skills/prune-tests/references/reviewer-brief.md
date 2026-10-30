@@ -55,4 +55,5 @@ fixtures or production seams that only DELETE rows use (or `none`).
 - For MERGE rows, give every member of the group the same group label in the evidence, for
   example `group G1 with Tests.cs:40, Tests.cs:52`.
 - For DU and LR rows, the evidence starts with the witness: `witness Tests.cs:88 — same input class, stronger assertion (checks rounding too)`.
+- When each data row of a test has its own witness, name them row by row: `witness per row: [row 1] Tests.cs:36, [row 2] Tests.cs:51 — …`, and say whether the rows are written out by hand or read from the production set.
 - Keep each cell short. Quote code only where the evidence rules ask for a quote.

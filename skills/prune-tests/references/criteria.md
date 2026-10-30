@@ -52,13 +52,29 @@ candidate; then it names the candidate's class and says why it stays.
 
 - **DU, LR**: cite the witness test as `file:line` and say what makes it at least as strong: the
   same class of input, the same or a stronger assertion, the same or a stronger boundary.
-  The witness must be KEEP after reconcile. Three limits:
-  - **One witness.** Coverage spread over several tests ("A pins the name, B the surface, C the
-    scope") is not a witness. Such a row is KEEP, or medium confidence at most.
+  The witness must be KEEP after reconcile. Five limits:
+  - **One witness per case.** Coverage spread over several tests ("A pins the name, B the surface,
+    C the scope") is not a witness. Such a row is KEEP, or medium confidence at most. In a
+    data-driven test each data row is a case: the whole test may go when every row has its own
+    single witness, and the evidence names the witness of each row. This holds only when the rows
+    are written out by hand. Rows read from the production set itself (a member-data source over
+    the table, the enum or the catalogue) also cover the entries added later, and no test of one
+    entry is a witness for them.
+  - **The same arrangement.** The class of input includes what the test sets up around the call:
+    the services registered in the container, configuration and feature flags, the caller. A test
+    that runs one surface while another surface's services are registered, as in production,
+    guards that the two do not leak into each other. A witness that runs without them is a
+    different class: a decision keyed on a registered service passes the witness and fails only
+    this test.
   - **The same entry point.** A test that calls a feature through one entry (an API surface, a
     tool on one channel, one handler) also pins how that entry reads its arguments. A witness
     that enters elsewhere and shares only the core covers the core, not this entry: an argument
     the entry fails to declare or forward passes the witness and fails only this test.
+  - **A rule is not implied by a value.** A test that asserts a property of the output (a legal
+    port and TLS pair, every candidate mirrors the primary) is not a duplicate of an exact-value
+    witness that happens to satisfy it today. When a value changes on purpose, the person updates
+    the exact expectation in the same edit, and only the property test still rejects a value that
+    breaks the rule. It is DU only when the witness asserts the same property.
   - **A snapshot is a weak witness.** Snapshot and approval tests get regenerated when they go
     red, often without reading the change. DU on a snapshot witness is medium confidence at most.
 - **PD**: cite every member of the group, confirm their code differs only in data, and name the
