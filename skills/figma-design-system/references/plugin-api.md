@@ -85,6 +85,18 @@ at `+1560`. Sort state codes as strings: `'' < 'b' < 'c' < 'c2' < 'd' < 'd2'`. W
 move its annotations by the same amount. Place annotations in a row under the frame, at
 `y + height + 32`, 456 apart.
 
+**Prototype.** Wire the flows on the Light frames only. A NAVIGATE action looks like this:
+
+```js
+{ trigger: { type: 'ON_CLICK' }, actions: [{ type: 'NODE', destinationId: dest, navigation: 'NAVIGATE',
+  transition: { type: 'SMART_ANIMATE', easing: { type: 'EASE_OUT' }, duration: 0.24 },
+  resetVideoPosition: false, resetScrollPosition: true }] }
+```
+
+Keep the node's other reactions when you add one, and set them with `await node.setReactionsAsync([...])`.
+A Dark copy made after the wiring carries links into the Light frames. Remove only its `ON_CLICK`
+reactions whose destination is a screen. Never clear all reactions: see the trap below.
+
 **Screenshots.**
 
 1. `get_screenshot` returns a short-lived URL. Download it with `curl -fsSL -o file.png "<url>"`.
@@ -108,3 +120,11 @@ move its annotations by the same amount. Place annotations in a row under the fr
 | `variantOptions` is undefined. | A guessed property name. | Read `componentPropertyDefinitions` first; names are exact, such as `Type` or `Label#30:0`. |
 | "24 h" breaks across two lines on a narrow card. | A normal space. | Use a non-breaking space (` `). |
 | Empty top-level frames pile up at 0,0. | Leftovers from failed clones. | Remove empty, unnamed-purpose frames at the origin during the arrange pass. |
+| A hidden layer inside an instance is missing from `children`, `findOne` and `findAll`. | `figma.skipInvisibleInstanceChildren` is on. | Put `figma.skipInvisibleInstanceChildren = false;` at the top of any script that unhides, counts or sweeps layers. |
+| Reading `.characters` throws "node does not exist" on a text that `findAll` returned. | A stale node inside an instance. | Read it through a guard: `try { return t.characters; } catch (e) { return null; }`. |
+| A NAVIGATE reaction is rejected. | Its destination is the frame that the node sits in. | Skip the link when the node's top-level frame is the destination. |
+| `setCurrentPageAsync` throws. | It was given a frame. | Walk up `parent` until `type === 'PAGE'`. |
+| A search for `State=…` finds no instance on a screen. | An instance of a variant is named after its set ("KPI tile"), not after the variant. | Match the set's name, then read `componentProperties`. |
+| Clearing a copy's reactions also removed every hover and press state. | An instance's `reactions` include the component's own interactions. | Remove only screen links. To restore, copy the reactions from `mainComponent`, or from the source node (the last part of an `I…;…` ID). |
+| A colour sweep reports hundreds of hard-coded colours. | The brand kit's logo and mascot keep their own colours. | Exclude instances of the brand components, and say so in the record. |
+| A text-style sweep flags a text with `figma.mixed`. | Two styles in one text, such as body and mono. | Check `getStyledTextSegments(['textStyleId'])`: each segment must have a style. |
