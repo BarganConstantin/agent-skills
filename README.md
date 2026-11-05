@@ -8,6 +8,7 @@ Agent Skills for Claude Code, Codex and other agents that read `SKILL.md`.
 | [reference-library](skills/reference-library/SKILL.md) | Offline catalog of saved projects and references. [Browse](docs/library.md). | Python 3.10+ |
 | [prune-tests](skills/prune-tests/SKILL.md) | Finds redundant tests and removes only the ones you approve. .NET first. | Python 3.10+, .NET SDK |
 | [compass](skills/compass/SKILL.md) | Says in about 150 words where a session stands and what comes next, from the chat, git, the merge request and Jira. Read-only. | Python 3.10+, git |
+| [figma-design-system](skills/figma-design-system/SKILL.md) | Designs a product's whole UI in Figma before code: tokens, components, every state in Light and Dark, an independent critique and a visual check. | Figma MCP |
 
 ## Install
 
@@ -18,6 +19,7 @@ npx skills add BarganConstantin/agent-skills --skill first-user-audit
 npx skills add BarganConstantin/agent-skills --skill reference-library
 npx skills add BarganConstantin/agent-skills --skill prune-tests
 npx skills add BarganConstantin/agent-skills --skill compass
+npx skills add BarganConstantin/agent-skills --skill figma-design-system
 ```
 
 Or copy `skills/<name>/` into `~/.claude/skills/` or `.agents/skills/`.
