@@ -27,15 +27,19 @@ class ReferenceLibraryTests(unittest.TestCase):
         self.assertTrue({"hallmark", "ai-design-skills", "microsoft-aspire", "microsoft-agent-framework", "oasdiff", "playwright-mcp", "playwright-cli", "superpowers", "spec-kit"}.issubset(set(entries)))
         self.assertEqual(entries["hallmark"]["url"], "https://github.com/Nutlope/hallmark")
         self.assertEqual(entries["ai-design-skills"]["url"], "https://github.com/elayadesign/ai-design-skills")
+        self.assertEqual(entries["astryx"]["url"], "https://astryx.atmeta.com/components")
+        self.assertEqual(entries["21st-dev"]["url"], "https://21st.dev/")
         first_batch = {"hallmark", "ai-design-skills", "microsoft-aspire", "microsoft-agent-framework", "oasdiff", "playwright-mcp", "playwright-cli", "superpowers", "spec-kit"}
         for item in entries.values():
-            self.assertIn(item["license"], ("MIT", "Apache-2.0"))
+            self.assertIn(item["license"], ("MIT", "Apache-2.0", "Per-item licenses; platform terms"))
             self.assertEqual(item["status"], "reference-only")
             reviewed = date.fromisoformat(item["reviewed_at"])
             if item["id"] in first_batch:
                 self.assertEqual(date(2026, 10, 27), reviewed)
             self.assertGreater(len(item["look_for"]), 0)
-            self.assertIn("github.com", item["license_source"])
+            self.assertTrue(item["license_source"].startswith("https://"))
+            if item["id"] == "21st-dev":
+                self.assertEqual(item["license_source"], "https://21st.dev/terms")
             self.assertGreaterEqual(len(item["categories"]), 1)
             self.assertTrue(item["summary"])
 
@@ -52,7 +56,7 @@ class ReferenceLibraryTests(unittest.TestCase):
 
     def test_romanian_task_search_finds_saved_design_entries(self):
         found = library.search(self.data, "design interfata pagina", 5)
-        self.assertEqual({item["id"] for item in found}, {"hallmark", "ai-design-skills"})
+        self.assertEqual({item["id"] for item in found}, {"hallmark", "ai-design-skills", "astryx", "21st-dev"})
 
     def test_unrelated_query_returns_no_invented_references(self):
         self.assertEqual(library.search(self.data, "dental insurance tax forms", 5), [])
@@ -121,7 +125,7 @@ class ReferenceLibraryTests(unittest.TestCase):
             matches = library.browse(self.data, key)
             self.assertGreater(len(matches), 0)
             self.assertTrue(all(key in e["categories"] for e in matches))
-            self.assertTrue(all(e["url"].startswith("https://github.com/") for e in matches))
+            self.assertTrue(all(e["url"].startswith("https://") for e in matches))
             self.assertTrue(all(e["summary"] and e["use_when"] for e in matches))
         self.assertEqual(len(library.browse(self.data, None)), len(self.data["entries"]))
 
