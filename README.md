@@ -2,14 +2,25 @@
 
 Agent Skills for Claude Code, Codex and other agents that read `SKILL.md`.
 
-| Skill | What it does | Needs |
+## Start here
+
+- **Give your agent a workflow:** choose an [installable skill](#installable-skills) below.
+- **Find a saved tool, component library or design reference:** [browse the Reference Library](docs/library.md).
+- **Unsure what to choose:** use the [task guide](docs/choose-by-task.md), with examples of what to ask your agent.
+
+Skills are instructions you install and invoke. Library entries are bookmarks with
+use cases and caveats; saving a link does not install its project.
+
+## Installable skills
+
+| Skill | Use it when… | Needs |
 |---|---|---|
 | [first-user-audit](skills/first-user-audit/SKILL.md) | Walks a local web app to a first success in a real browser and records reproducible problems. Never on production. | browser MCP, Python 3.10+ |
 | [reference-library](skills/reference-library/SKILL.md) | Offline catalog of saved projects and references. [Browse](docs/library.md). | Python 3.10+ |
 | [prune-tests](skills/prune-tests/SKILL.md) | Finds redundant tests and removes only the ones you approve. .NET first. | Python 3.10+, .NET SDK |
-| [compass](skills/compass/SKILL.md) | Says in about 150 words where a session stands and what comes next, from the chat, git, the merge request and Jira. Read-only. | Python 3.10+, git |
-| [figma-design-system](skills/figma-design-system/SKILL.md) | Designs a product's whole UI in Figma before code: tokens, components, every state in Light and Dark, an independent critique and a visual check. | Figma MCP |
-| [socratic-tutor](skills/socratic-tutor/SKILL.md) | Jane Street's Socratic tutor: one question at a time, diagnostic placement, a skill map, spaced review and a final assessment. [Source and MIT license](skills/socratic-tutor/UPSTREAM.md). | No extra tools |
+| [compass](skills/compass/SKILL.md) | Resume a session: current state, completed work and next step. Read-only. | Python 3.10+, git |
+| [figma-design-system](skills/figma-design-system/SKILL.md) | Design tokens, components and states in Figma before code. | Figma MCP |
+| [socratic-tutor](skills/socratic-tutor/SKILL.md) | Learn through questions, practice and progress checks. [Source and MIT license](skills/socratic-tutor/UPSTREAM.md). | No extra tools |
 
 ## Install
 
@@ -26,17 +37,19 @@ npx skills add BarganConstantin/agent-skills --skill socratic-tutor
 
 Or copy `skills/<name>/` into `~/.claude/skills/` or `.agents/skills/`.
 
-## Skills library
+## Saved tools and references
 
-Skills by other authors worth reusing. The full catalog, with tools and MCP servers, is in
-[docs/library.md](docs/library.md).
+[Browse all saved sources by area](docs/library.md) or use the
+[task guide](docs/choose-by-task.md). The library covers UI/UX, Backend/API,
+Code Review, Testing/QA and Agent Workflows.
 
-| Skill | What it does | Author |
-|---|---|---|
-| [HeroUI React](https://heroui.com/en/docs/react/getting-started/agent-skills) | Builds React UIs with HeroUI v3 components, theming and docs lookup. | heroui-inc |
-| [Hallmark](https://github.com/Nutlope/hallmark) | Distinctive interface design, themes and responsive audits. | Nutlope |
-| [AI Design Skills](https://github.com/elayadesign/ai-design-skills) | Landing-page copy, visual systems and motion showcases. | elayadesign |
-| [Superpowers](https://github.com/obra/superpowers) | Planning, test-driven work, debugging and verification workflows. | obra |
+Astryx and HeroUI cover React component systems; 21st.dev helps discover UI
+examples and templates. Each library entry explains when it helps and records
+prerequisites and licensing notes.
+
+For offline search, open `docs/library-explorer.html` after cloning this repo.
+GitHub shows HTML source, not the running explorer. Installed catalogs are
+snapshots; they do not sync automatically.
 
 [Install check](.github/workflows/public-install.yml) ·
 [Practice app](docs/practice-lab.md) ·
