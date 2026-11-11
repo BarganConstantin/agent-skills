@@ -480,6 +480,46 @@
         "ui-ux"
       ],
       "summary": "A marketplace for discovering UI components, themes and templates, with visual references and workflows for coding agents."
+    },
+    {
+      "id": "shadcn-ui",
+      "name": "shadcn/ui",
+      "url": "https://ui.shadcn.com/docs/components",
+      "owner": "shadcn-ui",
+      "type": "ui-component-code-distribution",
+      "license": "MIT",
+      "license_source": "https://github.com/shadcn-ui/ui/blob/main/LICENSE.md",
+      "reviewed_at": "2026-11-11",
+      "status": "reference-only",
+      "tags": [
+        "ui",
+        "frontend",
+        "react",
+        "components",
+        "design-system",
+        "themes",
+        "registry",
+        "cli",
+        "component-source",
+        "tailwind"
+      ],
+      "use_when": "Building a custom component system when you want the editable component source in your own project, with documented primitives and a consistent composition approach.",
+      "look_for": [
+        "Official component examples and installation instructions: https://ui.shadcn.com/docs/components",
+        "Editable component source, composable APIs and theme customization",
+        "Registry and CLI workflows for distributing selected components",
+        "Original source repository: https://github.com/shadcn-ui/ui"
+      ],
+      "cautions": [
+        "Adopting editable source means maintaining local changes and deliberately reviewing upstream updates.",
+        "Check the current framework, styling and primitive dependencies for the selected component and installation path.",
+        "The upstream MIT license does not automatically cover unrelated third-party registry items, assets or dependencies; verify their own notices.",
+        "Reference only: no components, CLI, registry items or agent skills are installed by saving this link."
+      ],
+      "categories": [
+        "ui-ux"
+      ],
+      "summary": "Editable UI component source and a distribution workflow for building your own design system, with official examples, theming and registry tooling."
     }
   ],
   "categories": [

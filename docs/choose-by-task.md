@@ -31,6 +31,7 @@ They are not included as installed dependencies in this repository.
 | Decision | Use | Why / boundary |
 |---|---|---|
 | Choose a React component system | [Astryx](https://astryx.atmeta.com/components), [HeroUI](https://heroui.com/en/docs/react/getting-started/agent-skills) | Evaluate components, themes and framework compatibility before adopting one. |
+| Own and customize component source | [shadcn/ui](https://ui.shadcn.com/docs/components) | Build your own component system from editable source; maintain local changes and review upstream updates deliberately. |
 | Find a visual example or template | [21st.dev](https://21st.dev/) | Browse for a specific interaction or page; check each item’s rights and dependencies before copying. |
 | Improve visual direction and page composition | [Hallmark](https://github.com/Nutlope/hallmark), [AI Design Skills](https://github.com/elayadesign/ai-design-skills) | Design guidance and workflows, rather than a replacement for your existing component API. |
 | Compose and inspect local services | [Aspire](https://github.com/microsoft/aspire) | Distributed app development and observability. |
