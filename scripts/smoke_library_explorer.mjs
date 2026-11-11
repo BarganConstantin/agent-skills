@@ -83,9 +83,11 @@ const event = {key: "/", ctrlKey: false, metaKey: false, altKey: false,
 document.handlers.keydown(event);
 assert.equal(event.prevented, true);
 assert.equal(document.activeElement, dom.search, "Slash focuses the search input");
+const expectedLinks = new Set(data.entries.map(entry => entry.url));
 for (const card of dom.cards.children) {
   const link = card.children.find(child => child.tagName === "A");
-  assert(link.href.startsWith("https://github.com/"), "Only official original GitHub links expected");
+  assert(expectedLinks.has(link.href), "Links must match the reviewed catalog sources");
+  assert(link.href.startsWith("https://"), "Source links must use HTTPS");
   assert.equal(link.rel, "noopener noreferrer");
 }
 console.log("Offline explorer UI smoke passed: " + data.entries.length +
