@@ -13,13 +13,13 @@ Clone the repository, then **open `docs/library-explorer.html` in your web brows
 <!-- BEGIN GENERATED LIBRARY — edit catalog.json, not this section -->
 ## Browse by area
 
-[**UI / UX**](#ui--ux) · 3 references
+[**UI / UX**](#ui--ux) · 5 references
 [**Backend / API**](#backend--api) · 3 references
 [**Code Review**](#code-review) · 3 references
 [**Testing / QA**](#testing--qa) · 3 references
 [**Agent Workflows**](#agent-workflows) · 3 references
 
-> **10 unique sources** · 15 category placements. A project may appear in more than one section without being duplicated in the catalog. New unreviewed bookmarks are collected in the Inbox.
+> **12 unique sources** · 17 category placements. A project may appear in more than one section without being duplicated in the catalog. New unreviewed bookmarks are collected in the Inbox.
 
 ## Explore saved projects
 
@@ -32,6 +32,8 @@ Interfaces, visual systems, motion and meaningful first impressions.
 | **[Hallmark](https://github.com/Nutlope/hallmark)** | Distinctive interface design, design themes, responsive audits and avoiding generic AI-looking layouts. | Building or reviewing distinctive landing pages, web UI and visual systems; avoiding generic AI-looking layouts and checking responsive quality. | [MIT](https://github.com/Nutlope/hallmark/blob/main/LICENSE) |
 | **[AI Design Skills (Elaya)](https://github.com/elayadesign/ai-design-skills)** | Landing-page content and visual systems, plus animation/motion showcase workflows. | Planning a landing page from the audience and conversion goal, choosing a visual system, or producing motion demonstrations of an existing design. | [MIT](https://github.com/elayadesign/ai-design-skills/blob/main/LICENSE) |
 | **[HeroUI React skill](https://github.com/heroui-inc/heroui/tree/v3/skills/heroui-react)** | Agent skill for building React UIs with HeroUI v3 components, theming and component docs lookup. | Building React interfaces with HeroUI v3: choosing components, reading their props and examples, and setting up themes and dark mode. | [Apache-2.0](https://github.com/heroui-inc/heroui/blob/v3/skills/heroui-react/LICENSE.txt) |
+| **[Astryx](https://astryx.atmeta.com/components)** | Meta’s customizable React design system with composable components, theme tokens, prebuilt CSS and agent-oriented documentation and CLI tooling. | Evaluating a customizable React design system, reusable UI components, themes and documented patterns that people and coding agents can use together. | [MIT](https://github.com/meta/astryx/blob/main/LICENSE) |
+| **[21st.dev](https://21st.dev/)** | A marketplace for discovering UI components, themes and templates, with visual references and workflows for coding agents. | Browsing visual references, React component examples, themes and page templates before choosing an approach for a web interface. | [Per-item licenses; platform terms](https://21st.dev/terms) |
 
 ### Backend / API
 

@@ -396,6 +396,90 @@
         "ui-ux"
       ],
       "summary": "Agent skill for building React UIs with HeroUI v3 components, theming and component docs lookup."
+    },
+    {
+      "id": "astryx",
+      "name": "Astryx",
+      "url": "https://astryx.atmeta.com/components",
+      "owner": "meta",
+      "type": "react-design-system",
+      "license": "MIT",
+      "license_source": "https://github.com/meta/astryx/blob/main/LICENSE",
+      "reviewed_at": "2026-11-11",
+      "status": "reference-only",
+      "tags": [
+        "design-system",
+        "react",
+        "typescript",
+        "ui",
+        "frontend",
+        "components",
+        "themes",
+        "dark-mode",
+        "css",
+        "stylex",
+        "accessibility",
+        "cli",
+        "agent-ready",
+        "interfata"
+      ],
+      "use_when": "Evaluating a customizable React design system, reusable UI components, themes and documented patterns that people and coding agents can use together.",
+      "look_for": [
+        "Official component gallery with examples by category: https://astryx.atmeta.com/components",
+        "Composable typed React components and documented interaction patterns",
+        "Theme customization through CSS custom properties and prebuilt CSS",
+        "CLI guidance for component documentation, templates, scaffolding and themes",
+        "Source repository and setup: https://github.com/meta/astryx"
+      ],
+      "cautions": [
+        "Upstream currently labels Astryx beta and requires React 19 or later; verify compatibility and current package APIs before adoption.",
+        "StyleX is used internally; consult current setup and peer dependencies instead of assuming a drop-in replacement for an existing component library.",
+        "The lab package is not published; chart packages are canary-only at the review date. Verify package availability before depending on them.",
+        "Saved as a reference only: no Astryx packages, CLI or agent plugins are installed, and upstream accessibility claims have not been independently tested here."
+      ],
+      "categories": [
+        "ui-ux"
+      ],
+      "summary": "Meta’s customizable React design system with composable components, theme tokens, prebuilt CSS and agent-oriented documentation and CLI tooling."
+    },
+    {
+      "id": "21st-dev",
+      "name": "21st.dev",
+      "url": "https://21st.dev/",
+      "owner": "21st Labs Inc. and individual creators",
+      "type": "ui-component-marketplace",
+      "license": "Per-item licenses; platform terms",
+      "license_source": "https://21st.dev/terms",
+      "reviewed_at": "2026-11-11",
+      "status": "reference-only",
+      "tags": [
+        "ui",
+        "frontend",
+        "react",
+        "components",
+        "templates",
+        "themes",
+        "design-inspiration",
+        "animation",
+        "landing-page",
+        "agent-prompts"
+      ],
+      "use_when": "Browsing visual references, React component examples, themes and page templates before choosing an approach for a web interface.",
+      "look_for": [
+        "Component and template discovery organized by UI purpose",
+        "Visual examples for navigation, cards, inputs and animated sections",
+        "Creator-authored components and prompts for implementing selected UI ideas"
+      ],
+      "cautions": [
+        "Marketplace content does not share one blanket open-source license; check each item and its original author before reuse.",
+        "Platform terms distinguish underlying component code from preview media and metadata; bookmarking does not grant redistribution rights.",
+        "Some features or items may require an account or paid plan; check current access terms.",
+        "Reference only: no component source, previews, media or catalog metadata are mirrored, and no CLI, MCP or dependency is installed."
+      ],
+      "categories": [
+        "ui-ux"
+      ],
+      "summary": "A marketplace for discovering UI components, themes and templates, with visual references and workflows for coding agents."
     }
   ],
   "categories": [
