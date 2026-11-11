@@ -1,12 +1,29 @@
 # Reference Library
 
-**A handpicked shelf of useful developer projects.** Start with the kind of work you're doing—not a wall of links. Every entry leads to its **original GitHub repository**, explains *when it helps*, and records a reviewed license. Nothing is copied or installed just by being listed.
+**A handpicked shelf of useful developer projects.** Start with the kind of work you're doing—not a wall of links. Every entry leads to its **official source site or repository**, explains *when it helps*, and records a reviewed license. Nothing is copied or installed just by being listed.
 
 *The public gallery and offline explorer are generated from [the canonical catalog](../skills/reference-library/references/catalog.json). After editing the catalog, run `python scripts/render_library.py --write`; CI checks both views for drift. The visuals are static-first, with optional finite animation.*
 
 ### Prefer interactive browsing?
 
-Clone the repository, then **open `docs/library-explorer.html` in your web browser** (double-click the file, or use `open` / `xdg-open`). It works offline with no server, package installation or account: search by task, select a category, inspect original GitHub links and clear the filters. [View the generated HTML file](library-explorer.html) — note that GitHub's code viewer displays HTML source rather than running the page. The page contacts no services while filtering; clicking an original repository link opens GitHub.
+Clone the repository, then **open `docs/library-explorer.html` in your web browser** (double-click the file, or use `open` / `xdg-open`). It works offline with no server, package installation or account: search by task, select a category, inspect original source links and clear the filters. [View the generated HTML file](library-explorer.html) — note that GitHub's code viewer displays HTML source rather than running the page. The page contacts no services while filtering; clicking a source link opens its official website or repository.
+
+## Choose by task
+
+| What you need now | Start with | What to check |
+|---|---|---|
+| A React component system and consistent themes | [Astryx components](https://astryx.atmeta.com/components) or [HeroUI](https://heroui.com/en/docs/react/getting-started/agent-skills) | Framework version, setup, component API and license. Astryx is beta and requires React 19+. |
+| Visual examples or a specific component/template | [21st.dev](https://21st.dev/) | Item-specific license, dependencies and platform terms; preview media is separate from code. |
+| A stronger visual direction or landing page | [Hallmark](https://github.com/Nutlope/hallmark) or [AI Design Skills](https://github.com/elayadesign/ai-design-skills) | Fit with the existing product and available browser tools. |
+| Local distributed services and observability | [Backend / API](#backend--api): Aspire | Whether its app model fits your existing services. |
+| Backend agents and orchestration | [Backend / API](#backend--api): Microsoft Agent Framework | Runtime, hosting model and integration requirements. |
+| Breaking API changes | [Code Review](#code-review): oasdiff | The actual old/new OpenAPI specifications. |
+| Browser testing or reproduction | [Testing / QA](#testing--qa): Playwright MCP or CLI | Browser access and an isolated test environment. |
+| A repeatable agent development workflow | [Agent Workflows](#agent-workflows): Superpowers or Spec Kit | Which workflow fits the task and what tools it requires. |
+
+Need an installable skill instead? See the [task guide](choose-by-task.md)
+for audit, test cleanup, orientation, Figma design and tutoring.
+The sections below contain the full saved notes. Nothing here installs itself.
 
 <p align="center"><img src="../assets/library-map.svg" alt="Five library categories: UI/UX, Backend/API, Code Review, Testing/QA and Agent Workflows, shown in a subtly animated developer workbench." width="100%" /></p>
 
@@ -104,12 +121,12 @@ python skills/reference-library/scripts/library.py add --id example-tool \
   --use-when "Check versioned API changes"
 ```
 
-Add `--write` only when intentionally saving into a *local* catalog. To keep it permanently in this public collection, the canonical catalog must be updated in an approved branch and merged. Installed copies do **not** sync automatically. If you're unsure which category applies, omit `--categories` and it enters the private-context **Inbox** for review; unverified new entries are not endorsements.
+Add `--write` only when intentionally saving into a *local* catalog. To keep it permanently in this public collection, the canonical catalog must be updated in an approved branch and merged. Installed copies do **not** sync automatically. If you're unsure which category applies, omit `--categories` and it enters the catalog’s **Inbox** for review; unverified new entries are not endorsements.
 
 ## Source and safety standards
 
-- **Reviewed:** 27 October 2026. License information reflects repository metadata and available upstream license files at that time; upstream behavior and licenses may change.
-- **MIT and Apache-2.0 are not interchangeable.** Links require no copying, but substantial code/assets reuse may require preserving notices and other license conditions. Image and font assets can have separate licenses.
+- **Review dates are per entry:** inspect the catalog or explorer for each source’s `reviewed_at` date. Notes describe the source at that date; behavior and licenses may change.
+- **Licenses differ by source and sometimes by item.** 21st.dev is a marketplace governed by platform terms and individual licenses, not a blanket MIT collection. Links require no copying, but substantial code/assets reuse may require preserving notices and other license conditions. Image and font assets can have separate licenses.
 - **Reference-only:** bookmarking doesn't install a skill, run its scripts, grant tool permissions, or prove effectiveness.
 - **Use with intent:** compare the task with the original upstream README, check prerequisites and safety, and choose whether to learn from an idea or adopt a dependency.
 - **Do not invent usage evidence:** GitHub stars are not stored in the catalog and a saved project is not automatically recommended or loaded by every agent client.
