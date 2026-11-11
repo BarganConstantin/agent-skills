@@ -8,8 +8,7 @@ Agent Skills for Claude Code, Codex and other agents that read `SKILL.md`.
 - **Find a saved tool, component library or design reference:** [browse the Reference Library](docs/library.md).
 - **Unsure what to choose:** use the [task guide](docs/choose-by-task.md), with examples of what to ask your agent.
 
-Skills are instructions you install and invoke. Library entries are bookmarks with
-use cases and caveats; saving a link does not install its project.
+Skills are installable instructions. Library entries are bookmarks, not installed projects.
 
 ## Installable skills
 
@@ -20,7 +19,7 @@ use cases and caveats; saving a link does not install its project.
 | [prune-tests](skills/prune-tests/SKILL.md) | Finds redundant tests and removes only the ones you approve. .NET first. | Python 3.10+, .NET SDK |
 | [compass](skills/compass/SKILL.md) | Resume a session: current state, completed work and next step. Read-only. | Python 3.10+, git |
 | [figma-design-system](skills/figma-design-system/SKILL.md) | Design tokens, components and states in Figma before code. | Figma MCP |
-| [socratic-tutor](skills/socratic-tutor/SKILL.md) | Learn through questions, practice and progress checks. [Source and MIT license](skills/socratic-tutor/UPSTREAM.md). | No extra tools |
+| [socratic-tutor](skills/socratic-tutor/SKILL.md) | Learn through questions, practice and progress checks. [MIT and source](skills/socratic-tutor/UPSTREAM.md). | No extra tools |
 
 ## Install
 
@@ -47,7 +46,7 @@ Astryx and HeroUI cover React component systems; 21st.dev helps discover UI
 examples and templates. Each library entry explains when it helps and records
 prerequisites and licensing notes.
 
-For offline search, open `docs/library-explorer.html` after cloning this repo.
+Offline search: open `docs/library-explorer.html` after cloning.
 GitHub shows HTML source, not the running explorer. Installed catalogs are
 snapshots; they do not sync automatically.
 
