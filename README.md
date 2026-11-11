@@ -9,6 +9,7 @@ Agent Skills for Claude Code, Codex and other agents that read `SKILL.md`.
 | [prune-tests](skills/prune-tests/SKILL.md) | Finds redundant tests and removes only the ones you approve. .NET first. | Python 3.10+, .NET SDK |
 | [compass](skills/compass/SKILL.md) | Says in about 150 words where a session stands and what comes next, from the chat, git, the merge request and Jira. Read-only. | Python 3.10+, git |
 | [figma-design-system](skills/figma-design-system/SKILL.md) | Designs a product's whole UI in Figma before code: tokens, components, every state in Light and Dark, an independent critique and a visual check. | Figma MCP |
+| [socratic-tutor](skills/socratic-tutor/SKILL.md) | Jane Street's Socratic tutor: one question at a time, diagnostic placement, a skill map, spaced review and a final assessment. [Source and MIT license](skills/socratic-tutor/UPSTREAM.md). | No extra tools |
 
 ## Install
 
@@ -20,6 +21,7 @@ npx skills add BarganConstantin/agent-skills --skill reference-library
 npx skills add BarganConstantin/agent-skills --skill prune-tests
 npx skills add BarganConstantin/agent-skills --skill compass
 npx skills add BarganConstantin/agent-skills --skill figma-design-system
+npx skills add BarganConstantin/agent-skills --skill socratic-tutor
 ```
 
 Or copy `skills/<name>/` into `~/.claude/skills/` or `.agents/skills/`.
