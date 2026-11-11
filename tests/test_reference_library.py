@@ -56,7 +56,7 @@ class ReferenceLibraryTests(unittest.TestCase):
 
     def test_romanian_task_search_finds_saved_design_entries(self):
         found = library.search(self.data, "design interfata pagina", 5)
-        self.assertEqual({item["id"] for item in found}, {"hallmark", "ai-design-skills", "astryx", "21st-dev"})
+        self.assertEqual({item["id"] for item in found}, {"hallmark", "ai-design-skills", "astryx", "21st-dev", "shadcn-ui"})
 
     def test_unrelated_query_returns_no_invented_references(self):
         self.assertEqual(library.search(self.data, "dental insurance tax forms", 5), [])

@@ -13,6 +13,7 @@ Clone the repository, then **open `docs/library-explorer.html` in your web brows
 | What you need now | Start with | What to check |
 |---|---|---|
 | A React component system and consistent themes | [Astryx components](https://astryx.atmeta.com/components) or [HeroUI](https://heroui.com/en/docs/react/getting-started/agent-skills) | Framework version, setup, component API and license. Astryx is beta and requires React 19+. |
+| Editable component source you maintain in your project | [shadcn/ui components](https://ui.shadcn.com/docs/components) | Local customization, dependencies and upstream update maintenance. |
 | Visual examples or a specific component/template | [21st.dev](https://21st.dev/) | Item-specific license, dependencies and platform terms; preview media is separate from code. |
 | A stronger visual direction or landing page | [Hallmark](https://github.com/Nutlope/hallmark) or [AI Design Skills](https://github.com/elayadesign/ai-design-skills) | Fit with the existing product and available browser tools. |
 | Local distributed services and observability | [Backend / API](#backend--api): Aspire | Whether its app model fits your existing services. |
@@ -30,13 +31,13 @@ The sections below contain the full saved notes. Nothing here installs itself.
 <!-- BEGIN GENERATED LIBRARY — edit catalog.json, not this section -->
 ## Browse by area
 
-[**UI / UX**](#ui--ux) · 5 references
+[**UI / UX**](#ui--ux) · 6 references
 [**Backend / API**](#backend--api) · 3 references
 [**Code Review**](#code-review) · 3 references
 [**Testing / QA**](#testing--qa) · 3 references
 [**Agent Workflows**](#agent-workflows) · 3 references
 
-> **12 unique sources** · 17 category placements. A project may appear in more than one section without being duplicated in the catalog. New unreviewed bookmarks are collected in the Inbox.
+> **13 unique sources** · 18 category placements. A project may appear in more than one section without being duplicated in the catalog. New unreviewed bookmarks are collected in the Inbox.
 
 ## Explore saved projects
 
@@ -51,6 +52,7 @@ Interfaces, visual systems, motion and meaningful first impressions.
 | **[HeroUI React skill](https://github.com/heroui-inc/heroui/tree/v3/skills/heroui-react)** | Agent skill for building React UIs with HeroUI v3 components, theming and component docs lookup. | Building React interfaces with HeroUI v3: choosing components, reading their props and examples, and setting up themes and dark mode. | [Apache-2.0](https://github.com/heroui-inc/heroui/blob/v3/skills/heroui-react/LICENSE.txt) |
 | **[Astryx](https://astryx.atmeta.com/components)** | Meta’s customizable React design system with composable components, theme tokens, prebuilt CSS and agent-oriented documentation and CLI tooling. | Evaluating a customizable React design system, reusable UI components, themes and documented patterns that people and coding agents can use together. | [MIT](https://github.com/meta/astryx/blob/main/LICENSE) |
 | **[21st.dev](https://21st.dev/)** | A marketplace for discovering UI components, themes and templates, with visual references and workflows for coding agents. | Browsing visual references, React component examples, themes and page templates before choosing an approach for a web interface. | [Per-item licenses; platform terms](https://21st.dev/terms) |
+| **[shadcn/ui](https://ui.shadcn.com/docs/components)** | Editable UI component source and a distribution workflow for building your own design system, with official examples, theming and registry tooling. | Building a custom component system when you want the editable component source in your own project, with documented primitives and a consistent composition approach. | [MIT](https://github.com/shadcn-ui/ui/blob/main/LICENSE.md) |
 
 ### Backend / API
 
