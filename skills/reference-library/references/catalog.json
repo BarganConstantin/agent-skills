@@ -520,6 +520,46 @@
         "ui-ux"
       ],
       "summary": "Editable UI component source and a distribution workflow for building your own design system, with official examples, theming and registry tooling."
+    },
+    {
+      "id": "designbookmark-motion",
+      "name": "DesignBookmark Motion",
+      "url": "https://designbookmark.com/motion",
+      "owner": "DesignBookmark and linked component authors",
+      "type": "animated-ui-reference-gallery",
+      "license": "Per-item licenses; platform terms",
+      "license_source": "https://designbookmark.com/terms",
+      "reviewed_at": "2026-11-12",
+      "status": "reference-only",
+      "categories": [
+        "ui-ux"
+      ],
+      "summary": "Live animated UI examples with code and coding-agent handoffs for exploring component interactions.",
+      "tags": [
+        "ui",
+        "frontend",
+        "motion",
+        "animation",
+        "microinteractions",
+        "components",
+        "buttons",
+        "inputs",
+        "navigation",
+        "cards",
+        "agent-prompts",
+        "animatie"
+      ],
+      "use_when": "Choosing a concrete animation or interaction for a UI component and showing a coding agent the intended behavior before implementation.",
+      "look_for": [
+        "Live examples grouped into buttons, inputs, navigation, cards, AI and text",
+        "Code-copy and Claude/Codex handoff controls for selected examples",
+        "Original component sources linked for third-party examples"
+      ],
+      "cautions": [
+        "The gallery and directory terms do not establish one open-source license for all component code; verify the original component license and dependencies before copying.",
+        "Examples have not been tested here for keyboard access, reduced motion, performance or framework compatibility.",
+        "Reference only: no component code, preview media, skills or dependencies are installed or mirrored."
+      ]
     }
   ],
   "categories": [
