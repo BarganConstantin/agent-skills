@@ -31,13 +31,13 @@ The sections below contain the full saved notes. Nothing here installs itself.
 <!-- BEGIN GENERATED LIBRARY — edit catalog.json, not this section -->
 ## Browse by area
 
-[**UI / UX**](#ui--ux) · 6 references
+[**UI / UX**](#ui--ux) · 7 references
 [**Backend / API**](#backend--api) · 3 references
 [**Code Review**](#code-review) · 3 references
 [**Testing / QA**](#testing--qa) · 3 references
 [**Agent Workflows**](#agent-workflows) · 3 references
 
-> **13 unique sources** · 18 category placements. A project may appear in more than one section without being duplicated in the catalog. New unreviewed bookmarks are collected in the Inbox.
+> **14 unique sources** · 19 category placements. A project may appear in more than one section without being duplicated in the catalog. New unreviewed bookmarks are collected in the Inbox.
 
 ## Explore saved projects
 
@@ -53,6 +53,7 @@ Interfaces, visual systems, motion and meaningful first impressions.
 | **[Astryx](https://astryx.atmeta.com/components)** | Meta’s customizable React design system with composable components, theme tokens, prebuilt CSS and agent-oriented documentation and CLI tooling. | Evaluating a customizable React design system, reusable UI components, themes and documented patterns that people and coding agents can use together. | [MIT](https://github.com/meta/astryx/blob/main/LICENSE) |
 | **[21st.dev](https://21st.dev/)** | A marketplace for discovering UI components, themes and templates, with visual references and workflows for coding agents. | Browsing visual references, React component examples, themes and page templates before choosing an approach for a web interface. | [Per-item licenses; platform terms](https://21st.dev/terms) |
 | **[shadcn/ui](https://ui.shadcn.com/docs/components)** | Editable UI component source and a distribution workflow for building your own design system, with official examples, theming and registry tooling. | Building a custom component system when you want the editable component source in your own project, with documented primitives and a consistent composition approach. | [MIT](https://github.com/shadcn-ui/ui/blob/main/LICENSE.md) |
+| **[DesignBookmark Motion](https://designbookmark.com/motion)** | Live animated UI examples with code and coding-agent handoffs for exploring component interactions. | Choosing a concrete animation or interaction for a UI component and showing a coding agent the intended behavior before implementation. | [Per-item licenses; platform terms](https://designbookmark.com/terms) |
 
 ### Backend / API
 
