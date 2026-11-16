@@ -17,6 +17,9 @@ script.
 - **Text styles:** use `setTextStyleIdAsync`. The sync setter fails.
 - **Components:** `figma.getLocalComponentsAsync` does not exist. Use
   `page.findAllWithCriteria({ types: ['COMPONENT'] })` or `['COMPONENT_SET']`.
+- **The `figma-use` skill may arrive only as an MCP resource.** Some hosts have no tool that reads MCP
+  resources. Then use a local copy of the skill, such as one in another agent's plugin cache, and say
+  in the record which copy you read.
 
 ## Preamble
 
@@ -71,7 +74,11 @@ To set one span in mono, use `await t.setRangeTextStyleIdAsync(start, end, S['Co
    `x = (W - w) / 2 + s / 2` and `y = (H - h) / 2 - 40`.
 
 For a scrim, use a plain paint with opacity. A paint bound to a variable plus `opacity` rendered
-opaque.
+opaque. When the file has a scrim token whose colour carries its own alpha (such as `overlay/scrim`),
+draw a new rectangle bound to it, with no layer opacity, instead of cloning one.
+
+Never clone a node by an ID you remember without reading its `name`, `type` and size first. An ID
+noted as "the scrim" once turned out to be a whole screen.
 
 **Annotations linked to frames.** Make an instance of the annotation component and fill its text
 property. Then link it to its frame, so that an arrange script can move it with the frame:
@@ -127,4 +134,8 @@ reactions whose destination is a screen. Never clear all reactions: see the trap
 | A search for `State=…` finds no instance on a screen. | An instance of a variant is named after its set ("KPI tile"), not after the variant. | Match the set's name, then read `componentProperties`. |
 | Clearing a copy's reactions also removed every hover and press state. | An instance's `reactions` include the component's own interactions. | Remove only screen links. To restore, copy the reactions from `mainComponent`, or from the source node (the last part of an `I…;…` ID). |
 | A colour sweep reports hundreds of hard-coded colours. | The brand kit's logo and mascot keep their own colours. | Exclude instances of the brand components, and say so in the record. |
+| A script throws on `paddingLeft` and nothing it did is kept. | Padding was set on a TEXT node. | Set padding on the frame around the text. Check `node.type` before you set layout properties. |
+| A `SPACE_BETWEEN` row breaks apart after an insert. | The new child became one more item spaced across the row. | Wrap the new child and its neighbour in an auto-layout frame first, then insert that frame. |
+| `findOne` by a common name ("Actions", "Title") returns the wrong node. | The search reaches into nested instances, such as a hidden frame in the top bar. | Walk the known path from the frame, or search inside the one instance you mean. |
+| A translated text is clipped or wraps out of its box. | The component has a fixed height, and the translation is longer (Romanian runs about a third longer than English). | Make the component hug its content and set long texts to grow in height. Check every translated copy by screenshot. |
 | A text-style sweep flags a text with `figma.mixed`. | Two styles in one text, such as body and mono. | Check `getStyledTextSegments(['textStyleId'])`: each segment must have a style. |
