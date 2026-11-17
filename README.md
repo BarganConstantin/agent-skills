@@ -20,6 +20,7 @@ Skills are installable instructions. Library entries are bookmarks, not installe
 | [compass](skills/compass/SKILL.md) | Resume a session: current state, completed work and next step. Read-only. | Python 3.10+, git |
 | [figma-design-system](skills/figma-design-system/SKILL.md) | Design tokens, components and states in Figma before code. | Figma MCP |
 | [socratic-tutor](skills/socratic-tutor/SKILL.md) | Learn through questions, practice and progress checks. [MIT and source](skills/socratic-tutor/UPSTREAM.md). | No extra tools |
+| [learn-taste](skills/learn-taste/SKILL.md) | Turns the design corrections of a session into written rules with their reason, so the next agent stops repeating them. Run it yourself at the end of a session. [MIT and source](skills/learn-taste/UPSTREAM.md). | No extra tools |
 
 ## Install
 
@@ -32,6 +33,7 @@ npx skills add BarganConstantin/agent-skills --skill prune-tests
 npx skills add BarganConstantin/agent-skills --skill compass
 npx skills add BarganConstantin/agent-skills --skill figma-design-system
 npx skills add BarganConstantin/agent-skills --skill socratic-tutor
+npx skills add BarganConstantin/agent-skills --skill learn-taste
 ```
 
 Or copy `skills/<name>/` into `~/.claude/skills/` or `.agents/skills/`.
