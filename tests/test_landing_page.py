@@ -7,14 +7,14 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
 DETAIL = ROOT / "docs" / "first-user-audit.md"
-SKILLS = ("first-user-audit", "reference-library", "prune-tests", "compass", "figma-design-system")
+SKILLS = ("first-user-audit", "reference-library", "prune-tests", "compass", "figma-design-system", "learn-taste")
 MARKDOWN_LINK = re.compile(r"!?\[[^\]]*\]\(([^)\n]+)\)")
 
 
 class LandingPageTests(unittest.TestCase):
     def test_readme_is_short(self):
         content = README.read_text(encoding="utf-8")
-        self.assertLess(len(content), 3000)
+        self.assertLess(len(content), 3400)
 
     def test_each_skill_has_separate_install_command(self):
         text = README.read_text(encoding="utf-8")

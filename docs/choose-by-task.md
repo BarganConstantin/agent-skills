@@ -18,6 +18,7 @@ Tools such as browsers and Figma must be connected separately where required.
 | Identify tests that can safely be removed | [prune-tests](../skills/prune-tests/SKILL.md) | “Use prune-tests on this branch’s new tests. Show evidence before deleting anything.” |
 | Design the UI in Figma before implementation | [figma-design-system](../skills/figma-design-system/SKILL.md) | “Use figma-design-system for this product’s components, states and themes.” |
 | Learn a topic through questions and practice | [socratic-tutor](../skills/socratic-tutor/SKILL.md) | “Use socratic-tutor to teach me SQL joins.” |
+| Stop correcting the same design mistakes in every session | [learn-taste](../skills/learn-taste/SKILL.md) | “/learn-taste Also read my last three sessions. I keep correcting the same mistakes.” |
 | Find a useful project already saved in the library | [reference-library](../skills/reference-library/SKILL.md) | “Use reference-library: show saved React UI resources and explain when each helps. Do not install them.” |
 
 Installing a skill adds instructions. It does not provide missing tools or
